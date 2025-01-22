@@ -14,7 +14,7 @@
 #define DIM_GIOCO 72
 #define NUM_TANE 5
 #define NUM_CORSIE 8
-#define DIM_RANA 6
+#define DIM_RANA 9
 #define DIM_TANA 12
 #define DIM_FIUME 48
 #define DIM_STATS 8
