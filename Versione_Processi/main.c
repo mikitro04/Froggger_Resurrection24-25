@@ -8,6 +8,7 @@ int main() {
 
     start(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
 
+
     while(1){}
     
     endwin();
