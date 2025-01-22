@@ -6,9 +6,14 @@ int main() {
 
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
-    start(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
+    initializeColorSprite();
 
-    while(1){}
+    start(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
+    
+    
+    while(1){
+        stampaRana(gioco, LINES/2, COLS/2);
+    }
     
     endwin();
     return 0;

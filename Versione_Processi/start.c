@@ -1,7 +1,7 @@
 #include "funzioni.h"
 
     void start(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *vite, WINDOW *tempo){
-        
+
         int altezzaSpondaSup =  DIM_STATS + DIM_TANA;
         int altezzaFiume =  DIM_RANA + altezzaSpondaSup;
         int altezzaSpondaInf = altezzaFiume + DIM_FIUME;
@@ -25,7 +25,7 @@
 
         //dichiarazione subwin -> statistiche
         vite = subwin(statistiche, DIM_STATS, currentx/2, altezzaStats, 0);
-        tempo = subwin(statistiche, DIM_STATS, currentx/2+1, altezzaStats, currentx/2);
+        tempo = subwin(statistiche, DIM_STATS, currentx/2, altezzaStats, currentx/2);
 
         inizializzaColori(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
 
@@ -37,6 +37,7 @@
         wrefresh(punteggio); 
         wrefresh(gioco);
         wrefresh(statistiche);
+
     }
 
 
