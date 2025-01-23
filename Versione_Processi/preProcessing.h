@@ -6,23 +6,27 @@
 #include <time.h>
 #include <string.h>
 #include <ncurses.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <signal.h>
 
 ///fine direttive di pre-processing
 
 
 ///dichiarazione macro
-#define DIM_GIOCO 108
+#define DIM_GIOCO 102
 #define NUM_TANE 5
 #define NUM_CORSIE 8
 #define DIM_RANA 9
-#define DIM_TANA 12
-#define DIM_FIUME 72
+#define DIM_TANA (DIM_RANA + 3)
+#define DIM_FIUME (DIM_RANA * NUM_CORSIE)
 #define DIM_STATS 8
-#define COLOR_GREY 8
 ///fine dichiarazione macro
 
 
 ///dichiarazione colori
+#define COLOR_GREY 8
 #define FROG_LIGHT_GREEN1 9
 #define FROG_LIGHT_GREEN2 10    
 #define FROG_MEDIUM_GREEN1 11
@@ -34,5 +38,14 @@
 
 
 ///dichiarazione strutture
-//...
+typedef enum {RANA = 1, COCCODRILLO, SPARO, GRANATA} Types;
+
+typedef struct Message{
+
+    Types tipo;
+    int x;
+    int y;
+    int scelta;
+
+}Message;
 ///fine dichiarazione strutture

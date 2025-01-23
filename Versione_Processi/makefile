@@ -4,6 +4,9 @@ frogger.out: clean main.o start.o colors.o rana.o
 main.o: funzioni.h main.c
 	gcc -c main.c
 
+print.o: funzioni.h print.c
+	gcc -c print.c
+
 rana.o: funzioni.h rana.c
 	gcc -c rana.c
 
