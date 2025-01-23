@@ -67,16 +67,16 @@ void joystickRana(int *y, int *x, int limitInf, int scelta){
 void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[]){
     
     //matrice rana colorata
-    int frog[9][5] = {
-        {0, 0, 0, 0, 0}, 
-        {0, 14, 11, 14, 0},
-        {9, 11, 11, 11, 9},
-        {13, 10, 9, 12, 13},
-        {0, 12, 10, 12, 0},
-        {9, 10, 11, 13, 9},
-        {13, 12, 12, 12, 13},
-        {13, 13, 12, 13, 13},
-        {0, 0, 0, 0, 0}
+    int frog[9][13] = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+        {0, 0, 0, 0, 13, 13, 13, 13, 13, 0, 0, 0, 0},
+        {9, 0, 0, 15, 16, 12, 12, 12, 16, 15, 0, 0, 9},
+        {12, 0, 13, 13, 12, 13, 11, 12, 13, 12, 13, 0, 12},
+        {12, 12, 13, 12, 13, 11, 12, 10, 12, 13, 12, 12, 12},
+        {0, 13, 13, 13, 12, 13, 12, 12, 11, 12, 11, 13, 0},
+        {9, 13, 13, 13, 10, 12, 13, 11, 12, 10, 11, 12, 9},
+        {12, 12, 13, 13, 11, 12, 13, 11, 12, 13, 12, 12, 12},
+        {12, 13, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 12}
     };
 
 
@@ -91,7 +91,7 @@ void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW
         if (msg.tipo == RANA){
 
             for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 5; j++) {
+                for (int j = 0; j < 13; j++) {
                     if (frog[i][j] != 0) {            
                         mvwaddch(*gioco, auxy + i, auxx + j, ' ' | COLOR_PAIR(returnColorPair(auxy, auxx)));
                     }
@@ -107,7 +107,7 @@ void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW
             auxx = msg.x;
 
             for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 5; j++) {
+                for (int j = 0; j < 13; j++) {
                     if (frog[i][j] != 0) {            
                         wattron(*gioco, COLOR_PAIR(frog[i][j]));
                         mvwprintw(*gioco, auxy + i, auxx + j, " ");

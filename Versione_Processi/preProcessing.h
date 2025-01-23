@@ -19,6 +19,7 @@
 #define NUM_TANE 5
 #define NUM_CORSIE 8
 #define DIM_RANA 9
+#define DIM_COCCODRILLO 39
 #define DIM_TANA (DIM_RANA + 3)
 #define DIM_FIUME (DIM_RANA * NUM_CORSIE)
 #define DIM_STATS 8
@@ -32,8 +33,9 @@
 #define FROG_MEDIUM_GREEN1 11
 #define FROG_MEDIUM_GREEN2 12
 #define FROG_DARK_GREEN 13
-#define FROG_DARK_GREEN2 14
-#define FROG_YELLOW 15
+#define FROG_YELLOW 14
+#define EYE_BLACK 15
+#define EYE_WHITE 16
 ///fine dichiarazione colori
 
 
