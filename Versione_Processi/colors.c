@@ -1,7 +1,8 @@
 #include "funzioni.h"
 
 void initializeColorSprite() {
-    // Definizione colori
+    ///Definizione colori
+    //RANA
     init_color(FROG_LIGHT_GREEN1, 710, 830, 635);    // Light Green 1
     init_color(FROG_LIGHT_GREEN2, 555, 850, 450);    // Light Green 2
     init_color(FROG_MEDIUM_GREEN1, 278, 827, 349);   // Medium Green 1
@@ -11,7 +12,19 @@ void initializeColorSprite() {
     init_color(EYE_BLACK, 0, 0, 0);                  // Eye black
     init_color(EYE_WHITE, 1000, 1000, 1000);         // Eye white 
 
-    // Associa colori a coppie foreground/background
+    //COCCODRIILLO
+    init_color(CROC_GREY_1, 200, 200, 200);   // Grigio chiaro (corpo, colore 1)
+    init_color(CROC_GREY_2, 400, 400, 400);   // Grigio medio (corpo, colore 2)
+    init_color(CROC_GREY_3, 600, 600, 600);   // Grigio scuro (corpo, colore 3)
+    init_color(CROC_GREY_4, 800, 800, 800);   // Grigio molto chiaro (corpo, colore 4)
+    init_color(CROC_GREY_5, 500, 500, 500);   // Grigio (colore 5)
+    init_color(CROC_GREY_6, 700, 700, 700);   // Grigio (colore 6)
+    init_color(CROC_GREY_7, 300, 300, 300);   // Grigio scuro (colore 7)
+    init_color(CROC_GREY_8, 100, 100, 100);   // Grigio molto scuro (colore 8)
+
+
+    //Associa colori a coppie foreground/background
+    //RANA
     init_pair(9, COLOR_BLACK, FROG_LIGHT_GREEN1);    // Coppia per 9
     init_pair(10, COLOR_BLACK, FROG_LIGHT_GREEN2);   // Coppia per 10
     init_pair(11, COLOR_BLACK, FROG_MEDIUM_GREEN1);  // Coppia per 11
@@ -20,6 +33,18 @@ void initializeColorSprite() {
     init_pair(14, COLOR_BLACK, FROG_YELLOW);         // Coppia per 14
     init_pair(15, COLOR_BLACK, EYE_BLACK);           // Coppia per 15
     init_pair(16, COLOR_BLACK, EYE_WHITE);           // Coppia per 16
+
+
+    //COCCODRILLO
+    init_pair(17, COLOR_BLACK, CROC_GREY_1);       // Grigio chiaro 1
+    init_pair(18, COLOR_BLACK, CROC_GREY_2);       // Grigio medio
+    init_pair(19, COLOR_BLACK, CROC_GREY_3);       // Grigio scuro
+    init_pair(20, COLOR_BLACK, CROC_GREY_4);       // Grigio molto chiaro
+    init_pair(21, COLOR_BLACK, CROC_GREY_5);       // Grigio
+    init_pair(22, COLOR_BLACK, CROC_GREY_6);       // Grigio più chiaro
+    init_pair(23, COLOR_BLACK, CROC_GREY_7);       // Grigio scuro 2
+    init_pair(24, COLOR_BLACK, CROC_GREY_8);       // Grigio molto scuro
+
 }
 
 
@@ -62,7 +87,7 @@ void refreshAllWin(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WIN
     wrefresh(*tempo);
 }
 
-//restituisce il colorpair in base alle coordinate x e y
+//restituisce il colorpair dello sfondo in base alla coordinata y
 int returnColorPair(int y, int x){
     if(y > 0 && y < DIM_TANA){
         return 1;

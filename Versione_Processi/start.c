@@ -24,8 +24,8 @@
 
 
         //dichiarazione subwin -> statistiche
-        *vite = subwin(*statistiche, DIM_STATS, currentx/2, altezzaStats, 0);
-        *tempo = subwin(*statistiche, DIM_STATS, currentx/2, altezzaStats, currentx/2+1);
+        *vite = subwin(*statistiche, DIM_STATS, currentx/2 - 1, altezzaStats, 0);
+        *tempo = subwin(*statistiche, DIM_STATS, currentx/2, altezzaStats, currentx/2);
 
         inizializzaColori(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
         
