@@ -4,6 +4,8 @@
 
     ///dichiarazioni funzioni start
         void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo);
+    
+        bool isFather(pid_t pid, Crocodile *array, int dim);
     ///fine dichiarazioni funzioni start
 
     ///dichiarazione funzione dei colori
@@ -25,9 +27,9 @@
     ///fine dichiarazione rana
 
     ///dichiarazione funzioni COCCODRILLO
-        void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], pid_t pidCroc);
+        void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc);        
         
-        int dirCocc(int y, int *n, Message messaggio);
+        Direction dirCocc(int y, int *n, Message *messaggio);
 
         int returnNCorsia(int y);
 
@@ -42,6 +44,8 @@
         void stampaCoccodrillo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int *y, int *x);
     
         void stampaCrocInDir(bool dir, int **array, WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int *y, int *x);
+
+        int generaYCorsia(int counterCorsie[]);
     ///fine dichiarazione funzioni print
 
 ///fine firme funzioni

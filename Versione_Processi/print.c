@@ -47,8 +47,8 @@ void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW
 
     ripristinaSfondo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
     
-    *y = msg.y;
-    *x = msg.x;
+    *y = msg.coord.y;
+    *x = msg.coord.x;
 
     for (int i = 0; i < DIM_RANA; i++) {
         for (int j = 0; j < LARGH_RANA; j++) {
@@ -91,8 +91,8 @@ void stampaCoccodrillo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche,
 
             ripristinaSfondo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
             
-            *y = msg.y;
-            *x = msg.x;
+            *y = msg.coord.y;
+            *x = msg.coord.x;
 
             //ristampa il coccodrillo
             for (int i = 0; i < DIM_RANA; i++) {
@@ -115,8 +115,8 @@ void stampaCoccodrillo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche,
 
         ripristinaSfondo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
         
-        *y = msg.y;
-        *x = msg.x;
+        *y = msg.coord.y;
+        *x = msg.coord.x;
 
         //ristampa il coccodrillo con colonne invertite
         for (int i = 0; i < DIM_RANA; i++) {

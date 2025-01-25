@@ -8,14 +8,36 @@ int main() {
 
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
-    int startX = 0, startY = 0;
+    Coordinate startYX = {DIM_GIOCO-DIM_RANA, COLS/2};
 
     int pipe_fds[2];
 
-    pid_t pid1, pid2, pid3, pid4, pid5, pid6, pid7, pid8, pid9;
+    pid_t pidAux;
+
+    int corsia = 0, cCorsie[NUM_CORSIE] = {0};
+    
+    Frog rana;
+        rana.pid = -1;
+        rana.coord = startYX;
+        rana.vite = VITE;
+
+    Crocodile arrCroc[MAX_CROC];
+        for (int i = 0; i < MAX_CROC; i++) {
+            arrCroc[i].pid = -1;                    //Inizializzazione con valore non valido in modo che non dia problemi sucessivamente
+            arrCroc[i].coord.y = 0;
+            arrCroc[i].coord.x = 0;
+            arrCroc[i].dir = 0;
+            arrCroc[i].corsia = 0;
+            arrCroc[i].speed = 0;
+        }
 
     Message figlio;
-    Message msg = {0, 0, 0, 0};
+
+    Message msg;
+        msg.tipo = 0;
+        msg.coord.y = 0;
+        msg.coord.x = 0;
+        msg.scelta = 0;
                                                                         
     if(pipe(pipe_fds) == -1) {
         perror("Pipe call");
@@ -31,19 +53,43 @@ int main() {
 
 
     
-    pid1 = fork();
+    rana.pid = fork();
 
-    if (pid1 == 0){
+    //quando sta girando il codice la rana (rana.pid == 0) deve potersi muovere
+    if (rana.pid == 0){
         muoviRana(figlio, pipe_fds, gioco);
-
     }
 
-    if (pid1){
+    /*if (pidRana){
         generaCoccodrillo(figlio, CORSIA1Y, pipe_fds, pid2);
-    }
+    }*/
 
-    if (pid1 > 1){
-        rendering(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo, msg, pipe_fds);
+    //cosa deve fare il padre
+    if (rana.pid > 1){
+
+        for (int i = 0; i < MAX_CROC; i++){
+
+            //generiamo la corsia in cui deve spownare il coccodrillo in modo casuale
+            corsia = generaYCorsia(cCorsie);
+
+            //pidAux = fork();
+            arrCroc[i].pid = fork();
+
+            if (arrCroc[i].pid < 0){
+                perror("fork");
+                exit(1);
+            }else if(arrCroc[i].pid == 0){      //figlio che deve gestire un coccodrillo
+                //generiamo il coccodrillo in una corsia a caso, con una velocità a caso
+                generaCoccodrillo(figlio, corsia, pipe_fds, &arrCroc[i]);
+            }/*else{          //il padre
+
+            }*/
+        }
+
+        //nel caso sia il padre di tutti allora può richiamare la funzione di rendering
+        if(isFather(rana.pid, arrCroc, MAX_CROC)){
+            rendering(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo, msg, pipe_fds);
+        }
     }
 
 

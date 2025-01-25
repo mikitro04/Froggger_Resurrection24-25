@@ -25,6 +25,7 @@
     #define DIM_STATS 8                                     //altezza finestra statistiche
     #define MAX_CROC_CORSIA 3                               //numero massimo di coccodrilli per corsia
     #define MAX_CROC (MAX_CROC_CORSIA * NUM_CORSIE)         //numero massimo di coccodrilli
+    #define VITE 5                                          //vite iniziali della rana
 
     //coordinate y delle corsie
     #define CORSIA1Y (DIM_FIUME - DIM_RANA)
@@ -69,29 +70,34 @@
     //tipo che gestisce le enumerazioni delle corsie
     typedef enum {CORSIA1 = 1, CORSIA2, CORSIA3, CORSIA4, CORSIA5, CORSIA6, CORSIA7, CORSIA8} Corsie;
 
+    typedef enum {TO_RIGHT = 1, TO_LEFT = -1} Direction;    //tipo che gestisce le enumerazioni delle direzioni
+
+    typedef struct Coordinate{
+        int y;              //coordinata y
+        int x;              //coordinata x
+    }Coordinate;
+
     //tipo che definisce la struttura del messaggio scrivibile in pipe
     typedef struct Message{
         Types tipo;         //tipo del mittente del messaggio che può essere RANA, COCCODRILLO, SPARO, o GRANATA
-        int y;              //coordinata y del mittente
-        int x;              //coordinata x del mittente
+        Coordinate coord;   //coordinate y e x del mittente
         int scelta;         //scelta direzione del mittente o direzione coccodrillo(geneato casualmente)
 
     }Message;
 
-    typedef enum {TO_RIGHT = 1, TO_LEFT = -1} Direction;    //tipo che gestisce le enumerazioni delle direzioni
-
-    typedef struct Coordinate{
-        int x;              //coordinata x
-        int y;              //coordinata y
-    }Coordinate;
-
     //tipo che definisce la struttura del coccodrillo
     typedef struct Crocodile{
         pid_t pid;          //pid del coccodrillo
-        int x;              //coordinata x
-        int y;              //coordinata y
-        Direction dir;      //direzione
-        int corsia;         //corsia
-        int speed;          //velocità
+        Coordinate coord;   //coordinate y e x del coccodrillo attuali
+        Direction dir;      //direzione per la quale la x del coccodrillo dovrà essere aumentata (se x + (1) o x + (-1))
+        int corsia;         //corsia (corrisondente coordinata y) del coccodrillo
+        int speed;          //velocità/frerquenza di movimento del coccodrillo
     }Crocodile;
+
+    //tipo che definisce la struttura della rana
+    typedef struct Frog{
+        pid_t pid;          //pid della rana
+        Coordinate coord;   //coordinate y e x della rana attuali
+        int vite;           //vite della rana
+    }Frog;
 ///fine dichiarazione strutture

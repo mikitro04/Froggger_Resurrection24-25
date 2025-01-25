@@ -24,7 +24,7 @@ void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **ta
 
 
     //dichiarazione subwin -> statistiche
-    *vite = subwin(*statistiche, DIM_STATS, currentx/2 - 1, altezzaStats, 0);
+    *vite = subwin(*statistiche, DIM_STATS, (currentx/2) -1, altezzaStats, 0);
     *tempo = subwin(*statistiche, DIM_STATS, currentx/2, altezzaStats, currentx/2);
 
     inizializzaColori(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
@@ -38,4 +38,15 @@ void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **ta
     wrefresh(*gioco);
     wrefresh(*statistiche);
 
+}
+
+//funzione che dice se questo è il processo è il padre di tutti
+bool isFather(pid_t pid, Crocodile *array, int dim){
+    if(pid > 0){
+        for (int i = 0; i < dim; i++){
+            if(array[i].pid <= 0)
+                return false;
+        }
+        return true;
+    }
 }
