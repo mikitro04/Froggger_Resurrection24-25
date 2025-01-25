@@ -80,6 +80,11 @@
 
     typedef enum {TO_RIGHT = 1, TO_LEFT = -1} Direction;    //tipo che gestisce le enumerazioni delle direzioni
 
+    typedef struct Coordinate{
+        int x;              //coordinata x
+        int y;              //coordinata y
+    }Coordinate;
+
     //tipo che definisce la struttura del coccodrillo
     typedef struct Crocodile{
         pid_t pid;          //pid del coccodrillo
