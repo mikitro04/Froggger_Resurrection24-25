@@ -69,3 +69,4 @@ void joystickRana(int *y, int *x, int limitInf, int scelta){
 
 
 
+
