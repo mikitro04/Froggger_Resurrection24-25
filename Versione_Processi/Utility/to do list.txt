@@ -4,24 +4,18 @@
  / / / /_/ /  / /_/ / /_/ /  / /____/ / ___/ // /    
 /_/  \____/  /_____/\____/  /_____/___//____//_/     
 
-[ ] - generare 8 figli che generino 8 coccodrilli (0/8)
+[V] - generare infiniti coccodrilli (fare in modo che alla morte di un figlio se ne generi un altro)
 
-[V] - creare strutture più complesse
-  creato Coord e modificato la struttura coccodrillo
-  [V] - da fare la struttura Rana ed implementarla
+[ ] - gestire la sincronizzazione di spown dei coccodrilli
 
-[V] - fixare Message e mettergli Coordinate anzichè int y, x;
+[ ] - gestire fallimento in lettura delle pipe
 
-[V] - creo un array di pid di MAX_CROC
+[ ] - gestire la rana sul coccodrillo
 
-[ ] - modificare definizione e implementazione di stampaRana/stampaCoccodrillo
-  deve passare come parametro una struttura di tipo rana e di tipo coccodrillo e modificare quelle coord anzichè auxy e auxx
+[ ] - generare le tane in maniera randomica spazioTraUnaTanaEUnAltra = (COLS - (DIM_RANA * NUM_TANE))
+  sarà così diviso: spazio da x = 0 e x = spazioTraUnaTanaEUnAltra/2; poi ci sarà la tana grande come la rana, poi spazioTraUnaTanaEUnAltra, la tana e così via
 
-[V] - gestire la generazione dei coccodrilli randomicamente
-
-[ ] - modificare rendering (rimuovere auxyRana, auxxRana, auxyCroc, auxxCroc e sostituirli con le strutture apposite)
-
-[ ] - fare spownare i coccodrilli appena generati
+[ ] - gestire lo spown dei coccodrilli con una variabile turno
 
    __  _______  ___  ___________________ ______    ___   ___  ___  ____  ___  _________ __________
   /  |/  / __ \/ _ \/  _/ __/  _/ ___/ // / __/   / _ | / _ \/ _ \/ __ \/ _ \/_  __/ _ /_  __/ __/
@@ -32,7 +26,7 @@
  - creao tipo rana e messop nel main, sostituito a pid1 essendo che la funzione rana ha già un parametro di tipo pid
  - creato array di pid per i coccodrilli e gestiti in maniera accurarta
  - ho fatto in modo che premendo 'q' si chiuda il gioco
-
+ - ho generato infiniti coccodrilli rendendo ricorsiva la funzione generaCoccodrillo
  
     ________  ____________
    /  _/ __ \/ ____/ ____/
@@ -43,3 +37,6 @@
  - gestire i coccodrilli singolarmente nel main, farli terminare una volta usciti dallo schermo, decrementare il numero di coccodrilli presenrti
  - se non li vogliamo killare possiamo riutilizzare il processo per crearne un altro (ma direi di crearlo in un intervallo random di tempo nella stessa linea così da dover modificare solamente le coordinate)
   tutti i pid dei coccodrilli (sono 24 [per ora]) sono salvati in arrCroc e inizializzati tutti a 0, quindi dobbiamo gestire la loro generazione (ci provo ora)
+
+ - waitpid non bloccanti e utilizzo di booleani per gestire spown dei coccodrilli 
+ - utilizzo di macro per settare la velocità dei coccodrilli

@@ -46,15 +46,19 @@ void joystickRana(int *y, int *x, int limitInf, int scelta){
             }
             break;
         case 'q':
-            endwin();
             kill(getppid(), SIGTERM);  // Invia un segnale al padre per terminare
+            endwin();
             exit(0);
             break;
     }
 
 }
 
-
+void initializeFrog(Frog *frog, Coordinate startYX){
+    frog->pid = -1;
+    frog->coord = startYX;
+    frog->vite = VITE;
+}
 
 
 

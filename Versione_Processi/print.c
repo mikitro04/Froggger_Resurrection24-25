@@ -1,9 +1,8 @@
 #include "funzioni.h"
 
-
 void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[]){
-
-    int auxyRana, auxxRana, auxyCroc, auxxCroc;
+    
+    Coordinate auxYXRana;
 
     close(pipe_fds[1]);
 
@@ -12,16 +11,19 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
         read(pipe_fds[0], &msg, sizeof(Message));
 
         if (msg.tipo == RANA){
-            stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxyRana, &auxxRana);
+            stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
         }
 
         if (msg.tipo == COCCODRILLO){
-            stampaCoccodrillo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxyCroc, &auxxCroc);
+            //commento di debug (quando l'ho provato io li genera tutti randomicamente)
+            //mvwprintw(*fiume, msg.coord.y, 0, "Coccodrillo generato in corsia %d\n", returnNCorsia(msg.coord.y));
+            //mvwprintw(*fiume, msg.coord.y+1, 0, "Coccodrillo aumenta di %d\n", msg.scelta);
+            gestisciStampaCoccodrillo(msg, punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, pipe_fds);
         }
     }
 }
 
-void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int *y, int *x){
+void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], Coordinate *ranaYX){
     
     //matrice rana colorata
     int frog[DIM_RANA][LARGH_RANA] = {
@@ -40,21 +42,19 @@ void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW
     for (int i = 0; i < DIM_RANA; i++) {
         for (int j = 0; j < LARGH_RANA; j++) {
             if (frog[i][j] != 0) {            
-                mvwaddch(*gioco, *y + i, *x + j, ' ' | COLOR_PAIR(returnColorPair(*y, *x)));
+                mvwaddch(*gioco, ranaYX->y + i, ranaYX->x + j, ' ' | COLOR_PAIR(returnColorPair(ranaYX->y, ranaYX->x)));
             }
         }
     }
-
-    ripristinaSfondo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
     
-    *y = msg.coord.y;
-    *x = msg.coord.x;
+    ranaYX->y = msg.coord.y;
+    ranaYX->x = msg.coord.x;
 
     for (int i = 0; i < DIM_RANA; i++) {
         for (int j = 0; j < LARGH_RANA; j++) {
             if (frog[i][j] != 0) {            
                 wattron(*gioco, COLOR_PAIR(frog[i][j]));
-                mvwprintw(*gioco, *y + i, *x + j, " ");
+                mvwprintw(*gioco, ranaYX->y + i, ranaYX->x + j, " ");
                 wattroff(*gioco, COLOR_PAIR(frog[i][j]));
             }
         }
@@ -67,6 +67,7 @@ void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW
 
 void stampaCoccodrillo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int *y, int *x){
     int dir = msg.scelta;
+
     //matrice coccodrillo colorata
     int crocodile[DIM_RANA][DIM_COCCODRILLO] = {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -81,41 +82,46 @@ void stampaCoccodrillo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche,
     };
 
     if(dir == TO_LEFT){
-            for (int i = 0; i < DIM_RANA; i++) {
-                for (int j = 0; j < DIM_COCCODRILLO; j++) {
-                    if (crocodile[i][j] != 0) {            
-                        mvwaddch(*fiume, *y + i, *x + j, ' ' | COLOR_PAIR(returnColorPair(*y, *x)));
-                    }
-                }
-            }
 
-            ripristinaSfondo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
-            
-            *y = msg.coord.y;
-            *x = msg.coord.x;
+        *y = msg.coord.y;
+        *x = (msg.coord.x - dir);
 
-            //ristampa il coccodrillo
-            for (int i = 0; i < DIM_RANA; i++) {
-                for (int j = 0; j < DIM_COCCODRILLO; j++) {
-                    if (crocodile[i][j] != 0) {
-                        wattron(*fiume, COLOR_PAIR(crocodile[i][j]));
-                        mvwprintw(*fiume, *y + i, *x + j, " ");
-                        wattroff(*fiume, COLOR_PAIR(crocodile[i][j]));
-                    }
-                }
-            }
-        }else if(dir == TO_RIGHT){
-            for (int i = 0; i < DIM_RANA; i++) {
-            for (int j = DIM_COCCODRILLO - 1; j >= 0; j--) {
-                if (crocodile[i][j] != 0) {            
-                    mvwaddch(*fiume, *y + i, *x + (DIM_COCCODRILLO - 1 - j), ' ' | COLOR_PAIR(returnColorPair(*y, *x)));
+        for (int i = 0; i < DIM_RANA; i++) {
+            for (int j = 0; j < DIM_COCCODRILLO; j++) {
+                if (crocodile[i][j] != 0) {
+                    mvwaddch(*fiume, *y + i, *x + j, ' ' | COLOR_PAIR(3));
                 }
             }
         }
 
-        ripristinaSfondo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
-        
+        *x = msg.coord.x;
+
+        //ristampa il coccodrillo
+        for (int i = 0; i < DIM_RANA; i++) {
+            for (int j = 0; j < DIM_COCCODRILLO; j++) {
+                if (crocodile[i][j] != 0) {
+                    wattron(*fiume, COLOR_PAIR(crocodile[i][j]));
+                    mvwprintw(*fiume, *y + i, *x + j, " ");
+                    wattroff(*fiume, COLOR_PAIR(crocodile[i][j]));
+                }
+            }
+        }
+
+        wrefresh(*fiume);
+
+    }else if(dir == TO_RIGHT){
+
         *y = msg.coord.y;
+        *x = (msg.coord.x - dir);
+
+        for (int i = 0; i < DIM_RANA; i++) {
+            for (int j = DIM_COCCODRILLO - 1; j >= 0; j--) {
+                if (crocodile[i][j] != 0) {            
+                    mvwaddch(*fiume, *y + i, *x + (DIM_COCCODRILLO - 1 - j), ' ' | COLOR_PAIR(3));
+                }
+            }
+        }
+
         *x = msg.coord.x;
 
         //ristampa il coccodrillo con colonne invertite
@@ -128,13 +134,23 @@ void stampaCoccodrillo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche,
                 }
             }
         }
-    }
+    
+        wrefresh(*fiume);
 
-    wrefresh(*fiume);
+    }
 
 }
 
 
-void stampaCrocInDir(bool dir, int **array, WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int *y, int *x){
-    
+void gestisciStampaCoccodrillo(Message msg, WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, int pipe_fds[]){
+
+    Coordinate arrYXCroc[MAX_CROC];
+
+    for (int i = 0; i < MAX_CROC; i++){
+
+        if (msg.tipo == COCCODRILLO && msg.id == i){
+            stampaCoccodrillo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &arrYXCroc[i].y, &arrYXCroc[i].x);
+        }
+
+    }
 }

@@ -26,7 +26,10 @@
     #define MAX_CROC_CORSIA 3                               //numero massimo di coccodrilli per corsia
     #define MAX_CROC (MAX_CROC_CORSIA * NUM_CORSIE)         //numero massimo di coccodrilli
     #define VITE 5                                          //vite iniziali della rana
-
+    #define VEL1 40000
+    #define VEL2 50000
+    #define VEL3 60000
+    
     //coordinate y delle corsie
     #define CORSIA1Y (DIM_FIUME - DIM_RANA)
     #define CORSIA2Y (DIM_FIUME - (DIM_RANA*2))
@@ -79,15 +82,16 @@
 
     //tipo che definisce la struttura del messaggio scrivibile in pipe
     typedef struct Message{
+        int id;             //id del mittente del messaggio  
         Types tipo;         //tipo del mittente del messaggio che può essere RANA, COCCODRILLO, SPARO, o GRANATA
         Coordinate coord;   //coordinate y e x del mittente
         int scelta;         //scelta direzione del mittente o direzione coccodrillo(geneato casualmente)
-
     }Message;
 
     //tipo che definisce la struttura del coccodrillo
     typedef struct Crocodile{
         pid_t pid;          //pid del coccodrillo
+        int id;             //id del coccodrillo
         Coordinate coord;   //coordinate y e x del coccodrillo attuali
         Direction dir;      //direzione per la quale la x del coccodrillo dovrà essere aumentata (se x + (1) o x + (-1))
         int corsia;         //corsia (corrisondente coordinata y) del coccodrillo

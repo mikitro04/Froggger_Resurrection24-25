@@ -30,9 +30,9 @@ void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **ta
     inizializzaColori(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
     
 
-    mvwprintw(*punteggio, 1, 1, "cols: %d", DIM_STATS);
-    mvwprintw(*fiume, 1, 1, "cols: %d", DIM_RANA*12);
-    mvwprintw(*vite, 1, 1, "cols: %d", DIM_STATS);
+    //mvwprintw(*punteggio, 1, 1, "cols: %d", DIM_STATS);
+    //mvwprintw(*fiume, 1, 1, "cols: %d", DIM_RANA*12);
+    //mvwprintw(*vite, 1, 1, "cols: %d", DIM_STATS);
 
     wrefresh(*punteggio); 
     wrefresh(*gioco);
@@ -49,4 +49,8 @@ bool isFather(pid_t pid, Crocodile *array, int dim){
         }
         return true;
     }
+}
+
+int generaNumeroCasuale(int min, int max) {
+    return min + rand() % (max - min + 1);
 }

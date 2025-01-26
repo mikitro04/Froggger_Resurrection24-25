@@ -1,91 +1,81 @@
 #include "funzioni.h"
 
-/*
-void gestisciCoccodrilli(int pipe_fds, Crocodile *arrCroc, Message figlio)   {
-
-    int cC1 = 0, cC2 = 0, cC3 = 0, cC4 = 0, cC5 = 0, cC6 = 0, cC7 = 0, cC8 = 0; //contatori per i coccodrilli per corsia
-
-    int selezioneCorsia;
-
-    for (int i = 0; i < MAX_CROC; i++){
-        selezioneCorsia = (rand() % 8) + 1;
-        switch(selezioneCorsia){
-            case CORSIA1:
-                if(cC1 < 1){
-                    generaCoccodrillo(figlio, CORSIA1Y, pipe_fds, pidCroc[i]);
-                    cC1++;
-                }
-            break;
-
-            case CORSIA2:
-                if(cC2 < 1){
-                    generaCoccodrillo(figlio, CORSIA2Y, pipe_fds, pidCroc2);
-                    cC2++;
-                }
-            break;
-
-            case CORSIA3:
-                if(cC3 < 1){
-                    generaCoccodrillo(figlio, CORSIA3Y, pipe_fds, pidCroc3);
-                    cC3++;
-                }
-            break;
-
-            case CORSIA4:
-                if(cC4 < 1){
-                    generaCoccodrillo(figlio, CORSIA4Y, pipe_fds, pidCroc4);
-                    cC4++;
-                }
-            break;
-
-            case CORSIA5:
-                if(cC5 < 1){
-                    generaCoccodrillo(figlio, CORSIA5Y, pipe_fds, pidCroc5);
-                    cC5++;
-                }
-            break;
-
-            case CORSIA6:
-                if(cC6 < 1){
-                    generaCoccodrillo(figlio, CORSIA6Y, pipe_fds, pidCroc6);
-                    cC6++;
-                }
-            break;
-
-            case CORSIA7:
-                if(cC7 < 1){
-                    generaCoccodrillo(figlio, CORSIA7Y, pipe_fds, pidCroc7);
-                    cC7++;
-                }
-            break;
-
-            case CORSIA8:
-                if(cC8 < 1){
-                    generaCoccodrillo(figlio, CORSIA8Y, pipe_fds, pidCroc8);
-                    cC8++;
-                }
-            break;
-        }
-    }
-    
-}
-*/
-
-
-//funzione chiamata solo dal coccodrillo (figlio) che si occupa di generare e muovere il coccodrillo
-void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc){
+//funzione che gestisce i coccodrilli CHIAMATA SOLO DAL PADRE
+void gestisciCoccodrilli(int corsia, int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[]){
 
     int n = rand() % 2;
+    int speedCorsia[NUM_CORSIE];
+    int turno[NUM_CORSIE] = {0};
+
+    //generiamo la velocità delle corsie in modo casuale
+    for (int i = 0; i < NUM_CORSIE; i++){
+        speedCorsia[i] = setSpeed();
+    }
+
+    for (int i = 0; i < MAX_CROC; i++){
+        //generiamo la corsia in cui deve spownare il coccodrillo in modo casuale
+        corsia = generaYCorsia(cCorsie);
+        turno[returnNCorsia(corsia)-1]++;
+
+        //pidAux = fork();
+        arrCroc[i].pid = fork();
+
+        if (arrCroc[i].pid < 0){
+            perror("fork");
+            exit(1);
+        }else if(arrCroc[i].pid == 0){      //figlio che deve gestire un coccodrillo
+            //generiamo il coccodrillo in una corsia a caso, con una velocità a caso
+            arrCroc[i].id = i;
+            arrCroc[i].speed = speedCorsia[(returnNCorsia(corsia))-1];
+            generaCoccodrillo(figlio, corsia, pipe_fds, &arrCroc[i], n, turno[returnNCorsia(corsia)-1]);
+        }
+    }
+
+}
+
+//funzione che genera una velocità casuale per il coccodrillo
+int setSpeed(){
+    int randomSpeed = generaNumeroCasuale(1, 3);
+    switch(randomSpeed){
+        case 1:
+            return VEL1;
+        case 2:
+            return VEL2;
+        case 3:
+            return VEL3;
+    }
+}
+
+void initializeArrCroc(Crocodile array[], int dim){
+    for (int i = 0; i < dim; i++) {
+        array[i].pid = -1;                    //Inizializzazione con valore non valido in modo che non dia problemi sucessivamente
+        array[i].coord.y = 0;
+        array[i].coord.x = 0;
+        array[i].dir = 0;
+        array[i].corsia = 0;
+        array[i].speed = 0;
+    }
+}
+
+//funzione chiamata solo dal coccodrillo (figlio) che si occupa di generare e muovere il coccodrillo
+void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc, int n, int turno){
+
+    //aspetto che generi interamente tutti i coccodrilli prima di questo
+    if(turno == 1 || turno == 2 || turno == 3){
+        for (int i = 0; i < turno; i++){
+            usleep(((DIM_COCCODRILLO * croc->speed)) * (turno));
+        }
+    }
 
     Coordinate startYX = {corsia, 0};
 
+    figlio.id = croc->id;
     figlio.tipo = COCCODRILLO;
     figlio.coord.y = corsia;
-    figlio.scelta = dirCocc(croc->coord.y, &n, &figlio); //direzione del coccodrillo generata in base a n e la corsia
 
-    croc->coord.y = corsia;                          //generato casualmente prima del richiamo della funzione
-    croc->coord.x = figlio.coord.x;                  //coordinata x del coccodrillo
-    croc->dir = figlio.scelta;                       //direzione del coccodrillo
+    croc->dir = dirCocc(corsia, n, &figlio);        //direzione del coccodrillo generata in base a n e la corsia, modifica figlio.scelta e figlio.coord.x
+    croc->coord.y = corsia;                         //generato casualmente prima del richiamo della funzione
+    croc->coord.x = figlio.coord.x;                 //coordinata x del coccodrillo
 
     startYX.x = figlio.coord.x;
 
@@ -93,24 +83,23 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
 
     bool repeat = true;
 
-    //commento di debug (quando l'ho provato io li genera tutti randomicamente)
-    //printf("Coccodrillo generato in corsia %d\n", returnNCorsia(corsia));
-
     while(repeat){
-        figlio.coord.x += figlio.scelta;
-        
         write(pipe_fds[1], &figlio, sizeof(Message));
 
+        //aggiorniamo le coordinate attuali
+        figlio.coord.x += figlio.scelta;
+        
         if(startYX.x == -DIM_COCCODRILLO && figlio.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
             repeat = false;
         }else if (startYX.x == COLS && figlio.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
             repeat = false;
         }
 
-        usleep(30000);
-
-        _exit(0);
+        //velocità di movimento del coccodrillo
+        usleep(croc->speed);
     }
+
+    generaCoccodrillo(figlio, corsia, pipe_fds, croc, n, turno + MAX_CROC_CORSIA);
 }
 
 /**
@@ -123,40 +112,28 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
  * @param n numero generato randomicamente
  * @return intero da sommare alla x del coccodrillo (se return = 1 allora andrà da sinistra a destra, altrimenti da destra a sinistra)
  */
-Direction dirCocc(int y, int *n, Message *messaggio){
-    if(y == CORSIA1Y || y == CORSIA3Y || y == CORSIA5Y || y == CORSIA7Y){
-        if(*n % 2 == 0){                            //se n è pari vuol dire che deve partire da sinistra a destra
-            messaggio->scelta = pow(-1, *n);
+Direction dirCocc(int y, int n, Message *messaggio){
+    if(messaggio->coord.y == CORSIA1Y || messaggio->coord.y == CORSIA3Y || messaggio->coord.y == CORSIA5Y || messaggio->coord.y == CORSIA7Y){
+        if(n % 2 == 0){                            //se n è pari vuol dire che deve partire da sinistra a destra
+            messaggio->scelta = 1;
             messaggio->coord.x = -DIM_COCCODRILLO;
-            return pow(-1, *n);
+            return 1;
         }else{                                      //se n è dispari vuol dire che deve partire da destra a sinistra
-            messaggio->scelta = pow(-1, (*n));
+            messaggio->scelta = -1;
             messaggio->coord.x = COLS;
-            return pow(-1, *n);
+            return -1;
         }
     }else{
-        ++(*n);
-        if((*n) % 2 == 0){                            //se n è pari vuol dire che deve partire da sinistra a destra
-            messaggio->scelta = pow(-1, *n);
+        if((n+1) % 2 == 0){                            //se n è pari vuol dire che deve partire da sinistra a destra
+            messaggio->scelta = 1;
             messaggio->coord.x = -DIM_COCCODRILLO;
-            return pow(-1, *n);
+            return 1;
         }else{                                      //se n è dispari vuol dire che deve partire da destra a sinistra
-            messaggio->scelta = pow(-1, (*n));
+            messaggio->scelta = -1;
             messaggio->coord.x = COLS;
-            return pow(-1, *n);
+            return -1;
         }
     }
-}
-
-//restituisce la coordinata x di dove deve spownare il coccodrillo
-int spownCocc(int n){
-    //se pari e va verso destra
-    if (n % 2 == 0){
-        return -DIM_COCCODRILLO;
-    } else {
-        return COLS + DIM_COCCODRILLO;
-    }
-
 }
 
 int returnNCorsia(int y){
@@ -186,7 +163,7 @@ int returnNCorsia(int y){
  * @return int corsia generata in cui dovrà spownare il coccodrillo
  */
 int generaYCorsia(int counterCorsie[]){
-    int corsia = (rand() % 8) + 1;
+    int corsia = generaNumeroCasuale(1, 8);
     while(counterCorsie[corsia - 1] == MAX_CROC_CORSIA){
         corsia = (rand() % 8) + 1;
     }
