@@ -10,9 +10,6 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
         read(pipe_fds[0], &msg, sizeof(Message));
 
-        if (msg.tipo == RANA){
-            stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
-        }
 
         if (msg.tipo == COCCODRILLO){
             //commento di debug (quando l'ho provato io li genera tutti randomicamente)
@@ -20,6 +17,9 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
             //mvwprintw(*fiume, msg.coord.y+1, 0, "Coccodrillo aumenta di %d\n", msg.scelta);
             gestisciStampaCoccodrillo(msg, punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, pipe_fds);
         }
+
+        stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
+        
     }
 }
 
@@ -47,8 +47,10 @@ void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW
         }
     }
     
-    ranaYX->y = msg.coord.y;
-    ranaYX->x = msg.coord.x;
+    if (msg.tipo == RANA){
+        ranaYX->y = msg.coord.y;
+        ranaYX->x = msg.coord.x;
+    }
 
     for (int i = 0; i < DIM_RANA; i++) {
         for (int j = 0; j < LARGH_RANA; j++) {
