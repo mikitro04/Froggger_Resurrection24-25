@@ -3,13 +3,14 @@
 
 void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
 
+    figlio.tipo = RANA;
     figlio.frog.coord.y = DIM_GIOCO-DIM_RANA;
     figlio.frog.coord.x = COLS/2;
     figlio.scelta = 0;
     int speed = 30000;
 
     
-    Message cordCocc={0};
+    Message newCoord={0};
 
     close(pipe_fds[0]);
 
@@ -17,44 +18,22 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
 
 
     while(1){
+        figlio.scelta = -1;
 
-        figlio.tipo = RANA;
 
-        read(pipe_fds2[0], &cordCocc, sizeof(Message));
+        if (read(pipe_fds2[0], &newCoord, sizeof(Message)) > 0){
+            figlio.frog.coord.x = newCoord.frog.coord.x;
+        }
 
         figlio.scelta = wgetch(gioco);
 
-        joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta);
 
-
-        //mvwprintw(gioco, figlio.frog.coord.y, 0, "Altezza %d\n", speed);
-
-        if(cordCocc.tipo == COCCODRILLO){
-            if ((figlio.frog.coord.y - DIM_RANA - DIM_TANA) == cordCocc.croc.coord.y){
-                if(figlio.frog.coord.x >= cordCocc.croc.coord.x && (figlio.frog.coord.x + DIM_RANA) < cordCocc.croc.coord.x + DIM_COCCODRILLO){
-                    figlio.frog.coord.x += cordCocc.croc.dir;
-
-                    //speed = cordCocc.croc.speed;
-
-                    write(pipe_fds[1], &figlio, sizeof(Message));
-
-                    usleep(cordCocc.croc.speed);
-                }else{
-                    //rana cade nel fiume
-                    mvwprintw(gioco, 0, 0, "rana in acqua");
-                }
-            }
-        }else{
-            //speed = 30000;
+        if(figlio.scelta!=-1){
+            joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta);
+            
             write(pipe_fds[1], &figlio, sizeof(Message));
 
-            //usleep(speed);
-
         }
-
-        write(pipe_fds[1], &figlio, sizeof(Message));
-
-        //usleep(speed);
 
     }
 
@@ -97,3 +76,8 @@ void initializeFrog(Frog *frog, Coordinate startYX){
     frog->vite = VITE;
 }
 
+
+
+
+
+void sincronizzaRana(){}

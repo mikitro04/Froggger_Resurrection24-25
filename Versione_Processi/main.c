@@ -6,7 +6,7 @@ int main() {
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
-    if(COLS >= (DIM_RANA * 20) && COLS <= (DIM_RANA * 30)){
+    /*if(COLS >= (DIM_RANA * 20) && COLS <= (DIM_RANA * 30)){
         if(COLS <= (DIM_RANA * 20)){
             mvprintw(LINES/2, COLS/2, "Ridimensiona lo schermo ingrandisci il terminale\n"
             "premi un tasto per continuare...");
@@ -25,7 +25,7 @@ int main() {
         getch();
         endwin();
         exit(0);
-    }
+    }*/
 
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
