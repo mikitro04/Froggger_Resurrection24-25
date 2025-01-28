@@ -15,9 +15,11 @@ void gestisciCoccodrilli(int corsia, int cCorsie[], Crocodile arrCroc[], Message
     for (int i = 0; i < MAX_CROC; i++){
         //generiamo la corsia in cui deve spownare il coccodrillo in modo casuale
         corsia = generaYCorsia(cCorsie);
+        //incrementa il numero di coccodrilli nella corsia 
         turno[returnNCorsia(corsia)-1]++;
 
         //pidAux = fork();
+        //creazione processo figlio
         arrCroc[i].pid = fork();
 
         if (arrCroc[i].pid < 0){
@@ -71,32 +73,35 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
 
     figlio.id = croc->id;
     figlio.tipo = COCCODRILLO;
-    figlio.coord.y = corsia;
+    figlio.croc.coord.y = corsia;
+    figlio.croc.speed = croc->speed;
+
 
     croc->dir = dirCocc(corsia, n, &figlio);        //direzione del coccodrillo generata in base a n e la corsia, modifica figlio.scelta e figlio.coord.x
     croc->coord.y = corsia;                         //generato casualmente prima del richiamo della funzione
-    croc->coord.x = figlio.coord.x;                 //coordinata x del coccodrillo
+    croc->coord.x = figlio.croc.coord.x;                 //coordinata x del coccodrillo
 
-    startYX.x = figlio.coord.x;
+    startYX.x = figlio.croc.coord.x;
 
     close(pipe_fds[0]);
 
     bool repeat = true;
 
     while(repeat){
-        write(pipe_fds[1], &figlio, sizeof(Message));
 
         //aggiorniamo le coordinate attuali
-        figlio.coord.x += figlio.scelta;
+        figlio.croc.coord.x += figlio.scelta;
         
-        if(startYX.x == -DIM_COCCODRILLO && figlio.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
+        if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
             repeat = false;
-        }else if (startYX.x == COLS && figlio.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
+        }else if (startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
             repeat = false;
         }
 
         //velocità di movimento del coccodrillo
+        write(pipe_fds[1], &figlio, sizeof(Message));
         usleep(croc->speed);
+
     }
 
     generaCoccodrillo(figlio, corsia, pipe_fds, croc, n, turno + MAX_CROC_CORSIA);
@@ -113,29 +118,34 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
  * @return intero da sommare alla x del coccodrillo (se return = 1 allora andrà da sinistra a destra, altrimenti da destra a sinistra)
  */
 Direction dirCocc(int y, int n, Message *messaggio){
-    if(messaggio->coord.y == CORSIA1Y || messaggio->coord.y == CORSIA3Y || messaggio->coord.y == CORSIA5Y || messaggio->coord.y == CORSIA7Y){
+    if(messaggio->croc.coord.y == CORSIA1Y || messaggio->croc.coord.y == CORSIA3Y || messaggio->croc.coord.y == CORSIA5Y || messaggio->croc.coord.y == CORSIA7Y){
         if(n % 2 == 0){                            //se n è pari vuol dire che deve partire da sinistra a destra
             messaggio->scelta = 1;
-            messaggio->coord.x = -DIM_COCCODRILLO;
+            messaggio->croc.dir = 1;
+            messaggio->croc.coord.x = -DIM_COCCODRILLO;
             return 1;
         }else{                                      //se n è dispari vuol dire che deve partire da destra a sinistra
             messaggio->scelta = -1;
-            messaggio->coord.x = COLS;
+            messaggio->croc.dir = -1;
+            messaggio->croc.coord.x = COLS;
             return -1;
         }
     }else{
         if((n+1) % 2 == 0){                            //se n è pari vuol dire che deve partire da sinistra a destra
             messaggio->scelta = 1;
-            messaggio->coord.x = -DIM_COCCODRILLO;
+            messaggio->croc.dir = 1;
+            messaggio->croc.coord.x = -DIM_COCCODRILLO;
             return 1;
         }else{                                      //se n è dispari vuol dire che deve partire da destra a sinistra
             messaggio->scelta = -1;
-            messaggio->coord.x = COLS;
+            messaggio->croc.dir = -1;
+            messaggio->croc.coord.x = COLS;
             return -1;
         }
     }
 }
 
+//
 int returnNCorsia(int y){
     if(y == CORSIA1Y){
         return 1;
@@ -196,3 +206,5 @@ int generaYCorsia(int counterCorsie[]){
             break;
     }
 }
+
+

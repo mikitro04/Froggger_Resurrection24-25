@@ -23,7 +23,7 @@
     ///fine dichiarazione funzione dei colori
 
     ///dichiarazione funzioni RANA
-        void muoviRana(Message figlio, int pipe_fds[], WINDOW *gioco);
+        void muoviRana(Message figlio, int pipe_fds[], int(pipe_fds2[]), WINDOW *gioco);
 
         void joystickRana(int *y, int *x, int limitInf, int scelta);
 
@@ -45,7 +45,7 @@
     ///fine dichiarazione funzioni COCCODRILLO
 
     ///dichiarazione funzioni print
-        void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[]);
+        void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int pipe_fds2[]);
 
         void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], Coordinate *ranaYX);
     
@@ -54,6 +54,18 @@
         int generaYCorsia(int counterCorsie[]);
 
         void gestisciStampaCoccodrillo(Message msg, WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, int pipe_fds[]);
+    
+        void deleteCrocToLeft(WINDOW **fiume, int y, int x, int croc[DIM_RANA][DIM_COCCODRILLO]);
+
+        void deleteCrocToRight(WINDOW **fiume, int y, int x, int croc[DIM_RANA][DIM_COCCODRILLO]);
+
+        void printCrocToLeft(WINDOW **fiume, int y, int x, int croc[DIM_RANA][DIM_COCCODRILLO]);
+    
+        void printCrocToRight(WINDOW **fiume, int y, int x, int croc[DIM_RANA][DIM_COCCODRILLO]);
+    
+        void printFrog(WINDOW **gioco, int y, int x, int frog[DIM_RANA][LARGH_RANA]);
+    
+        void deleteFrog(WINDOW **gioco, int y, int x, int frog[DIM_RANA][LARGH_RANA]);
     ///fine dichiarazione funzioni print
 
 ///fine firme funzioni

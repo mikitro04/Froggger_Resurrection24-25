@@ -10,6 +10,7 @@
     #include <sys/wait.h>
     #include <sys/types.h>
     #include <signal.h>
+    #include <fcntl.h>
 ///fine direttive di pre-processing
 
 
@@ -26,9 +27,9 @@
     #define MAX_CROC_CORSIA 3                               //numero massimo di coccodrilli per corsia
     #define MAX_CROC (MAX_CROC_CORSIA * NUM_CORSIE)         //numero massimo di coccodrilli
     #define VITE 5                                          //vite iniziali della rana
-    #define VEL1 40000
-    #define VEL2 50000
-    #define VEL3 60000
+    #define VEL1 30000
+    #define VEL2 40000
+    #define VEL3 50000
     
     //coordinate y delle corsie
     #define CORSIA1Y (DIM_FIUME - DIM_RANA)
@@ -68,7 +69,7 @@
 
 ///dichiarazione strutture
     //tipo che gestisce le enumerazioni dei tipi di mittenti dei messaggi
-    typedef enum {RANA = 1, COCCODRILLO, SPARO, GRANATA} Types;
+    typedef enum {RANA = 1, COCCODRILLO, SPARO, GRANATA, RANA_ON_CROC} Types;
 
     //tipo che gestisce le enumerazioni delle corsie
     typedef enum {CORSIA1 = 1, CORSIA2, CORSIA3, CORSIA4, CORSIA5, CORSIA6, CORSIA7, CORSIA8} Corsie;
@@ -79,14 +80,6 @@
         int y;              //coordinata y
         int x;              //coordinata x
     }Coordinate;
-
-    //tipo che definisce la struttura del messaggio scrivibile in pipe
-    typedef struct Message{
-        int id;             //id del mittente del messaggio  
-        Types tipo;         //tipo del mittente del messaggio che può essere RANA, COCCODRILLO, SPARO, o GRANATA
-        Coordinate coord;   //coordinate y e x del mittente
-        int scelta;         //scelta direzione del mittente o direzione coccodrillo(geneato casualmente)
-    }Message;
 
     //tipo che definisce la struttura del coccodrillo
     typedef struct Crocodile{
@@ -104,4 +97,13 @@
         Coordinate coord;   //coordinate y e x della rana attuali
         int vite;           //vite della rana
     }Frog;
+
+    //tipo che definisce la struttura del messaggio scrivibile in pipe
+    typedef struct Message{
+        int id;             //id del mittente del messaggio  
+        Types tipo;         //tipo del mittente del messaggio che può essere RANA, COCCODRILLO, SPARO, o GRANATA
+        Crocodile croc;
+        Frog frog;
+        int scelta;         //scelta direzione del mittente o direzione coccodrillo(geneato casualmente)
+    }Message;
 ///fine dichiarazione strutture
