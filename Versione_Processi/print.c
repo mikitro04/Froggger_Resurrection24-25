@@ -36,7 +36,6 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
         if (msg.tipo  == RANA){
             newPosFrog.frog.coord.x = msg.frog.coord.x;                
             newPosFrog.frog.coord.y = msg.frog.coord.y; 
-            stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
         }
          
         //stampiamo rana
