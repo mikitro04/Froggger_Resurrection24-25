@@ -15,6 +15,7 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
         {FROG_MEDIUM_GREEN2, FROG_DARK_GREEN, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_DARK_GREEN, FROG_MEDIUM_GREEN2}
     };
 
+
     Coordinate auxYXRana;
         auxYXRana.y = DIM_GIOCO - DIM_RANA;
         auxYXRana.x = COLS/2;
@@ -26,23 +27,19 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
     close(pipe_fds2[0]);
 
     while(1){
+        deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
 
         read(pipe_fds[0], &msg, sizeof(Message));
 
-        stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
 
         if (msg.tipo == COCCODRILLO){
             write(pipe_fds2[1], &msg, sizeof(Message));
             gestisciStampaCoccodrillo(msg, punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, pipe_fds2);
-        }
-
-        if(msg.tipo == RANA_ON_CROC){
-            deleteFrog(gioco, msg.frog.coord.y, msg.frog.coord.x - msg.croc.dir, frog);
-            stampaCoccodrillo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana.y, &auxYXRana.x);
             printFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
         }
 
         //stampiamo rana
+        stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
 
 
 

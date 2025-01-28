@@ -31,7 +31,7 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
 
         if(cordCocc.tipo == COCCODRILLO){
             if ((figlio.frog.coord.y - DIM_RANA - DIM_TANA) == cordCocc.croc.coord.y){
-                if(figlio.frog.coord.x >= cordCocc.croc.coord.x && figlio.frog.coord.x < cordCocc.croc.coord.x + (DIM_COCCODRILLO - DIM_RANA)){
+                if(figlio.frog.coord.x >= cordCocc.croc.coord.x && (figlio.frog.coord.x + DIM_RANA) < cordCocc.croc.coord.x + DIM_COCCODRILLO){
                     figlio.frog.coord.x += cordCocc.croc.dir;
 
                     //speed = cordCocc.croc.speed;
