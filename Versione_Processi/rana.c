@@ -11,6 +11,7 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
 
     
     Message newCoord={0};
+    Coordinate prec = {};
 
     close(pipe_fds[0]);
 
@@ -18,20 +19,23 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
 
 
     while(1){
-        figlio.scelta = -1;
-
-
-        if (read(pipe_fds2[0], &newCoord, sizeof(Message)) > 0){
-            figlio.frog.coord.x = newCoord.frog.coord.x;
-        }
 
         figlio.scelta = wgetch(gioco);
 
 
-        if(figlio.scelta!=-1){
-            joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta);
-            
+        joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta);
+
+        if (figlio.frog.coord.x != prec.x || figlio.frog.coord.y != prec.y) {
             write(pipe_fds[1], &figlio, sizeof(Message));
+            prec = figlio.frog.coord;
+        }
+
+
+        if (read(pipe_fds2[0], &newCoord, sizeof(Message)) > 0){
+            figlio.frog.coord.x = newCoord.frog.coord.x;
+
+            prec.x = figlio.frog.coord.x;
+            prec.y = figlio.frog.coord.y;
 
         }
 

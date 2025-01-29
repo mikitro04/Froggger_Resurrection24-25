@@ -19,10 +19,13 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
     Coordinate auxYXRana;
         auxYXRana.y = DIM_GIOCO - DIM_RANA;
         auxYXRana.x = COLS/2;
+    
+    //printFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
 
     bool lol = false;
 
     Message newPosFrog = {};
+
 
     close(pipe_fds[1]);
 
@@ -36,12 +39,12 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
         if (msg.tipo  == RANA){
             newPosFrog.frog.coord.x = msg.frog.coord.x;                
             newPosFrog.frog.coord.y = msg.frog.coord.y; 
+            stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
         }
          
         //stampiamo rana
         if (msg.tipo == COCCODRILLO){
 
-            
             gestisciStampaCoccodrillo(msg, punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, pipe_fds2);
             if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA)){                                                               //rana nel flusso del coccodrillo
                 if(newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO){          //rana su un coccodrillo
@@ -58,9 +61,10 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
                                     
                     printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
 
-                    write(pipe_fds2[1], &newPosFrog, sizeof(Message));
                 }
             }
+
+            write(pipe_fds2[1], &newPosFrog, sizeof(Message));
             
             wrefresh(*fiume);
 
@@ -71,6 +75,7 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
         
 
         wrefresh(*gioco);
+
     }
 }
 
@@ -89,15 +94,12 @@ void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW
         {FROG_MEDIUM_GREEN2, FROG_DARK_GREEN, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_MEDIUM_GREEN2, FROG_DARK_GREEN, FROG_MEDIUM_GREEN2}
     };
     
+    deleteFrog(gioco, ranaYX->y, ranaYX->x, frog);
+    ranaYX->y = msg.frog.coord.y;
+    ranaYX->x = msg.frog.coord.x;
 
-    if(msg.tipo == RANA){
-        deleteFrog(gioco, ranaYX->y, ranaYX->x, frog);
-        ranaYX->y = msg.frog.coord.y;
-        ranaYX->x = msg.frog.coord.x;
-
-        //stampa la rana
-        printFrog(gioco, ranaYX->y, ranaYX->x, frog);
-    }
+    //stampa la rana
+    printFrog(gioco, ranaYX->y, ranaYX->x, frog);
 
 
 }

@@ -63,8 +63,9 @@ int main() {
         exit(2);
     }
 
-    fcntl(pipe_fds2[0], F_SETFL, O_NONBLOCK);
-    fcntl(pipe_fds2[1], F_SETFL, O_NONBLOCK);
+
+    //fcntl(pipe_fds2[0], F_SETFL, O_NONBLOCK);
+    //fcntl(pipe_fds2[1], F_SETFL, O_NONBLOCK);
     
      
     initializeColorSprite();
