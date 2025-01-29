@@ -28,6 +28,9 @@
         void joystickRana(int *y, int *x, int limitInf, int scelta);
 
         void initializeFrog(Frog *frog, Coordinate startYX);
+
+        bool verificaRanaInAcqua(Coordinate frog, Coordinate croc, int *counter);
+
     ///fine dichiarazione rana
 
     ///dichiarazione funzioni COCCODRILLO
@@ -42,6 +45,8 @@
         void initializeArrCroc(Crocodile array[], int dim);
 
         int setSpeed();
+
+        bool frogOnCroc(Coordinate frog, Crocodile croc[]);
     ///fine dichiarazione funzioni COCCODRILLO
 
     ///dichiarazione funzioni print

@@ -51,6 +51,7 @@ int setSpeed(){
 void initializeArrCroc(Crocodile array[], int dim){
     for (int i = 0; i < dim; i++) {
         array[i].pid = -1;                    //Inizializzazione con valore non valido in modo che non dia problemi sucessivamente
+        array[i].id = -1;
         array[i].coord.y = 0;
         array[i].coord.x = 0;
         array[i].dir = 0;
@@ -65,7 +66,10 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     if(turno == 1 || turno == 2 || turno == 3){
         for (int i = 0; i < turno; i++){
-            usleep(((DIM_COCCODRILLO * croc->speed)) * (turno));
+            usleep(((DIM_COCCODRILLO * croc->speed)) * 2);
+            if(turno != 1){
+                usleep ((DIM_COCCODRILLO * croc->speed)  * generaNumeroCasuale(1, 2));
+            }
         }
     }
 
@@ -207,4 +211,13 @@ int generaYCorsia(int counterCorsie[]){
     }
 }
 
-
+bool frogOnCroc(Coordinate frog, Crocodile croc[]){
+    for (int i = 0; i < MAX_CROC; i++){
+        if(croc[i].id != -1){
+            if(croc[i].coord.y == (frog.y - DIM_RANA - DIM_TANA) && (frog.x >= croc[i].coord.x && (frog.x + DIM_RANA) < croc[i].coord.x + DIM_COCCODRILLO)){
+                return true;
+            }
+        }
+    }
+    return false;
+}

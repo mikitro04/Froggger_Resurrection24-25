@@ -4,18 +4,12 @@
  / / / /_/ /  / /_/ / /_/ /  / /____/ / ___/ // /    
 /_/  \____/  /_____/\____/  /_____/___//____//_/     
 
-[V] - generare infiniti coccodrilli (fare in modo che alla morte di un figlio se ne generi un altro)
-
-[ ] - gestire la sincronizzazione di spown dei coccodrilli
-
-[ ] - gestire fallimento in lettura delle pipe
-
-[ ] - gestire la rana sul coccodrillo
-
 [ ] - generare le tane in maniera randomica spazioTraUnaTanaEUnAltra = (COLS - (DIM_RANA * NUM_TANE))
   sarà così diviso: spazio da x = 0 e x = spazioTraUnaTanaEUnAltra/2; poi ci sarà la tana grande come la rana, poi spazioTraUnaTanaEUnAltra, la tana e così via
 
-[ ] - gestire lo spown dei coccodrilli con una variabile turno
+[ ] - gestire quando la rana cade in acqua
+
+[ ] - 
 
    __  _______  ___  ___________________ ______    ___   ___  ___  ____  ___  _________ __________
   /  |/  / __ \/ _ \/  _/ __/  _/ ___/ // / __/   / _ | / _ \/ _ \/ __ \/ _ \/_  __/ _ /_  __/ __/
@@ -34,9 +28,5 @@
  _/ // /_/ / /___/ /___   
 /___/_____/_____/_____/   
                           
- - gestire i coccodrilli singolarmente nel main, farli terminare una volta usciti dallo schermo, decrementare il numero di coccodrilli presenrti
- - se non li vogliamo killare possiamo riutilizzare il processo per crearne un altro (ma direi di crearlo in un intervallo random di tempo nella stessa linea così da dover modificare solamente le coordinate)
-  tutti i pid dei coccodrilli (sono 24 [per ora]) sono salvati in arrCroc e inizializzati tutti a 0, quindi dobbiamo gestire la loro generazione (ci provo ora)
-
- - waitpid non bloccanti e utilizzo di booleani per gestire spown dei coccodrilli 
- - utilizzo di macro per settare la velocità dei coccodrilli
+ - fare un array di coccodrilli in rendering così da poter controllare se la rana si trova su uno qualsiasi di essi
+  l'array viene basato sul messaggio inviato dai coccodrilli, visto che mandiamo anche l'id possiamo distinguere tutti i coccodrilli

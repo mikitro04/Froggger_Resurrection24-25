@@ -69,7 +69,7 @@
 
 ///dichiarazione strutture
     //tipo che gestisce le enumerazioni dei tipi di mittenti dei messaggi
-    typedef enum {RANA = 1, COCCODRILLO, SPARO, GRANATA} Types;
+    typedef enum {RANA = 1, COCCODRILLO, SPARO, GRANATA, CADUTA} Types;
 
     //tipo che gestisce le enumerazioni delle corsie
     typedef enum {CORSIA1 = 1, CORSIA2, CORSIA3, CORSIA4, CORSIA5, CORSIA6, CORSIA7, CORSIA8} Corsie;
