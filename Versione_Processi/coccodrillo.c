@@ -1,11 +1,14 @@
 #include "funzioni.h"
 
 //funzione che gestisce i coccodrilli CHIAMATA SOLO DAL PADRE
-void gestisciCoccodrilli(int corsia, int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[]){
+void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int pipe_fds3[]){
 
+    int corsia = 0;
     int n = rand() % 2;
     int speedCorsia[NUM_CORSIE];
     int turno[NUM_CORSIE] = {0};
+
+    int auxVite = VITE;
 
     //generiamo la velocità delle corsie in modo casuale
     for (int i = 0; i < NUM_CORSIE; i++){
@@ -18,7 +21,6 @@ void gestisciCoccodrilli(int corsia, int cCorsie[], Crocodile arrCroc[], Message
         //incrementa il numero di coccodrilli nella corsia 
         turno[returnNCorsia(corsia)-1]++;
 
-        //pidAux = fork();
         //creazione processo figlio
         arrCroc[i].pid = fork();
 
@@ -29,7 +31,7 @@ void gestisciCoccodrilli(int corsia, int cCorsie[], Crocodile arrCroc[], Message
             //generiamo il coccodrillo in una corsia a caso, con una velocità a caso
             arrCroc[i].id = i;
             arrCroc[i].speed = speedCorsia[(returnNCorsia(corsia))-1];
-            generaCoccodrillo(figlio, corsia, pipe_fds, &arrCroc[i], n, turno[returnNCorsia(corsia)-1]);
+            generaCoccodrillo(figlio, corsia, pipe_fds, &arrCroc[i], n, turno[returnNCorsia(corsia)-1], pipe_fds3, auxVite);
         }
     }
 
@@ -61,24 +63,26 @@ void initializeArrCroc(Crocodile array[], int dim){
 }
 
 //funzione chiamata solo dal coccodrillo (figlio) che si occupa di generare e muovere il coccodrillo
-void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc, int n, int turno){
+void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc, int n, int turno, int pipe_fds3[], int viteInit){
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     if(turno == 1 || turno == 2 || turno == 3){
         for (int i = 0; i < turno; i++){
             usleep(((DIM_COCCODRILLO * croc->speed)) * 2);
             if(turno != 1){
-                usleep ((DIM_COCCODRILLO * croc->speed)  * generaNumeroCasuale(1, 2));
+                usleep ((DIM_COCCODRILLO * croc->speed) * generaNumeroCasuale(1, 2));
             }
         }
     }
 
     Coordinate startYX = {corsia, 0};
+    Message lifeFrog = {};
 
     figlio.id = croc->id;
     figlio.tipo = COCCODRILLO;
     figlio.croc.coord.y = corsia;
     figlio.croc.speed = croc->speed;
+    figlio.croc.pid = getpid();
 
 
     croc->dir = dirCocc(corsia, n, &figlio);        //direzione del coccodrillo generata in base a n e la corsia, modifica figlio.scelta e figlio.coord.x
@@ -89,26 +93,40 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
 
     close(pipe_fds[0]);
 
+    close(pipe_fds3[1]);
+
     bool repeat = true;
 
     while(repeat){
 
-        //aggiorniamo le coordinate attuali
-        figlio.croc.coord.x += figlio.scelta;
+        //controlliamo se le vite sono diverse dalle vite iniziali, se sono diverse aggiorno viteInit, e richiamo generaCoccodrillo, riposizioniamo il turno con %MAX_CROC_CORSIA 
+        read(pipe_fds3[0], &lifeFrog, sizeof(Message));
         
-        if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
+        if(lifeFrog.frog.vite < viteInit && lifeFrog.croc.id == croc->id){
             repeat = false;
-        }else if (startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
-            repeat = false;
+
+            viteInit = lifeFrog.frog.vite;
+            
+            turno = (turno % MAX_CROC_CORSIA) - MAX_CROC_CORSIA;
+            
+        }else{
+            //aggiorniamo le coordinate attuali
+            figlio.croc.coord.x += figlio.scelta;
+            
+            if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
+                repeat = false;
+            }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
+                repeat = false;
+            }
+
+            //velocità di movimento del coccodrillo
+            write(pipe_fds[1], &figlio, sizeof(Message));
+            usleep(croc->speed);
         }
-
-        //velocità di movimento del coccodrillo
-        write(pipe_fds[1], &figlio, sizeof(Message));
-        usleep(croc->speed);
-
+        
     }
 
-    generaCoccodrillo(figlio, corsia, pipe_fds, croc, n, turno + MAX_CROC_CORSIA);
+    generaCoccodrillo(figlio, corsia, pipe_fds, croc, n, turno + MAX_CROC_CORSIA, pipe_fds3, viteInit);
 }
 
 /**
@@ -220,4 +238,12 @@ bool frogOnCroc(Coordinate frog, Crocodile croc[]){
         }
     }
     return false;
+}
+
+void killSons(Crocodile arrCroc[MAX_CROC]){
+    for (int i = 0; i < MAX_CROC; i++){
+        if (arrCroc[i].pid != 0){
+            kill(arrCroc[i].pid, SIGKILL);
+        }
+    }
 }

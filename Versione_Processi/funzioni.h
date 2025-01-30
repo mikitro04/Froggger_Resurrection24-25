@@ -28,29 +28,28 @@
         void joystickRana(int *y, int *x, int limitInf, int scelta);
 
         void initializeFrog(Frog *frog, Coordinate startYX);
-
-        bool verificaRanaInAcqua(Coordinate frog, Coordinate croc, int *counter);
-
     ///fine dichiarazione rana
 
     ///dichiarazione funzioni COCCODRILLO
-        void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc, int n, int turno);        
+        void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc, int n, int turno, int pipe_fds3[], int viteInit);
         
         Direction dirCocc(int y, int n, Message *messaggio);
 
         int returnNCorsia(int y);
 
-        void gestisciCoccodrilli(int corsia, int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[]);
+        void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int pipe_fds3[]);
 
         void initializeArrCroc(Crocodile array[], int dim);
 
         int setSpeed();
 
         bool frogOnCroc(Coordinate frog, Crocodile croc[]);
+
+        void killSons(Crocodile arrCroc[MAX_CROC]);
     ///fine dichiarazione funzioni COCCODRILLO
 
     ///dichiarazione funzioni print
-        void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int pipe_fds2[]);
+        void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int pipe_fds2[], int pipe_fds3[]);
 
         void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], Coordinate *ranaYX);
     

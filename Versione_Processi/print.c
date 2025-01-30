@@ -1,6 +1,6 @@
 #include "funzioni.h"
 
-void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int pipe_fds2[]){
+void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int pipe_fds2[], int pipe_fds3[]){
 
     //matrice rana colorata
     int frog[DIM_RANA][LARGH_RANA] = {
@@ -17,6 +17,8 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
     int counter = 0;
 
+    int viteTmp = VITE;
+
     //bool frogWater = true;
 
     Crocodile crocAux[MAX_CROC];    
@@ -30,11 +32,11 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
     Message newPosFrog;
 
-    
-
     close(pipe_fds[1]);
 
     close(pipe_fds2[0]);
+    
+    close(pipe_fds3[0]);
 
     while(1){
 
@@ -42,22 +44,9 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
         if (msg.tipo  == RANA){
             newPosFrog.frog.coord.x = msg.frog.coord.x;                
-            newPosFrog.frog.coord.y = msg.frog.coord.y; 
+            newPosFrog.frog.coord.y = msg.frog.coord.y;
             stampaRana(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, &auxYXRana);
         }
-
-        /*if(msg.tipo == COCCODRILLO){
-            frogWater = verificaRanaInAcqua(newPosFrog.frog.coord, msg.croc.coord, &counter);  
-        }
-        
-        if (counter == MAX_CROC_CORSIA && frogWater){
-            deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
-            newPosFrog.frog.coord.x = COLS/2;
-            newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
-            auxYXRana = newPosFrog.frog.coord;
-            printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-            counter = 0;
-        }*/
 
         //stampiamo rana
         if(msg.tipo == COCCODRILLO){
@@ -78,57 +67,32 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
                 //printFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                                 
                 printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-            }/*else if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA)){  //se rana è su fiume ora controlliamo se sta su almeno un coccodrillo
-                counter++;
-                if(counter == MAX_CROC){
-                    counter = 0;
-                    deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
-                    newPosFrog.frog.coord.x = COLS/2;
-                    newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
-                    auxYXRana = newPosFrog.frog.coord;
-                    printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-                    
-                }
-            }*/
+            }
             wrefresh(*fiume);
         }
 
-        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA + DIM_RANA){           //rana sta su fiume
+        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA){           //rana sta su fiume
             if(!frogOnCroc(newPosFrog.frog.coord, crocAux)){                            //se la rana NON sta sul coccodrillo
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                 newPosFrog.frog.coord.x = COLS/2;
                 newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
                 auxYXRana = newPosFrog.frog.coord;
                 printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+
+                viteTmp--;
             }
         }
-        
 
-        write(pipe_fds2[1], &newPosFrog, sizeof(Message));
+        msg.frog.vite = viteTmp;
+        newPosFrog.frog.vite = msg.frog.vite;
         
+        
+        write(pipe_fds2[1], &newPosFrog, sizeof(Message));
+
+        write(pipe_fds3[1], &msg, sizeof(Message));
+
         wrefresh(*gioco);
     }
-}
-
-bool verificaRanaInAcqua(Coordinate frog, Coordinate croc, int *counter){
-
-    bool flag = true;
-
-    //if ((croc.y == (frog.y - DIM_RANA - DIM_TANA) && !(frog.x >= croc.x && (frog.x + DIM_RANA) <= (croc.x + DIM_COCCODRILLO)))){      //se la rana sta sul fiume ma non sul coccodrillo
-    //}
-    if (croc.y == (frog.y - DIM_RANA - DIM_TANA)){
-
-        (*counter)++;
-
-        if (frog.x >= croc.x && (frog.x + DIM_RANA) <= (croc.x + DIM_COCCODRILLO)){
-            *counter = 0;
-            flag = false;
-        }
-
-    }
-
-    return flag;        
-
 }
 
 void stampaRana(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], Coordinate *ranaYX){

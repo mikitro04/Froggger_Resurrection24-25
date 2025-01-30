@@ -6,34 +6,13 @@ int main() {
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
-    /*if(COLS >= (DIM_RANA * 20) && COLS <= (DIM_RANA * 30)){
-        if(COLS <= (DIM_RANA * 20)){
-            mvprintw(LINES/2, COLS/2, "Ridimensiona lo schermo ingrandisci il terminale\n"
-            "premi un tasto per continuare...");
-            getch();
-            endwin();
-            exit(0);
-        }else if(COLS >= (DIM_RANA * 30)){
-            mvprintw(LINES/2, COLS/2, "Ridimensiona lo schermo riduci il terminale\n"
-            "premi un tasto per continuare...");
-            getch();
-            endwin();
-            exit(0);
-        }
-        mvprintw(LINES/2, COLS/2, "Ridimensiona lo schermo riduci il terminale\n"
-        "premi un tasto per continuare...");
-        getch();
-        endwin();
-        exit(0);
-    }*/
-
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
     Coordinate startYX = {DIM_GIOCO-DIM_RANA, COLS/2};
 
-    int pipe_fds[2], pipe_fds2[2];
+    int pipe_fds[2], pipe_fds2[2], pipe_fds3[2];
     
-    int corsia = 0, cCorsie[NUM_CORSIE] = {0};
+    int cCorsie[NUM_CORSIE] = {0};
     
     Frog rana;
         initializeFrog(&rana, startYX);
@@ -63,7 +42,11 @@ int main() {
         exit(2);
     }
 
-
+    if(pipe(pipe_fds3) == -1) {
+        perror("Pipe2 call");
+        exit(2);
+    }
+    
     //fcntl(pipe_fds2[0], F_SETFL, O_NONBLOCK);
     //fcntl(pipe_fds2[1], F_SETFL, O_NONBLOCK);
     
@@ -83,12 +66,12 @@ int main() {
     }
     //cosa deve fare il padre
     if (rana.pid > 1){
-        gestisciCoccodrilli(corsia, cCorsie, arrCroc, figlio, pipe_fds);
+        gestisciCoccodrilli(cCorsie, arrCroc, figlio, pipe_fds, pipe_fds3);
     }
 
     //nel caso sia il padre di tutti allora può richiamare la funzione di rendering
     if(isFather(rana.pid, arrCroc, MAX_CROC)){
-        rendering(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo, msg, pipe_fds, pipe_fds2);
+        rendering(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo, msg, pipe_fds, pipe_fds2, pipe_fds3);
     }
 
     endwin();

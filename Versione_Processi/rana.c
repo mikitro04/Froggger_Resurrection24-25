@@ -7,8 +7,9 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
     figlio.frog.coord.y = DIM_GIOCO-DIM_RANA;
     figlio.frog.coord.x = COLS/2;
     figlio.scelta = 0;
+    figlio.frog.vite = VITE;
+    figlio.croc.id = -1;
     int speed = 30000;
-
     
     Message newCoord={0};
     Coordinate prec = {};
@@ -19,28 +20,24 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
 
 
     while(1){
-
         figlio.scelta = wgetch(gioco);
 
         joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta);
 
-        if (figlio.frog.coord.x != prec.x || figlio.frog.coord.y != prec.y) {
+        if(figlio.frog.coord.x != prec.x || figlio.frog.coord.y != prec.y) {
             write(pipe_fds[1], &figlio, sizeof(Message));
             prec = figlio.frog.coord;
         }
 
-
-        if (read(pipe_fds2[0], &newCoord, sizeof(Message)) > 0){
+        if(read(pipe_fds2[0], &newCoord, sizeof(Message)) > 0){
             figlio.frog.coord.x = newCoord.frog.coord.x;
             figlio.frog.coord.y = newCoord.frog.coord.y;
+            figlio.frog.vite = newCoord.frog.vite;
 
             prec.x = figlio.frog.coord.x;
             prec.y = figlio.frog.coord.y;
-
         }
-
     }
-
 }
 
 void joystickRana(int *y, int *x, int limitInf, int scelta){
