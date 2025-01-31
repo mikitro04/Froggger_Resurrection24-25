@@ -25,7 +25,7 @@
     ///dichiarazione funzioni RANA
         void muoviRana(Message figlio, int pipe_fds[], int(pipe_fds2[]), WINDOW *gioco);
 
-        void joystickRana(int *y, int *x, int limitInf, int scelta);
+        void joystickRana(int *y, int *x, int limitInf, int scelta, bool *running);
 
         void initializeFrog(Frog *frog, Coordinate startYX);
     ///fine dichiarazione rana
@@ -74,6 +74,10 @@
         void deleteAllCroc(WINDOW **fiume, Crocodile arrCroc[]);
     
         void deleteSingleCroc(WINDOW **fiume, Crocodile croc);
+
+        void printVite(WINDOW **vite, int y, int x, int numVite);
+
+        void deleteVite(WINDOW **vite, int y, int vita);
     ///fine dichiarazione funzioni print
 
 ///fine firme funzioni

@@ -46,10 +46,7 @@ int main() {
         perror("Pipe2 call");
         exit(2);
     }
-    
-    //fcntl(pipe_fds3[0], F_SETFL, O_NONBLOCK);
-    //fcntl(pipe_fds2[1], F_SETFL, O_NONBLOCK);
-    
+
      
     initializeColorSprite();
 
@@ -72,6 +69,10 @@ int main() {
     //nel caso sia il padre di tutti allora può richiamare la funzione di rendering
     if(isFather(rana.pid, arrCroc, MAX_CROC)){
         rendering(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo, msg, pipe_fds, pipe_fds2, pipe_fds3);
+        close(pipe_fds[0]);
+        close(pipe_fds2[1]);
+        close(pipe_fds3[1]);
+        killSons(arrCroc);
     }
 
     endwin();

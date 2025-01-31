@@ -22,6 +22,15 @@ void initializeColorSprite() {
     init_color(CROC_GREY_7, 300, 300, 300);   // Grigio scuro (colore 7)
     init_color(CROC_GREY_8, 100, 100, 100);   // Grigio molto scuro (colore 8)
 
+    //TANE
+    init_color(TANA_LIGHT_GRAY, 200, 200, 200);  // Bianco
+    init_color(TANA_GREEN, 0, 500, 0);         // Verde
+    init_color(TANA_GRAY, 700, 700, 700);      // Grigio chiaro
+    init_color(TANA_DARKGRAY, 300, 300, 300);  // Grigio scuro
+
+    //CUORI
+    init_color(CUORE_RED, 1000, 0, 0);         // Rosso
+
 
     //Associa colori a coppie foreground/background
     //RANA
@@ -45,6 +54,14 @@ void initializeColorSprite() {
     init_pair(23, COLOR_BLACK, CROC_GREY_7);       // Grigio scuro 2
     init_pair(24, COLOR_BLACK, CROC_GREY_8);       // Grigio molto scuro
 
+    //TANE
+    init_pair(25, TANA_LIGHT_GRAY, COLOR_BLACK);   // Testo grigio chiaro su sfondo nero
+    init_pair(26, TANA_GREEN, COLOR_BLACK);   // Testo verde su sfondo nero
+    init_pair(27, TANA_GRAY, COLOR_BLACK);    // Testo grigio su sfondo nero
+    init_pair(28, TANA_DARKGRAY, COLOR_BLACK);// Testo grigio scuro su sfondo nero
+
+    //CUORI
+    init_pair(29, COLOR_BLACK, CUORE_RED);     // Testo rosso su sfondo nero
 }
 
 
@@ -66,13 +83,13 @@ void inizializzaColori(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche,
 }
 
 void ripristinaSfondo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
-    wbkgd(*punteggio, COLOR_PAIR(4));
+    wbkgd(*punteggio, COLOR_PAIR(15));
     wbkgd(*tane, COLOR_PAIR(1));
     wbkgd(*spondaSup, COLOR_PAIR(2));
     wbkgd(*fiume, COLOR_PAIR(3));
     wbkgd(*spondaInf, COLOR_PAIR(2));
-    wbkgd(*vite, COLOR_PAIR(4));
-    wbkgd(*tempo, COLOR_PAIR(4));
+    wbkgd(*vite, COLOR_PAIR(15));
+    wbkgd(*tempo, COLOR_PAIR(15));
 }
 
 void refreshAllWin(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){

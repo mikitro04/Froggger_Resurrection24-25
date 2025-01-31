@@ -19,6 +19,8 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
     int viteTmp = VITE;
 
+    bool running = true;
+
     //bool frogWater = true;
 
     Crocodile crocAux[MAX_CROC];    
@@ -38,10 +40,9 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
     
     close(pipe_fds3[0]);
 
-    while(1){
+    printVite(vite, 1, 0, viteTmp);
 
-
-
+    while(running){
         read(pipe_fds[0], &msg, sizeof(Message));
 
         if (msg.tipo == RANA){
@@ -91,9 +92,9 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
                 viteTmp--;
 
-                ////
+                deleteVite(vite, 1, viteTmp);
+
                 sleep(1);
-                ////
             }
         }
         
@@ -105,6 +106,10 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
         write(pipe_fds3[1], &msg, sizeof(Message));
         
         wrefresh(*gioco);
+
+        if(msg.scelta == 'q'){
+            running = false;
+        }
     }
 }
 
@@ -313,4 +318,62 @@ void deleteSingleCroc(WINDOW **fiume, Crocodile croc){
     }else if(croc.dir == TO_RIGHT){
         deleteCrocToRight(fiume, croc.coord.y, croc.coord.x, crocodile);
     }
+}
+
+
+void printVite(WINDOW **vite, int y, int x, int numVite){
+
+    int cuore[DIM_RANA][LARGH_CUORE] = {
+        {0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0 },
+        {EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, EYE_WHITE, EYE_WHITE, EYE_WHITE, EYE_WHITE, CUORE_RED, CUORE_RED, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0},
+        {EYE_BLACK, CUORE_RED, CUORE_RED, EYE_WHITE, EYE_WHITE, EYE_WHITE, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED},
+        {EYE_BLACK, CUORE_RED, EYE_WHITE, EYE_WHITE, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED},
+        {0, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0},
+        {0, 0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0},
+        {0, 0, 0, 0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+
+    for (int k = 0; k < numVite; k++){
+        for (int i = 0; i < DIM_RANA; i++) {
+            for (int j = 0; j < LARGH_CUORE; j++) {
+                if (cuore[i][j] != 0) {            
+                    wattron(*vite, COLOR_PAIR(cuore[i][j]));
+                    mvwprintw(*vite, y + i, x + j, " ");
+                    wattroff(*vite, COLOR_PAIR(cuore[i][j]));
+                }
+            }
+        }
+        x += LARGH_CUORE + 3;
+    }
+
+    wrefresh(*vite);
+}
+
+void deleteVite(WINDOW **vite, int y, int vita){
+
+    int x = (3 * vita) + (vita * LARGH_CUORE);
+
+    int cuore[DIM_RANA][LARGH_CUORE] = {
+        {0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0 },
+        {EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, EYE_WHITE, EYE_WHITE, EYE_WHITE, EYE_WHITE, CUORE_RED, CUORE_RED, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0},
+        {EYE_BLACK, CUORE_RED, CUORE_RED, EYE_WHITE, EYE_WHITE, EYE_WHITE, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED},
+        {EYE_BLACK, CUORE_RED, EYE_WHITE, EYE_WHITE, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED},
+        {0, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0},
+        {0, 0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0},
+        {0, 0, 0, 0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, EYE_BLACK, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, EYE_BLACK, CUORE_RED, CUORE_RED, CUORE_RED, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+
+    for (int i = 0; i < DIM_RANA; i++) {
+        for (int j = 0; j < LARGH_CUORE; j++) {
+            if (cuore[i][j] != 0) {            
+                mvwaddch(*vite, y + i, x + j, ' ' | COLOR_PAIR(EYE_BLACK));
+            }
+        }
+    }
+
+    wrefresh(*vite);
 }

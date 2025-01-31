@@ -106,6 +106,12 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
         //controlliamo se le vite sono diverse dalle vite iniziali, se sono diverse aggiorno viteInit, e richiamo generaCoccodrillo, riposizioniamo il turno con %MAX_CROC_CORSIA 
         read(pipe_fds3[0], &lifeFrog, sizeof(Message));
 
+        if(lifeFrog.scelta == 'q'){
+            close(pipe_fds[1]);
+            close(pipe_fds3[0]);
+            exit(0);
+        }
+
         if(lifeFrog.frog.vite < viteInit){
             repeat = false;
 
@@ -250,6 +256,7 @@ void killSons(Crocodile arrCroc[MAX_CROC]){
     for (int i = 0; i < MAX_CROC; i++){
         if (arrCroc[i].pid != 0){
             kill(arrCroc[i].pid, SIGTERM);
+            wait(NULL);
         }
     }
 }

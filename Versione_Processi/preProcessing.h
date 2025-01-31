@@ -21,9 +21,10 @@
     #define DIM_RANA 9                                      //altezza rana, altezza coccodrillo, altezza delle corsie, altezza delle sponde
     #define LARGH_RANA 13                                   //larghezza rana
     #define DIM_COCCODRILLO (LARGH_RANA * 3)                //larghezza coccodrillo
-    #define DIM_TANA (DIM_RANA + 3)                         //altezza tana
+    #define DIM_TANA 15                                     //altezza tana
     #define DIM_FIUME (DIM_RANA * NUM_CORSIE)               //altezza fiume formato dal numero delle corsie per l'altezza della rana
-    #define DIM_STATS 8                                     //altezza finestra statistiche
+    #define DIM_STATS 11                                    //altezza finestra statistiche
+    #define LARGH_CUORE 20                                  //larghezza cuore
     #define MAX_CROC_CORSIA 3                               //numero massimo di coccodrilli per corsia
     #define MAX_CROC (MAX_CROC_CORSIA * NUM_CORSIE)         //numero massimo di coccodrilli
     #define VITE 5                                          //vite iniziali della rana
@@ -64,6 +65,15 @@
     #define CROC_GREY_6 22          // Grigio più chiaro
     #define CROC_GREY_7 23          // Grigio scuro 2
     #define CROC_GREY_8 24          // Grigio molto scuro
+
+    //colori per le TANE
+    #define TANA_LIGHT_GRAY 25
+    #define TANA_GREEN 26
+    #define TANA_GRAY 27
+    #define TANA_DARKGRAY 28
+
+    //colori per i CUORI
+    #define CUORE_RED 29
 ///fine dichiarazione colori
 
 

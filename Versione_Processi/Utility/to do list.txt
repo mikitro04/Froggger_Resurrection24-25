@@ -7,8 +7,6 @@
 [ ] - generare le tane in maniera randomica spazioTraUnaTanaEUnAltra = (COLS - (DIM_RANA * NUM_TANE))
   sarà così diviso: spazio da x = 0 e x = spazioTraUnaTanaEUnAltra/2; poi ci sarà la tana grande come la rana, poi spazioTraUnaTanaEUnAltra, la tana e così via
 
-[ ] - gestire quando la rana cade in acqua
-
 [ ] - 
 
    __  _______  ___  ___________________ ______    ___   ___  ___  ____  ___  _________ __________
