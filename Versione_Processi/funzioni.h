@@ -72,6 +72,8 @@
         void deleteFrog(WINDOW **gioco, int y, int x, int frog[DIM_RANA][LARGH_RANA]);
 
         void deleteAllCroc(WINDOW **fiume, Crocodile arrCroc[]);
+    
+        void deleteSingleCroc(WINDOW **fiume, Crocodile croc);
     ///fine dichiarazione funzioni print
 
 ///fine firme funzioni

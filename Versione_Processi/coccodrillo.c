@@ -6,7 +6,11 @@ void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int
     int corsia = 0;
     int n = rand() % 2;
     int speedCorsia[NUM_CORSIE];
-    int turno[NUM_CORSIE] = {0};
+    int turno[NUM_CORSIE];
+    for (int i = 0; i < NUM_CORSIE; i++){
+        turno[i] = -1;
+    }
+    
 
     int auxVite = VITE;
 
@@ -66,10 +70,10 @@ void initializeArrCroc(Crocodile array[], int dim){
 void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc, int n, int turno, int pipe_fds3[], int viteInit){
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo
-    if(turno == 1 || turno == 2 || turno == 3){
+    if(turno == 0 || turno == 1 || turno == 2){
         for (int i = 0; i < turno; i++){
             usleep(((DIM_COCCODRILLO * croc->speed)) * 2);
-            if(turno != 1){
+            if(turno != 0){
                 usleep ((DIM_COCCODRILLO * croc->speed) * generaNumeroCasuale(1, 2));
             }
         }
@@ -107,7 +111,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
 
             viteInit = lifeFrog.frog.vite;
             
-            turno = (turno % MAX_CROC_CORSIA) - MAX_CROC_CORSIA;
+            turno = ((turno % (MAX_CROC_CORSIA)) - MAX_CROC_CORSIA);
 
             //aggiorniamo le coordinate a quelle iniziali
             figlio.croc.coord = startYX;
@@ -122,7 +126,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
                 repeat = false;
             }
         }
-        
+
         //velocità di movimento del coccodrillo
         write(pipe_fds[1], &figlio, sizeof(Message));
         usleep(croc->speed);

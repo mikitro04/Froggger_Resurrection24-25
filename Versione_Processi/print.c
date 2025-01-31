@@ -40,6 +40,8 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
     while(1){
 
+
+
         read(pipe_fds[0], &msg, sizeof(Message));
 
         if (msg.tipo == RANA){
@@ -50,7 +52,11 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
         //stampiamo rana
         if(msg.tipo == COCCODRILLO){
+
+            deleteSingleCroc(fiume, crocAux[msg.id]);
+
             crocAux[msg.id] = msg.croc;
+
             gestisciStampaCoccodrillo(msg, punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, pipe_fds2);
             //verifico se la rana sia sopra un coccodrillo specifico
             if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA) && (newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO)){
@@ -70,6 +76,7 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
             }
             wrefresh(*fiume);
 
+            //usleep(10000);
         }
 
         if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA){           //rana sta su fiume
@@ -85,7 +92,7 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
                 viteTmp--;
 
                 ////
-            }else{
+                sleep(1);
                 ////
             }
         }
@@ -285,4 +292,25 @@ void deleteAllCroc(WINDOW **fiume, Crocodile arrCroc[]){
     }
 
     wrefresh(*fiume);
+}
+
+void deleteSingleCroc(WINDOW **fiume, Crocodile croc){
+    //matrice coccodrillo colorata
+    int crocodile[DIM_RANA][DIM_COCCODRILLO] = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, 0, 0, CROC_GREY_3, 0, CROC_GREY_3, 0, CROC_GREY_3, 0, CROC_GREY_3, 0, CROC_GREY_3, 0, CROC_GREY_3, 0, CROC_GREY_3, 0, 0, 0, 0, 0, 0},
+        {0, 0, CROC_GREY_3, EYE_BLACK, 0, 0, 0, 0, 0, 0, EYE_BLACK, EYE_WHITE, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, CROC_GREY_3, 0, 0, 0, 0, 0},
+        {0, 0, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, CROC_GREY_3, 0, 0},
+        {0, 0, CROC_GREY_2, EYE_WHITE, CROC_GREY_2, EYE_WHITE, CROC_GREY_2, EYE_WHITE, CROC_GREY_2, EYE_WHITE, CROC_GREY_3, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_6, CROC_GREY_6, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_2, CROC_GREY_6, CROC_GREY_3, CROC_GREY_2, CROC_GREY_6, CROC_GREY_3, CROC_GREY_2, CROC_GREY_2, CROC_GREY_3, CROC_GREY_2, CROC_GREY_3, 0, 0},
+        {0, 0, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_2, CROC_GREY_6, CROC_GREY_8, CROC_GREY_5, CROC_GREY_6, CROC_GREY_8, CROC_GREY_5, CROC_GREY_6, CROC_GREY_8, CROC_GREY_5, CROC_GREY_6, CROC_GREY_8, CROC_GREY_5, CROC_GREY_6, CROC_GREY_8, CROC_GREY_5, CROC_GREY_6, CROC_GREY_8, CROC_GREY_5, CROC_GREY_6, CROC_GREY_3, CROC_GREY_8, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CROC_GREY_2, CROC_GREY_4, 0, 0, CROC_GREY_8, CROC_GREY_7, CROC_GREY_2, 0, CROC_GREY_8, CROC_GREY_2, CROC_GREY_8, CROC_GREY_7, 0, 0, CROC_GREY_7, CROC_GREY_2, 0, CROC_GREY_3, CROC_GREY_3},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CROC_GREY_7, 0, 0, 0, CROC_GREY_7, 0, 0, 0, 0, 0, 0, 0, 0, CROC_GREY_7, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    };
+
+    if(croc.dir == TO_LEFT){
+        deleteCrocToLeft(fiume, croc.coord.y, croc.coord.x, crocodile);
+    }else if(croc.dir == TO_RIGHT){
+        deleteCrocToRight(fiume, croc.coord.y, croc.coord.x, crocodile);
+    }
 }
