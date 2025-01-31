@@ -1,7 +1,7 @@
 #include "funzioni.h"
 
 void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo, Message msg, int pipe_fds[], int pipe_fds2[], int pipe_fds3[]){
-
+    
     //matrice rana colorata
     int frog[DIM_RANA][LARGH_RANA] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
@@ -20,6 +20,10 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
     int viteTmp = VITE;
 
     bool running = true;
+
+    time_t start = time(NULL), now = time(NULL);
+
+    int tempoTrascorso = 0;
 
     //bool frogWater = true;
 
@@ -43,6 +47,14 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
     printVite(vite, 1, 0, viteTmp);
 
     while(running){
+
+        //now è il tempo attuale
+        now = time(NULL);
+
+        //calcolo il tempo trascorso
+        tempoTrascorso = (now - start);
+        printTempo(tempo, 1, 0, tempoTrascorso);
+
         read(pipe_fds[0], &msg, sizeof(Message));
 
         if (msg.tipo == RANA){
@@ -61,7 +73,6 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
             gestisciStampaCoccodrillo(msg, punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, pipe_fds2);
             //verifico se la rana sia sopra un coccodrillo specifico
             if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA) && (newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO)){
-                //counter = 0;
                 
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                 
@@ -80,8 +91,8 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
             //usleep(10000);
         }
 
-        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA){           //rana sta su fiume
-            if(!frogOnCroc(newPosFrog.frog.coord, crocAux)){                            //se la rana NON sta sul coccodrillo
+        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA){          //rana sta su fiume
+            if(!frogOnCroc(newPosFrog.frog.coord, crocAux)){                                                //se la rana NON sta sul coccodrillo
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                 newPosFrog.frog.coord.x = COLS/2;
                 newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
@@ -109,6 +120,7 @@ void rendering(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW 
 
         if(msg.scelta == 'q'){
             running = false;
+            break;
         }
     }
 }
@@ -376,4 +388,30 @@ void deleteVite(WINDOW **vite, int y, int vita){
     }
 
     wrefresh(*vite);
+}
+
+void printTempo(WINDOW **tempo, int y, int x, int time){
+    int sprite[DIM_STATS - 2][TEMPO_MAX * 2];
+    for (int i = 0; i < DIM_STATS-2; i++){
+        for(int j = 0; j < TEMPO_MAX * 2; j++){
+            sprite[i][j] = TIME_PURPLE;
+        }
+    }
+
+    for (int i = 0; i < DIM_STATS-2; i++){
+        for (int j = 0; j < TEMPO_MAX * 2; j++){
+            wattron(*tempo, COLOR_PAIR(sprite[i][j]));
+            mvwprintw(*tempo, y + i, x + j, " ");
+            wattroff(*tempo, COLOR_PAIR(sprite[i][j]));
+        }
+    }
+
+    //cancelliamo la colonna y + (TEMPO_MAX - time) per cancellare il tempo trascorso
+    for (int i = 0; i < DIM_STATS-2; i++){
+        for (int j = TEMPO_MAX * 2; j > (TEMPO_MAX * 2) - (time * 2); j--){
+            mvwaddch(*tempo, y + i, x + j, ' ' | COLOR_PAIR(EYE_BLACK));
+        }
+    }
+
+    wrefresh(*tempo);
 }

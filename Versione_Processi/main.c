@@ -72,6 +72,10 @@ int main() {
         close(pipe_fds[0]);
         close(pipe_fds2[1]);
         close(pipe_fds3[1]);
+
+        kill(rana.pid, SIGTERM);
+        waitpid(rana.pid, NULL, 0);
+
         killSons(arrCroc);
     }
 

@@ -78,6 +78,8 @@
         void printVite(WINDOW **vite, int y, int x, int numVite);
 
         void deleteVite(WINDOW **vite, int y, int vita);
+    
+        void printTempo(WINDOW **tempo, int y, int x, int time);
     ///fine dichiarazione funzioni print
 
 ///fine firme funzioni

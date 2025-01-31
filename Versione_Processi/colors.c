@@ -31,6 +31,9 @@ void initializeColorSprite() {
     //CUORI
     init_color(CUORE_RED, 1000, 0, 0);         // Rosso
 
+    //TEMPO
+    init_color(TIME_PURPLE, 500, 0, 500);      // Viola
+
 
     //Associa colori a coppie foreground/background
     //RANA
@@ -62,6 +65,9 @@ void initializeColorSprite() {
 
     //CUORI
     init_pair(29, COLOR_BLACK, CUORE_RED);     // Testo rosso su sfondo nero
+
+    //TEMPO
+    init_pair(30, COLOR_BLACK, TIME_PURPLE);   // Testo viola su sfondo nero
 }
 
 

@@ -257,6 +257,7 @@ void killSons(Crocodile arrCroc[MAX_CROC]){
         if (arrCroc[i].pid != 0){
             kill(arrCroc[i].pid, SIGTERM);
             wait(NULL);
+            //waitpid(arrCroc[i].pid, NULL, 0);
         }
     }
 }

@@ -31,6 +31,7 @@
     #define VEL1 30000
     #define VEL2 40000
     #define VEL3 50000
+    #define TEMPO_MAX 60                                    //tempo massimo di gioco
     
     //coordinate y delle corsie
     #define CORSIA1Y (DIM_FIUME - DIM_RANA)
@@ -74,6 +75,9 @@
 
     //colori per i CUORI
     #define CUORE_RED 29
+
+    //colori per il TEMPO
+    #define TIME_PURPLE 30
 ///fine dichiarazione colori
 
 
