@@ -70,6 +70,8 @@
         void printFrog(WINDOW **gioco, int y, int x, int frog[DIM_RANA][LARGH_RANA]);
     
         void deleteFrog(WINDOW **gioco, int y, int x, int frog[DIM_RANA][LARGH_RANA]);
+
+        void deleteAllCroc(WINDOW **fiume, Crocodile arrCroc[]);
     ///fine dichiarazione funzioni print
 
 ///fine firme funzioni

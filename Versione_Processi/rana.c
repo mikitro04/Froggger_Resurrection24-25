@@ -19,9 +19,11 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
     close(pipe_fds2[1]);
 
 
+    beep();
+    
     while(1){
         figlio.scelta = wgetch(gioco);
-
+ 
         joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta);
 
         if(figlio.frog.coord.x != prec.x || figlio.frog.coord.y != prec.y) {
