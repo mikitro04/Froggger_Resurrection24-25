@@ -6,6 +6,14 @@ int main() {
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
+    if(COLS < LARGH_RANA * 26 || LINES < DIM_GIOCO + DIM_STATS * 2){
+        endwin();
+        printf("La finestra è troppo piccola per poter giocare\n"
+        "Premi un tasto per uscire\n");
+        getchar();
+        exit(1);
+    }
+
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
     Coordinate startYX = {DIM_GIOCO-DIM_RANA, COLS/2};

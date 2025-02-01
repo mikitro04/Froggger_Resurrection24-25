@@ -26,7 +26,7 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
  
         joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta, &running);
 
-        if(figlio.frog.coord.x != prec.x || figlio.frog.coord.y != prec.y) {
+        if(figlio.frog.coord.x != prec.x || figlio.frog.coord.y != prec.y || figlio.scelta == 'q'){
             write(pipe_fds[1], &figlio, sizeof(Message));
             prec = figlio.frog.coord;
         }
@@ -69,7 +69,7 @@ void joystickRana(int *y, int *x, int limitInf, int scelta, bool *running){
             }
             break;
         case 'q':
-            running = false;
+            *running = false;
             break;
     }
 
@@ -80,8 +80,3 @@ void initializeFrog(Frog *frog, Coordinate startYX){
     frog->coord = startYX;
     frog->vite = VITE;
 }
-
-
-
-
-

@@ -23,10 +23,11 @@ void initializeColorSprite() {
     init_color(CROC_GREY_8, 100, 100, 100);   // Grigio molto scuro (colore 8)
 
     //TANE
-    init_color(TANA_LIGHT_GRAY, 200, 200, 200);  // Bianco
-    init_color(TANA_GREEN, 0, 500, 0);         // Verde
-    init_color(TANA_GRAY, 700, 700, 700);      // Grigio chiaro
-    init_color(TANA_DARKGRAY, 300, 300, 300);  // Grigio scuro
+    init_color(TANE_DARK_GRAY, 100, 100, 100);   // Grigio scuro
+    init_color(TANE_GRAY1, 200, 200, 200);       // Grigio chiaro 1
+    init_color(TANE_GRAY2, 150, 150, 150);       // Grigio chiaro 2
+    init_color(TANE_LIGHT_GRAY, 220, 220, 220);  // Grigio chiarissimo
+    init_color(TANE_GREEN, 0, 500, 0);           // Verde
 
     //CUORI
     init_color(CUORE_RED, 1000, 0, 0);         // Rosso
@@ -58,16 +59,17 @@ void initializeColorSprite() {
     init_pair(24, COLOR_BLACK, CROC_GREY_8);       // Grigio molto scuro
 
     //TANE
-    init_pair(25, TANA_LIGHT_GRAY, COLOR_BLACK);   // Testo grigio chiaro su sfondo nero
-    init_pair(26, TANA_GREEN, COLOR_BLACK);   // Testo verde su sfondo nero
-    init_pair(27, TANA_GRAY, COLOR_BLACK);    // Testo grigio su sfondo nero
-    init_pair(28, TANA_DARKGRAY, COLOR_BLACK);// Testo grigio scuro su sfondo nero
+    init_pair(25, TANE_DARK_GRAY, COLOR_BLACK);
+    init_pair(26, TANE_GRAY1, COLOR_BLACK);
+    init_pair(27, TANE_GRAY2, COLOR_BLACK);
+    init_pair(28, TANE_LIGHT_GRAY, COLOR_BLACK);
+    init_pair(29, TANE_GREEN, COLOR_BLACK);    
 
     //CUORI
-    init_pair(29, COLOR_BLACK, CUORE_RED);     // Testo rosso su sfondo nero
+    init_pair(30, COLOR_BLACK, CUORE_RED);     // Testo rosso su sfondo nero
 
     //TEMPO
-    init_pair(30, COLOR_BLACK, TIME_PURPLE);   // Testo viola su sfondo nero
+    init_pair(31, COLOR_BLACK, TIME_PURPLE);   // Testo viola su sfondo nero
 }
 
 

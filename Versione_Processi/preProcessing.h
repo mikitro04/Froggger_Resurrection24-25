@@ -19,20 +19,23 @@
     #define NUM_TANE 5                                      //numero di tane
     #define NUM_CORSIE 8                                    //numero di corsie
     #define DIM_RANA 9                                      //altezza rana, altezza coccodrillo, altezza delle corsie, altezza delle sponde
-    #define LARGH_RANA 13                                   //larghezza rana
+    #define LARGH_RANA 19                                   //larghezza rana
     #define DIM_COCCODRILLO (LARGH_RANA * 3)                //larghezza coccodrillo
     #define DIM_TANA 15                                     //altezza tana
+    #define LARGH_TANA 40                                   //larghezza tana
     #define DIM_FIUME (DIM_RANA * NUM_CORSIE)               //altezza fiume formato dal numero delle corsie per l'altezza della rana
     #define DIM_STATS 11                                    //altezza finestra statistiche
     #define LARGH_CUORE 20                                  //larghezza cuore
     #define MAX_CROC_CORSIA 3                               //numero massimo di coccodrilli per corsia
     #define MAX_CROC (MAX_CROC_CORSIA * NUM_CORSIE)         //numero massimo di coccodrilli
     #define VITE 5                                          //vite iniziali della rana
+    #define TEMPO_MAX 60                                    //tempo massimo di gioco
+    
+    //velocità a cui possono andare i coccodrilli
     #define VEL1 30000
     #define VEL2 40000
     #define VEL3 50000
-    #define TEMPO_MAX 60                                    //tempo massimo di gioco
-    
+
     //coordinate y delle corsie
     #define CORSIA1Y (DIM_FIUME - DIM_RANA)
     #define CORSIA2Y (DIM_FIUME - (DIM_RANA*2))
@@ -68,16 +71,17 @@
     #define CROC_GREY_8 24          // Grigio molto scuro
 
     //colori per le TANE
-    #define TANA_LIGHT_GRAY 25
-    #define TANA_GREEN 26
-    #define TANA_GRAY 27
-    #define TANA_DARKGRAY 28
+    #define TANE_DARK_GRAY 25
+    #define TANE_GRAY1 26
+    #define TANE_GRAY2 27
+    #define TANE_LIGHT_GRAY 28
+    #define TANE_GREEN 29
 
     //colori per i CUORI
-    #define CUORE_RED 29
+    #define CUORE_RED 30
 
     //colori per il TEMPO
-    #define TIME_PURPLE 30
+    #define TIME_PURPLE 31
 ///fine dichiarazione colori
 
 
