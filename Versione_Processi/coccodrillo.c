@@ -11,7 +11,6 @@ void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int
         turno[i] = -1;
     }
     
-
     int auxVite = VITE;
 
     //generiamo la velocità delle corsie in modo casuale
@@ -102,37 +101,16 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
     bool repeat = true;
 
     while(repeat){
-
-        //controlliamo se le vite sono diverse dalle vite iniziali, se sono diverse aggiorno viteInit, e richiamo generaCoccodrillo, riposizioniamo il turno con %MAX_CROC_CORSIA 
-        read(pipe_fds3[0], &lifeFrog, sizeof(Message));
-
-        if(lifeFrog.scelta == 'q'){
-            close(pipe_fds[1]);
-            close(pipe_fds3[0]);
-            exit(0);
-        }
-
-        if(lifeFrog.frog.vite < viteInit){
+        
+        //aggiorniamo le coordinate attuali
+        figlio.croc.coord.x += figlio.scelta;
+        
+        if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
             repeat = false;
-
-            viteInit = lifeFrog.frog.vite;
-            
-            turno = ((turno % (MAX_CROC_CORSIA)) - MAX_CROC_CORSIA);
-
-            //aggiorniamo le coordinate a quelle iniziali
-            figlio.croc.coord = startYX;
-            croc->coord = startYX;
-        }else{
-            //aggiorniamo le coordinate attuali
-            figlio.croc.coord.x += figlio.scelta;
-            
-            if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
-                repeat = false;
-            }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
-                repeat = false;
-            }
+        }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
+            repeat = false;
         }
-
+        
         //velocità di movimento del coccodrillo
         write(pipe_fds[1], &figlio, sizeof(Message));
         usleep(croc->speed);
@@ -254,7 +232,7 @@ bool frogOnCroc(Coordinate frog, Crocodile croc[]){
 
 void killSons(Crocodile arrCroc[MAX_CROC]){
     for (int i = 0; i < MAX_CROC; i++){
-        if (arrCroc[i].pid != 0){
+        if (arrCroc[i].pid != 0 && arrCroc[i].pid != -1){
             kill(arrCroc[i].pid, SIGKILL);
             wait(NULL);
             //waitpid(arrCroc[i].pid, NULL, 0);

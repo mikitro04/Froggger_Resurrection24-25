@@ -9,6 +9,7 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
     figlio.scelta = 0;
     figlio.frog.vite = VITE;
     figlio.croc.id = -1;
+    figlio.frog.pid = getpid();
     int speed = 30000;
     bool running = true;
     
@@ -40,6 +41,8 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
             prec.y = figlio.frog.coord.y;
         }
     }
+
+    usleep(30000);
 
     close(pipe_fds[1]);
     close(pipe_fds2[0]);

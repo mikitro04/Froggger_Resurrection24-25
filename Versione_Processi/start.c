@@ -54,3 +54,57 @@ bool isFather(pid_t pid, Crocodile *array, int dim){
 int generaNumeroCasuale(int min, int max) {
     return min + rand() % (max - min + 1);
 }
+
+void initMessage(Message *msg){
+    msg->tipo = 0;
+    msg->frog.coord.y = 0;
+    msg->frog.coord.x = 0;
+    msg->croc.coord.y = 0;
+    msg->croc.coord.x = 0;
+    msg->scelta = 0;
+    msg->id = -1;
+}
+
+void initIntArray(int array[], int dim){
+    for (int i = 0; i < dim; i++){
+        array[i] = 0;
+    }
+}
+
+/**
+ * @brief funzione che permette, una volta che perde la rana, di resettare il gioco al punto di partenza
+ * 
+ * @param gioco finestra di gioco su cui vive la RANA
+ * @param fiume finestra di gioco su cui vivono tutti i COCCODRILLI
+ * @param vite finestra su cui risiedono le vite
+ * @param viteTmp numero di vite della rana (quelle rimanenti)
+ * @param frog array contenente lo sprite della rana
+ * @param auxYXRana coordinate prima della morte della rana
+ * @param crocAux array di coccodrilli (da terminare)
+ * @param frogPid pid della rana da terminare
+ * @param running variabile che permette di ripetere il ciclo in cui è chiamata la funzione
+ */
+void resetGame(WINDOW *gioco, WINDOW *fiume, WINDOW *vite, int *viteTmp, int frog[DIM_RANA][LARGH_RANA], Coordinate auxYXRana, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool *running){
+    /*Cancello la rana nella posizione precedente, riassegno le nuove coordinate (quelle di spawn) e la stampo in quella posizione*/
+    deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
+
+    //cancello tutti i coccodrilli a schermo
+    deleteAllCroc(fiume, crocAux);
+
+    //riduco di 1 le vite della rana
+    (*viteTmp)--;
+
+    //cancello le vite a quante sono attualmente
+    deleteVite(vite, 1, *viteTmp);
+
+    //killo tutti i coccodrilli
+    killSons(crocAux);
+
+    //killo la rana
+    kill(frogPid, SIGKILL);
+
+    running = false;
+
+    //timer per assicurarmi che i coccodrilli rinizino correttamente
+    sleep(1);
+}
