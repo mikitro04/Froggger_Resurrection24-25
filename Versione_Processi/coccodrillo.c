@@ -255,7 +255,7 @@ bool frogOnCroc(Coordinate frog, Crocodile croc[]){
 void killSons(Crocodile arrCroc[MAX_CROC]){
     for (int i = 0; i < MAX_CROC; i++){
         if (arrCroc[i].pid != 0){
-            kill(arrCroc[i].pid, SIGTERM);
+            kill(arrCroc[i].pid, SIGKILL);
             wait(NULL);
             //waitpid(arrCroc[i].pid, NULL, 0);
         }

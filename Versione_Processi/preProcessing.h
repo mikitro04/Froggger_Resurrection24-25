@@ -18,7 +18,7 @@
     #define DIM_GIOCO (DIM_TANA + DIM_RANA*2 + DIM_FIUME)   //dimensione finestra di gioco(le tane + il fiume + le due sponde[grandezza come la rana])
     #define NUM_TANE 5                                      //numero di tane
     #define NUM_CORSIE 8                                    //numero di corsie
-    #define DIM_RANA 9                                      //altezza rana, altezza coccodrillo, altezza delle corsie, altezza delle sponde
+    #define DIM_RANA 11                                     //altezza rana, altezza coccodrillo, altezza delle corsie, altezza delle sponde
     #define LARGH_RANA 19                                   //larghezza rana
     #define DIM_COCCODRILLO (LARGH_RANA * 3)                //larghezza coccodrillo
     #define DIM_TANA 15                                     //altezza tana
