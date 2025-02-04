@@ -106,9 +106,9 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
         figlio.croc.coord.x += figlio.scelta;
         
         if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
-            repeat = false;
+            figlio.croc.coord = startYX;
         }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
-            repeat = false;
+            figlio.croc.coord = startYX;
         }
         
         //velocità di movimento del coccodrillo
@@ -116,7 +116,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
         usleep(croc->speed);
     }
 
-    generaCoccodrillo(figlio, corsia, pipe_fds, croc, n, turno + MAX_CROC_CORSIA, pipe_fds3, viteInit);
+    //generaCoccodrillo(figlio, corsia, pipe_fds, croc, n, turno + MAX_CROC_CORSIA, pipe_fds3, viteInit);
 }
 
 /**

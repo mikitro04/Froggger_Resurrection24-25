@@ -131,6 +131,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 //timer per assicurarmi che i coccodrilli rinizino correttamente
                 sleep(1);
 
+                //return true;
+
                 //resetGame(gioco, fiume, vite, viteTmp, frog, auxYXRana, crocAux, frogPid, &running);
             }
         }
