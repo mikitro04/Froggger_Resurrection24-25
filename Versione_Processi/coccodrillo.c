@@ -70,7 +70,9 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < turno; i++){
-        usleep(((DIM_COCCODRILLO * croc->speed)) * 3);
+        for (int j = 0; j < 6; j++){
+            usleep(((DIM_COCCODRILLO * croc->speed)) / 2);
+        }
     }
 
     Coordinate startYX = {corsia, 0};
@@ -98,15 +100,16 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
 
     while(1){
 
-
         if(waitpid(proiettile, &status, WNOHANG) > 0 && WIFEXITED(status)){
             attesa = generaNumeroCasuale(500, 1000);
             shootPermission = true;
+            figlio.bullet.pid = -1;
         }
 
         if(attesa == 0 && shootPermission){
             gestisciProiettiliCoccodrillo(&proiettile, figlio.croc.coord, croc->dir, pipe_fds);
             shootPermission = false;
+            figlio.bullet.pid = proiettile;
         }
         
         //aggiorniamo le coordinate attuali
@@ -121,7 +124,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
             figlio.croc.coord = startYX;
             croc->speed = velocitaCorsia[returnNCorsia(startYX.y)-1];
             figlio.croc.speed = croc->speed;
-            //usleepCrocSpeed(croc->speed);
+            usleepCrocSpeed(croc->speed);
         }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
             startYX.y = (figlio.croc.coord.y - (DIM_RANA * 2));
             if(startYX.y < 0){
@@ -130,7 +133,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
             figlio.croc.coord = startYX;
             croc->speed = velocitaCorsia[returnNCorsia(startYX.y)-1];
             figlio.croc.speed = croc->speed;
-            //usleepCrocSpeed(croc->speed);
+            usleepCrocSpeed(croc->speed);
         }
 
         if(attesa <= 30 && attesa > 0){
@@ -306,5 +309,8 @@ int findSpeed(Crocodile arrCroc[], int yCorsia){
 
 
 void usleepCrocSpeed(int speed){
-    usleep((DIM_COCCODRILLO * speed) + ((DIM_COCCODRILLO * speed) / 2));
+        usleep(((DIM_COCCODRILLO * speed)) / 2);
+        usleep(((DIM_COCCODRILLO * speed)) / 2);
+        usleep(((DIM_COCCODRILLO * speed)) / 2);
+        usleep(((DIM_COCCODRILLO * speed)) / 2);
 }

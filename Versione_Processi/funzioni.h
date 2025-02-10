@@ -22,6 +22,12 @@
         bool allFalse(bool *array, int size);
 
         bool atLeastOneTrue(bool *array, int size);
+
+        void initIntArrayNegative(int array[], int dim);
+
+        void stopAll(Crocodile arrCroc[MAX_CROC], pid_t frogPid, pid_t arrPrj[MAX_CROC], pid_t granadeSX, pid_t granadeDX, pid_t pidPadre);
+    
+        void continueAll(Crocodile arrCroc[MAX_CROC], pid_t frogPid, pid_t arrPrj[MAX_CROC], pid_t granadeSX, pid_t granadeDX);
     ///fine dichiarazioni funzioni start
 
     ///dichiarazione funzione dei colori
@@ -100,7 +106,7 @@
 
         void deleteAllCroc(WINDOW *fiume, Crocodile arrCroc[]);
     
-        void deleteSingleCroc(WINDOW *fiume, Crocodile croc, int scelta);
+        void deleteSingleCroc(WINDOW *fiume, Crocodile croc);
 
         //VITE
         void printVite(WINDOW *vite, int y, int x, int numVite);
@@ -151,6 +157,24 @@
         int traiettoria(int x, int dir, int dim);
 
         void gestisciGranata(pid_t *granade, Coordinate padre, Direction dir, int pipe_fds[]);
+
+    ///stampe sprite fine gioco
+        void printWin(WINDOW *win, int y, int x);
+
+        void deleteWin(WINDOW *win, int y, int x);
+
+        void printFrogWin(WINDOW *win, int y, int x);
+
+        void deleteFrogWin(WINDOW *win, int y, int x);
+
+        void printFrogGhost(WINDOW *win, int y, int x);
+
+        void deleteFrogGhost(WINDOW *win, int y, int x);
+
+        void printGameOver(WINDOW *win, int y, int x);
+
+        void deleteGameOver(WINDOW *win, int y, int x);
+
     ///fine definizione funzioni dei proiettili
 
 ///fine firme funzioni

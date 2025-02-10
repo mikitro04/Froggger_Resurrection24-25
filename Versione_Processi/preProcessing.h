@@ -32,6 +32,14 @@
 #define DIM_GRANATA 7                                   //altezza della granata
 #define LARGH_GRANATA 11                                //larghezza della granata
 #define MAX_CROC (MAX_CROC_CORSIA * NUM_CORSIE)         //numero massimo di coccodrilli
+#define DIM_WIN 21                                      //altezza scritta della vittoria 
+#define LARGH_WIN 45                                    //larghezza scritta della vittoria 
+#define LOSER_FROG_DIM 22                               //altezza rana      
+#define LOSER_FROG_LARGH 23                             //larghezza rana
+#define WINNER_FROG_DIM 19                              //dim rana win
+#define WINNER_FROG_LARGH 23                            //larghezza win
+#define DIM_GAME_OVER 23                                //altezza game over 
+#define LARGH_GAME_OVER 55                              //larghezza game over 
 #define VITE 5                                          //vite iniziali della rana
 #define TEMPO_MAX 60                                    //tempo massimo di gioco
 #define PUNTI1 1500                                     //punti se finisci in 30 secondi
@@ -117,6 +125,18 @@
 #define CROC_LIGHT_RED 53
 #define CROC_DARK_RED 54
 
+//colori endgame RANA
+#define CROWN_LIGHT_YELLOW 55
+#define CROWN_ORANGE_YELLOW 56
+#define CROWN_DARK_YELLOW 57
+#define LIGHT_GREY 58
+
+//colori fantasma rana
+#define GHOST_LIGHT_GREY 59
+#define GHOST_MEDIUM_GREY 60
+#define GHOST_DARK_GREY 61
+
+
 ///fine dichiarazione colori
 
 
@@ -131,6 +151,8 @@ typedef enum {CORSIA1 = 1, CORSIA2, CORSIA3, CORSIA4, CORSIA5, CORSIA6, CORSIA7,
 typedef enum {TANA_MISS = -1, NON_IN_TANA = 0, TANA1 = 1, TANA2, TANA3, TANA4, TANA5} Tane;
 
 typedef enum {TO_RIGHT = 1, TO_LEFT = -1} Direction;    //tipo che gestisce le enumerazioni delle direzioni
+
+typedef enum {DEFENCE = ' ', PAUSE = 'p', QUIT = 'q', RIPRENDI = 'r'} Comamnds;
 
 typedef struct Coordinate{
     int y;              //coordinata y

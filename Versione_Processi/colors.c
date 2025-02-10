@@ -28,6 +28,17 @@ void initializeColorSprite() {
     //TEMPO
     init_color(TIME_PURPLE, 500, 0, 500);      // Viola
 
+    //GAME WIN 
+    init_color(CROWN_LIGHT_YELLOW, 255, 255, 0);
+    init_color(CROWN_ORANGE_YELLOW, 255, 192, 0);
+    init_color(CROWN_DARK_YELLOW, 146, 111, 0);
+    init_color(LIGHT_GREY, 221, 222, 196);
+
+    //GAME LOSE
+    init_color(GHOST_LIGHT_GREY, 208, 208, 208);
+    init_color(GHOST_MEDIUM_GREY, 173, 173, 173);
+    init_color(GHOST_DARK_GREY, 89, 89, 89);
+
     //TANE
     init_color(TANA_VERDE_CHIARO, 550, 600, 300);
     init_color(TANA_VERDE_MEDIO, 500, 550, 250);
@@ -130,6 +141,17 @@ void initializeColorSprite() {
     init_pair(52, COLOR_BLACK, CROC_LIGHT_RED);
     init_pair(53, COLOR_BLACK, CROC_MEDIUM_RED);
     init_pair(54, COLOR_BLACK, CROC_DARK_RED);
+
+    //ENDGAME WIN
+    init_pair(55, COLOR_BLACK, CROWN_LIGHT_YELLOW);
+    init_pair(56, COLOR_BLACK, CROWN_ORANGE_YELLOW);
+    init_pair(57, COLOR_BLACK, CROWN_DARK_YELLOW);
+    init_pair(58, COLOR_BLACK, LIGHT_GREY);
+
+    //ENDGAME LOSE
+    init_pair(59, COLOR_BLACK, GHOST_LIGHT_GREY);
+    init_pair(60, COLOR_BLACK, GHOST_MEDIUM_GREY);
+    init_pair(61, COLOR_BLACK, GHOST_DARK_GREY);
 }
 
 
