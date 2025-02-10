@@ -40,6 +40,8 @@
 #define WINNER_FROG_LARGH 23                            //larghezza win
 #define DIM_GAME_OVER 23                                //altezza game over 
 #define LARGH_GAME_OVER 55                              //larghezza game over 
+#define DIM_SCORE 13                                    //altezza score
+#define LARGH_SCORE 60                                  //larghezza score
 #define VITE 5                                          //vite iniziali della rana
 #define TEMPO_MAX 60                                    //tempo massimo di gioco
 #define PUNTI1 1500                                     //punti se finisci in 30 secondi

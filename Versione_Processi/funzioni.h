@@ -167,6 +167,10 @@
         void printNumber(WINDOW *win, int *number, int y, int x);
 
         void printScore(WINDOW *win, int *number, int y, int x);
+
+        void printFinalScore(WINDOW *win, int number, int y, int x);
+
+        void printFinalNumber(WINDOW *win, int y, int x, char number);
     ///fine dichiarazione funzioni SCORE
 
     ///definizione funzioni dei proiettili

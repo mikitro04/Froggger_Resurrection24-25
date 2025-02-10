@@ -95,10 +95,12 @@ int main() {
         printWin(fiume, DIM_RANA, ((COLS / 2) - (LARGH_WIN / 2)));
         printFrogWin(fiume, DIM_RANA + DIM_WIN, ((COLS / 2) - (WINNER_FROG_LARGH / 2)));
         //stampare lo score usando sprite
+        printFinalScore(fiume, score, DIM_RANA + DIM_WIN + WINNER_FROG_DIM, ((COLS / 2) - LARGH_SCORE));
     } else {
         printGameOver(fiume, DIM_RANA, ((COLS / 2) - (LARGH_GAME_OVER / 2)));
-        printFrogGhost(fiume, DIM_RANA + DIM_GAME_OVER + (DIM_RANA/2), ((COLS / 2) - (LOSER_FROG_LARGH / 2)));
+        printFrogGhost(fiume, (DIM_RANA + DIM_GAME_OVER + (DIM_RANA/2)), ((COLS / 2) - (LOSER_FROG_LARGH / 2)));
         //stampare lo score usando sprite
+        printFinalScore(fiume, score, ((DIM_RANA * 2) + DIM_GAME_OVER + LOSER_FROG_DIM), ((COLS / 2) - LARGH_SCORE));
     }
     sleep(5);
     
