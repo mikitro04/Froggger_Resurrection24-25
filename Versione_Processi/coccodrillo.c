@@ -70,7 +70,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < turno; i++){
-        usleep(((DIM_COCCODRILLO * croc->speed)) * 3   /*(i+1)*/);
+        usleep(((DIM_COCCODRILLO * croc->speed)) * 3);
     }
 
     Coordinate startYX = {corsia, 0};
@@ -121,6 +121,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
             figlio.croc.coord = startYX;
             croc->speed = velocitaCorsia[returnNCorsia(startYX.y)-1];
             figlio.croc.speed = croc->speed;
+            //usleepCrocSpeed(croc->speed);
         }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
             startYX.y = (figlio.croc.coord.y - (DIM_RANA * 2));
             if(startYX.y < 0){
@@ -129,6 +130,7 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
             figlio.croc.coord = startYX;
             croc->speed = velocitaCorsia[returnNCorsia(startYX.y)-1];
             figlio.croc.speed = croc->speed;
+            //usleepCrocSpeed(croc->speed);
         }
 
         if(attesa <= 30 && attesa > 0){
@@ -300,4 +302,9 @@ int findSpeed(Crocodile arrCroc[], int yCorsia){
     }
     perror("Errore nella ricerca della velocità del coccodrillo");
     exit(1);
+}
+
+
+void usleepCrocSpeed(int speed){
+    usleep((DIM_COCCODRILLO * speed) + ((DIM_COCCODRILLO * speed) / 2));
 }

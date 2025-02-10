@@ -70,6 +70,8 @@
         void killSon(Crocodile croc);
     
         int findSpeed(Crocodile arrCroc[], int yCorsia);
+
+        void usleepCrocSpeed(int speed);
     ///fine dichiarazione funzioni COCCODRILLO
 
     ///dichiarazione funzioni print
