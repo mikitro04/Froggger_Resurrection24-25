@@ -108,3 +108,31 @@ void resetGame(WINDOW *gioco, WINDOW *fiume, WINDOW *vite, int *viteTmp, int fro
     //timer per assicurarmi che i coccodrilli rinizino correttamente
     sleep(1);
 }
+
+void initBoolArrayFalse(bool *array, int size){
+    for(int i = 0; i < size; i++){
+        array[i] = false;
+    }
+}
+
+void initBoolArrayTrue(bool *array, int size){
+    for(int i = 0; i < size; i++){
+        array[i] = true;
+    }
+}
+
+bool allFalse(bool *array, int size){
+    for(int i = 0; i < size; i++){
+        if(array[i] == true)
+            return false;
+    }
+    return true;
+}
+
+bool atLeastOneTrue(bool *array, int size){
+    for(int i = 0; i < size; i++){
+        if(array[i] == true)
+            return true;
+    }
+    return false;
+}

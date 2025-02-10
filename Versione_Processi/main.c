@@ -1,18 +1,25 @@
 #include "funzioni.h"
 
+const char *path = "./resize.sh";
+
 int main() {
+
+    system(path);
+
+    sleep(1);
+
     //seed
     srand(time(NULL));
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
-    if(COLS < LARGH_RANA * 26 || LINES < DIM_GIOCO + DIM_STATS * 2){
+    /*if(COLS < LARGH_RANA * 18 || LINES < DIM_GIOCO + DIM_STATS * 2){
         endwin();
         printf("La finestra è troppo piccola per poter giocare\n"
         "Premi un tasto per uscire\n");
         getchar();
         exit(1);
-    }
+    }*/
 
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
@@ -22,7 +29,10 @@ int main() {
     
     int cCorsie[NUM_CORSIE], viteTmp = VITE;
 
-    bool running = true;
+    int score = 0;
+
+    bool run = true, taneLibere[NUM_TANE];
+        initBoolArrayTrue(taneLibere, NUM_TANE);
     
     Frog rana;
 
@@ -39,7 +49,7 @@ int main() {
     keypad(gioco, TRUE);
     nodelay(gioco, TRUE);
     
-    while(running && viteTmp > 0){
+    while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
 
         initIntArray(cCorsie, NUM_CORSIE);
 
@@ -75,6 +85,7 @@ int main() {
         if (rana.pid == 0){
             muoviRana(figlio, pipe_fds, pipe_fds2, gioco);
         }
+        usleep(1000);
         //cosa deve fare il padre
         if (rana.pid > 1){
             gestisciCoccodrilli(cCorsie, arrCroc, figlio, pipe_fds, pipe_fds3);
@@ -82,14 +93,26 @@ int main() {
 
         //nel caso sia il padre di tutti allora può richiamare la funzione di rendering
         if(isFather(rana.pid, arrCroc, MAX_CROC)){
-            running = rendering(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, pipe_fds2, pipe_fds3, &viteTmp);
+            run = rendering(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, pipe_fds2, pipe_fds3, &viteTmp, arrCroc, rana.pid, taneLibere, &score);
         }
     }
 
+    if(allFalse(taneLibere, NUM_TANE)){
+        //Hai vinto
+
+        
+    } else {
+        //Hai perso
+    }
+    
     close(pipe_fds[0]);
     close(pipe_fds2[1]);
     close(pipe_fds3[1]);
-
+    
     endwin();
+
+    system("./ctrResize.sh");
+    sleep(1);
+    
     return 0;
 }

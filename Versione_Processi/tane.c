@@ -1,9 +1,5 @@
 #include "funzioni.h"
 
-////spazioTraUnaTanaEUnAltra = (COLS - (DIM_RANA * NUM_TANE))
-
-
 int returnDistance(){
-    return (COLS - (DIM_RANA * NUM_TANE));
+    return (COLS - (LARGH_TANA * NUM_TANE)) / (NUM_TANE);
 }
-
