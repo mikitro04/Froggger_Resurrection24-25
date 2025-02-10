@@ -90,14 +90,17 @@ int main() {
     }
 
     printTane(tane, 0, 0, taneLibere);
-
-    sleep(5);
-
+    
     if(allFalse(taneLibere, NUM_TANE)){
-        //Hai vinto
+        printWin(fiume, DIM_RANA, ((COLS / 2) - (LARGH_WIN / 2)));
+        printFrogWin(fiume, DIM_RANA + DIM_WIN, ((COLS / 2) - (WINNER_FROG_LARGH / 2)));
+        //stampare lo score usando sprite
     } else {
-        //Hai perso
+        printGameOver(fiume, DIM_RANA, ((COLS / 2) - (LARGH_GAME_OVER / 2)));
+        printFrogGhost(fiume, DIM_RANA + DIM_GAME_OVER + (DIM_RANA/2), ((COLS / 2) - (LOSER_FROG_LARGH / 2)));
+        //stampare lo score usando sprite
     }
+    sleep(5);
     
     close(pipe_fds[0]);
     close(pipe_fds2[1]);

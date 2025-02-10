@@ -135,8 +135,3 @@ void printScore(WINDOW *win, int *number, int y, int x){
 
     wrefresh(win);
 }
-
-
-void gestisciPunteggio(){
-
-}

@@ -139,6 +139,24 @@
         void printBulletToRight(WINDOW *win, int y, int x, int sprite[LARGH_PROIETTILE]);
 
         void deleteBulletToRight(WINDOW *win, int y, int x, int sprite[LARGH_PROIETTILE]);
+
+        //VITTORIA
+        void printWin(WINDOW *win, int y, int x);
+
+        void deleteWin(WINDOW *win, int y, int x);
+
+        void printFrogWin(WINDOW *win, int y, int x);
+
+        void deleteFrogWin(WINDOW *win, int y, int x);
+
+        //SCONFITTA
+        void printFrogGhost(WINDOW *win, int y, int x);
+
+        void deleteFrogGhost(WINDOW *win, int y, int x);
+
+        void printGameOver(WINDOW *win, int y, int x);
+
+        void deleteGameOver(WINDOW *win, int y, int x);
     ///fine dichiarazione funzioni print
 
     ///dichiarazione funzioni tane
@@ -157,24 +175,6 @@
         int traiettoria(int x, int dir, int dim);
 
         void gestisciGranata(pid_t *granade, Coordinate padre, Direction dir, int pipe_fds[]);
-
-    ///stampe sprite fine gioco
-        void printWin(WINDOW *win, int y, int x);
-
-        void deleteWin(WINDOW *win, int y, int x);
-
-        void printFrogWin(WINDOW *win, int y, int x);
-
-        void deleteFrogWin(WINDOW *win, int y, int x);
-
-        void printFrogGhost(WINDOW *win, int y, int x);
-
-        void deleteFrogGhost(WINDOW *win, int y, int x);
-
-        void printGameOver(WINDOW *win, int y, int x);
-
-        void deleteGameOver(WINDOW *win, int y, int x);
-
     ///fine definizione funzioni dei proiettili
 
 ///fine firme funzioni
