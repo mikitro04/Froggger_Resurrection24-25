@@ -1,7 +1,7 @@
 #include "funzioni.h"
 
 //funzione che gestisce i coccodrilli CHIAMATA SOLO DAL PADRE
-void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int pipe_fds3[]){
+void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int difficulty){
 
     int corsia = 0;
     int n = rand() % 2;
@@ -15,7 +15,7 @@ void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int
 
     //generiamo la velocità delle corsie in modo casuale
     for (int i = 0; i < NUM_CORSIE; i++){
-        speedCorsia[i] = setSpeed();
+        speedCorsia[i] = setSpeed() + (2500 * (difficulty - 1));
     }
 
     for (int i = 0; i < MAX_CROC; i++){

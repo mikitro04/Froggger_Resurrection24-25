@@ -13,28 +13,28 @@ int main() {
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
+    //finestre
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
+    //coordinate
     Coordinate startYX = {DIM_GIOCO - DIM_RANA, COLS/2};
 
-    int pipe_fds[2], pipe_fds2[2], pipe_fds3[2];
+    //pipes
+    int pipe_fds[2], pipe_fds2[2];
     
-    int cCorsie[NUM_CORSIE], viteTmp = VITE;
+    //interi
+    int cCorsie[NUM_CORSIE], viteTmp = 0, score = 0, giustifica = 0, difficulty = EASY;
 
-    int score = 0;
-
-    int giustifica = 0;
-
+    //booleani
     bool run = true, taneLibere[NUM_TANE];
         initBoolArrayTrue(taneLibere, NUM_TANE);
     
+    //strutture rana, coccodrilli e messaggi
     Frog rana;
 
     Crocodile arrCroc[MAX_CROC];
 
-    Message figlio;
-
-    Message msg;
+    Message figlio, msg;
      
     initializeColorSprite();
 
@@ -43,6 +43,8 @@ int main() {
     keypad(gioco, TRUE);
     nodelay(gioco, TRUE);
     
+
+    viteTmp = VITE + difficulty;
     while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
 
         initIntArray(cCorsie, NUM_CORSIE);
@@ -64,11 +66,6 @@ int main() {
             exit(2);
         }
 
-        if(pipe(pipe_fds3) == -1) {
-            perror("Pipe2 call");
-            exit(2);
-        }
-
         rana.pid = fork();
             if(rana.pid < 0){
                 perror("fork");
@@ -82,12 +79,12 @@ int main() {
         usleep(1000);
         //cosa deve fare il padre
         if (rana.pid > 1){
-            gestisciCoccodrilli(cCorsie, arrCroc, figlio, pipe_fds, pipe_fds3);
+            gestisciCoccodrilli(cCorsie, arrCroc, figlio, pipe_fds, difficulty);
         }
 
         //nel caso sia il padre di tutti allora può richiamare la funzione di rendering
         if(isFather(rana.pid, arrCroc, MAX_CROC)){
-            run = rendering(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, pipe_fds2, pipe_fds3, &viteTmp, arrCroc, rana.pid, taneLibere, &score);
+            run = rendering(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, pipe_fds2, &viteTmp, arrCroc, rana.pid, taneLibere, &score, difficulty);
         }
     }
 
@@ -109,7 +106,6 @@ int main() {
     
     close(pipe_fds[0]);
     close(pipe_fds2[1]);
-    close(pipe_fds3[1]);
     
     endwin();
 

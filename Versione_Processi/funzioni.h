@@ -53,7 +53,7 @@
     ///fine dichiarazione rana
 
     ///dichiarazione funzioni COCCODRILLO
-        void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int pipe_fds3[]);
+        void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int difficulty);
 
         int setSpeed();
 
@@ -82,7 +82,7 @@
 
     ///dichiarazione funzioni print
         //RENDERING
-        bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *vite, WINDOW *tempo, Message msg, int pipe_fds[], int pipe_fds2[], int pipe_fds3[], int *viteTmp, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool taneLibere[NUM_TANE], int *score);
+        bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *vite, WINDOW *tempo, Message msg, int pipe_fds[], int pipe_fds2[], int *viteTmp, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool taneLibere[NUM_TANE], int *score, int difficulty);
 
         //RANA
         void stampaRana(WINDOW *gioco, WINDOW *spondaInf, WINDOW *spondaSup, Message msg, int pipe_fds[], Coordinate *ranaYX);
@@ -114,7 +114,7 @@
         void deleteVite(WINDOW *vite, int y, int vita);
 
         //TEMPO
-        void printTempo(WINDOW *tempo, int y, int x, int time);
+        void printTempo(WINDOW *tempo, int y, int x, int time, int difficulty);
 
         //TANE
         void printTane(WINDOW *tane, int y, int x, bool taneLibere[NUM_TANE]);

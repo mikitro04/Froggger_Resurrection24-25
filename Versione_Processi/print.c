@@ -10,7 +10,7 @@ ooooooooo.   oooooooooooo ooooo      ooo oooooooooo.   oooooooooooo ooooooooo.  
 o888o  o888o o888ooooood8 o8o        `8  o888bood8P'   o888ooooood8 o888o  o888o o888o o8o        `8   `Y8bood8P'   
 */
 
-bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *vite, WINDOW *tempo, Message msg, int pipe_fds[], int pipe_fds2[], int pipe_fds3[], int *viteTmp, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool taneLibere[NUM_TANE], int *score){
+bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *vite, WINDOW *tempo, Message msg, int pipe_fds[], int pipe_fds2[], int *viteTmp, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool taneLibere[NUM_TANE], int *score, int difficulty){
      
     //matrice rana colorata
     int frog[DIM_RANA][LARGH_RANA] = {
@@ -107,7 +107,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
     
             //calcolo il tempo trascorso
             tempoTrascorso = (now - start);
-            printTempo(tempo, 1, 0, tempoTrascorso);
+            printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
         }
 
         ///pausa
@@ -119,7 +119,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
         if(msg.tipo == 0){
             chose = wgetch(gioco);
-            if(chose == 'r'){
+            if(chose == RIPRENDI){
                 continueAll(crocAux, frogPid, arrPrj, auxGranadeSX.pid, auxGranadeDX.pid);
                 start = time(NULL);
                 start -= tempoTrascorso;
@@ -221,6 +221,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                             granadeDX = false;
                         }
                         pidPrjEl = msg.bullet.pid;
+                        *score += 100;
                     }
                 }else if(msg.bullet.dir == TO_RIGHT){
                     if((msg.bullet.coord.x + LARGH_PROIETTILE) >= auxGranadeSX.coord.x){
@@ -243,6 +244,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                             granadeSX = false;
                         }
                         pidPrjEl = msg.bullet.pid;
+                        *score += 100;
                     }          
                 }
                 wnoutrefresh(fiume);
@@ -250,13 +252,14 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
             if(msg.bullet.coord.x <= 0 || msg.bullet.coord.x >= COLS){
                 kill(msg.bullet.pid, SIGKILL);
+                        *score += 100;
                 waitpid(msg.bullet.pid, NULL, 0);
             }
 
         }
         //se: la rana è sul fiume ma non su un coccodrillo || se il tempo è scaduto || se la rana è fuori dallo schermo || la rana è entrata male nella tana || la rana è stata colpita da un proiettile
-        if (/*newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || */tempoTrascorso == TEMPO_MAX || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            if(/*!frogOnCroc(newPosFrog.frog.coord, crocAux) || */tempoTrascorso == TEMPO_MAX || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+        if (/*newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            if(/*!frogOnCroc(newPosFrog.frog.coord, crocAux) || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
                 /*Cancello la rana nella posizione precedente, riassegno le nuove coordinate (quelle di spawn) e la stampo in quella posizione*/
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                 deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
@@ -307,11 +310,11 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             initializeArrCroc(crocAux, MAX_CROC);
 
             if (tempoTrascorso <= 30){
-                *score += 1500;
+                *score += 1500 + (750 / difficulty);
             }else if(tempoTrascorso > 30 && tempoTrascorso <= 45){
-                *score += 1000;
-            }else if(tempoTrascorso > 45 && tempoTrascorso <TEMPO_MAX){
-                *score += 500;
+                *score += 1000 + (750 / difficulty);
+            }else if(tempoTrascorso > 45 && tempoTrascorso < (TEMPO_MAX - (20 * (3 - difficulty)))){
+                *score += 500 + (750 / difficulty);
             }
 
             printScore(punteggio, score, 2, 0);
@@ -321,7 +324,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             //wrefresh(fiume);
         }
 
-        if(msg.scelta == 'q'){
+        if(msg.scelta == QUIT || chose == QUIT){
             //killo tutti i coccodrilli
             killSons(crocAux);
 
@@ -587,7 +590,7 @@ void deleteSingleCroc(WINDOW *fiume, Crocodile croc){
         {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
         {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	0,	0,	0,	0,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	0,	0,	0,	0,	0,	0},
         {0,	CROC_GREY_2,	CROC_GREY_2,	EYE_BLACK,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_WHITE,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	0,	CROC_GREY_3,	CROC_GREY_3,	0,	0,	0,	0},
-        {0,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GRhttps://prod.liveshare.vsengsaas.visualstudio.com/join?B0C24CE6D3EB1AB08A182AD2B59F887E016BEY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	0,	CROC_GREY_3,	CROC_GREY_3,	0},
+        {0,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	0,	CROC_GREY_3,	CROC_GREY_3,	0},
         {0,	CROC_GREY_1,	EYE_WHITE,	CROC_GREY_1,	EYE_WHITE,	CROC_GREY_1,	EYE_WHITE,	CROC_GREY_1,	EYE_WHITE,	CROC_GREY_1,	EYE_WHITE,	CROC_GREY_1,	EYE_WHITE,	CROC_GREY_1,	EYE_WHITE,	CROC_GREY_3,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	8,	CROC_GREY_2,	8,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	8,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	8,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_2,	0},
         {0,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_7,	CROC_GREY_1,	CROC_GREY_2,	CROC_GREY_1,	0,	8,	CROC_GREY_7,	8,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_2,	0,	CROC_GREY_7,	0,	0,	CROC_GREY_1,	CROC_GREY_2,	8,	CROC_GREY_2,	0,	CROC_GREY_2,	CROC_GREY_2,	8,	0,	0,	CROC_GREY_2,	CROC_GREY_1,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	CROC_GREY_3,	0},
         {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CROC_GREY_2,	CROC_GREY_2,	CROC_GREY_2,	0,	0,	0,	0,	CROC_GREY_2,		CROC_GREY_2,	0,	0,	0,	0,	0,	CROC_GREY_2,	CROC_GREY_2,	0,	0,	0,	CROC_GREY_2,	CROC_GREY_2,	0,	0,	CROC_GREY_1,	CROC_GREY_2,	CROC_GREY_1,	0,	0,	CROC_GREY_2,	CROC_GREY_1,	0},
@@ -684,16 +687,16 @@ ooooooooooooo oooooooooooo ooo        ooooo ooooooooo.     .oooooo.
 */
 
 
-void printTempo(WINDOW *tempo, int y, int x, int time){
-    int sprite[DIM_STATS - 2][TEMPO_MAX * 2];
+void printTempo(WINDOW *tempo, int y, int x, int time, int difficulty){
+    int sprite[DIM_STATS - 2][(TEMPO_MAX - (20 * (3 - difficulty))) * 2];
     for (int i = 0; i < DIM_STATS-2; i++){
-        for(int j = 0; j < TEMPO_MAX * 2; j++){
+        for(int j = 0; j < (TEMPO_MAX - (20 * (3 - difficulty))) * 2; j++){
             sprite[i][j] = TIME_PURPLE;
         }
     }
 
     for (int i = 0; i < DIM_STATS-2; i++){
-        for (int j = 0; j < TEMPO_MAX * 2; j++){
+        for (int j = 0; j < (TEMPO_MAX - (20 * (3 - difficulty))) * 2; j++){
             wattron(tempo, COLOR_PAIR(sprite[i][j]));
             mvwprintw(tempo, y + i, x + j, " ");
             wattroff(tempo, COLOR_PAIR(sprite[i][j]));
@@ -702,7 +705,7 @@ void printTempo(WINDOW *tempo, int y, int x, int time){
 
     //cancelliamo la colonna y + (TEMPO_MAX - time) per cancellare il tempo trascorso
     for (int i = 0; i < DIM_STATS-2; i++){
-        for (int j = TEMPO_MAX * 2; j > (TEMPO_MAX * 2) - (time * 2); j--){
+        for (int j = (TEMPO_MAX - (20 * (3 - difficulty))) * 2; j > ((TEMPO_MAX - (20 * (3 - difficulty))) * 2) - (time * 2); j--){
             mvwaddch(tempo, y + i, x + j, ' ' | COLOR_PAIR(EYE_BLACK));
         }
     }

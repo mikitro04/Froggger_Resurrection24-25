@@ -68,6 +68,11 @@ void initializeColorSprite() {
     init_color(CROC_MEDIUM_RED, 1000, 0, 0);
     init_color(CROC_DARK_RED, 178, 0, 0);
 
+    //MENU' PAUSA 
+    init_color(BREAK_MEDIUM_BROWN, 146, 111, 0);
+    init_color(BREAK_DARK_BROWN, 96, 73, 0);
+
+
 
     //Associa colori a coppie foreground/background
     //RANA
@@ -152,6 +157,10 @@ void initializeColorSprite() {
     init_pair(59, COLOR_BLACK, GHOST_LIGHT_GREY);
     init_pair(60, COLOR_BLACK, GHOST_MEDIUM_GREY);
     init_pair(61, COLOR_BLACK, GHOST_DARK_GREY);
+
+    //PAUSA
+    init_pair(62, COLOR_BLACK, BREAK_MEDIUM_BROWN);
+    init_pair(63, COLOR_BLACK, BREAK_DARK_BROWN);
 }
 
 
