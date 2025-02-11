@@ -42,6 +42,11 @@
     #define LARGH_GAME_OVER 55                              //larghezza game over 
     #define DIM_SCORE 13                                    //altezza score
     #define LARGH_SCORE 60                                  //larghezza score
+    #define DIM_BREAK 56                                    //altezza fienstra pausa
+    #define LARGH_BREAK 117                                 //larghezza fienstra pausa
+    #define DIM_CARTEL 10                                   //altezza cartello
+    #define LARGH_CARTEL 33                                 //larghezza cartello
+    #define SPAZIO_CARTEL 23                                //spazio tra i cartelli 
     #define VITE 2                                          //vite iniziali della rana
     #define TEMPO_MAX 90                                    //tempo massimo di gioco
     #define PUNTI1 1500                                     //punti se finisci in 30 secondi
@@ -141,7 +146,7 @@
 
     //colori menù di pausa
     #define BREAK_MEDIUM_BROWN 62
-    #define BREAK_DARK_BROWN 61
+    #define BREAK_DARK_BROWN 63
 ///fine dichiarazione colori
 
 

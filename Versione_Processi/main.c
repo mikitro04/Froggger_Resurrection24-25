@@ -42,7 +42,7 @@ int main() {
 
     keypad(gioco, TRUE);
     nodelay(gioco, TRUE);
-    
+    keypad(gioco, TRUE);
 
     viteTmp = VITE + difficulty;
     while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
@@ -76,13 +76,14 @@ int main() {
         if (rana.pid == 0){
             muoviRana(figlio, pipe_fds, pipe_fds2, gioco);
         }
+        //aspetto per assicurarmi che la rana sia stata generata correttamente ed evitare di perdere vite all'inizio del gioco
         usleep(1000);
         //cosa deve fare il padre
         if (rana.pid > 1){
             gestisciCoccodrilli(cCorsie, arrCroc, figlio, pipe_fds, difficulty);
         }
 
-        //nel caso sia il padre di tutti allora può richiamare la funzione di rendering
+        //nel caso sia il padre di tutti (coccodrilli e rana) allora può richiamare la funzione di rendering
         if(isFather(rana.pid, arrCroc, MAX_CROC)){
             run = rendering(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo, msg, pipe_fds, pipe_fds2, &viteTmp, arrCroc, rana.pid, taneLibere, &score, difficulty);
         }
@@ -102,7 +103,7 @@ int main() {
         //stampare lo score usando sprite
         printFinalScore(fiume, score, ((DIM_RANA * 2) + DIM_GAME_OVER + LOSER_FROG_DIM), ((COLS / 2) - giustifica/2));
     }
-    sleep(5);
+    sleep(3);
     
     close(pipe_fds[0]);
     close(pipe_fds2[1]);

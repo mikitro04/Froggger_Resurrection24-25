@@ -85,16 +85,16 @@
         bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *vite, WINDOW *tempo, Message msg, int pipe_fds[], int pipe_fds2[], int *viteTmp, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool taneLibere[NUM_TANE], int *score, int difficulty);
 
         //RANA
-        void stampaRana(WINDOW *gioco, WINDOW *spondaInf, WINDOW *spondaSup, Message msg, int pipe_fds[], Coordinate *ranaYX);
+        void stampaRana(WINDOW *gioco, WINDOW *spondaInf, WINDOW *spondaSup, Message msg, Coordinate *ranaYX);
     
         void printFrog(WINDOW *gioco, int y, int x, int frog[DIM_RANA][LARGH_RANA]);
     
         void deleteFrog(WINDOW *gioco, int y, int x, int frog[DIM_RANA][LARGH_RANA]);
 
         //COCCODRILLO
-        void stampaCoccodrillo(WINDOW *fiume, Message msg, int pipe_fds[], int *y, int *x);
+        void stampaCoccodrillo(WINDOW *fiume, Message msg, int *y, int *x);
 
-        void gestisciStampaCoccodrillo(Message msg, WINDOW *fiume, int pipe_fds[]);
+        void gestisciStampaCoccodrillo(Message msg, WINDOW *fiume);
     
         void deleteCrocToLeft(WINDOW *fiume, int y, int x, int croc[DIM_RANA][DIM_COCCODRILLO]);
 
@@ -132,13 +132,11 @@
         //PROIETTILI
         void printBullet(WINDOW *win, int y, int x, Direction dir);
 
-        void deleteBulletToLeft(WINDOW *win, int y, int x, int spriteBullet[LARGH_PROIETTILE]);
+        void deleteBullet(WINDOW *win, int y, int x, int spriteBullet[LARGH_PROIETTILE]);
 
         void printBulletToLeft(WINDOW *win, int y, int x, int sprite[LARGH_PROIETTILE]);
 
         void printBulletToRight(WINDOW *win, int y, int x, int sprite[LARGH_PROIETTILE]);
-
-        void deleteBulletToRight(WINDOW *win, int y, int x, int sprite[LARGH_PROIETTILE]);
 
         //VITTORIA
         void printWin(WINDOW *win, int y, int x);
@@ -157,6 +155,17 @@
         void printGameOver(WINDOW *win, int y, int x);
 
         void deleteGameOver(WINDOW *win, int y, int x);
+
+        //PAUSA
+        void printPausa(WINDOW *win, int y, int x);
+
+        void svuotamenuPausa(WINDOW *win);
+
+        void printSignResume(WINDOW *win, int y, int x);
+        
+        void printSignQuit(WINDOW *win, int y, int x);
+    
+        void selectButton(WINDOW *win, int button);
     ///fine dichiarazione funzioni print
 
     ///dichiarazione funzioni tane

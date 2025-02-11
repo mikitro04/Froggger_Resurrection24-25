@@ -1,5 +1,8 @@
 #include "funzioni.h"
 
+/**
+ * @brief Funzione che inizializza i colori per gli sprite
+ */
 void initializeColorSprite() {
     ///Definizione colori
     //RANA
@@ -69,9 +72,8 @@ void initializeColorSprite() {
     init_color(CROC_DARK_RED, 178, 0, 0);
 
     //MENU' PAUSA 
-    init_color(BREAK_MEDIUM_BROWN, 146, 111, 0);
-    init_color(BREAK_DARK_BROWN, 96, 73, 0);
-
+    init_color(BREAK_MEDIUM_BROWN, 346, 311, 0);
+    init_color(BREAK_DARK_BROWN, 196, 173, 0);
 
 
     //Associa colori a coppie foreground/background
@@ -96,18 +98,6 @@ void initializeColorSprite() {
     init_pair(23, COLOR_BLACK, CROC_GREY_7);       // Grigio scuro 2
     init_pair(24, COLOR_BLACK, CROC_GREY_8);       // Grigio molto scuro
 
-    //TANE
-    // init_color(TANA_VERDE_CHIARO, 700, 1000, 700);
-    // init_color(TANA_VERDE_MEDIO, 0, 800, 0);
-    // init_color(TANA_VERDE_SCURO1, 0, 600, 0);
-    // init_color(TANA_VERDE_SCURO2, 0, 400, 0);
-    // init_color(TANA_GRIGIO_CHIARO1, 850, 850, 850);
-    // init_color(TANA_GRIGIO_CHIARO2, 700, 700, 700);
-    // init_color(TANA_GRIGIO, 500, 500, 500);
-    // init_color(TANA_GRIGIO_SCURO, 300, 300, 300);
-    // init_color(TANA_NERO_CHIARO, 150, 150, 150);
-    // init_color(TANA_NERO, 50, 50, 50);
-
     //CUORI
     init_pair(30, COLOR_BLACK, CUORE_RED);
 
@@ -125,7 +115,6 @@ void initializeColorSprite() {
     init_pair(39, COLOR_BLACK, TANA_GRIGIO_SCURO);
     init_pair(40, COLOR_BLACK, TANA_NERO_CHIARO);
     init_pair(41, COLOR_BLACK, TANA_NERO);
-
 
     //PROIETTILI
     init_pair(43, COLOR_BLACK, BULLET_GREY);
@@ -164,8 +153,18 @@ void initializeColorSprite() {
 }
 
 
-
-//inizializza i colori di tutte le sottofinestre che compongono il campo di gioco 
+/**
+ * @brief Funzione che inizializza i colori di tutte le sottofinestre che compongono il campo di gioco
+ * @param punteggio Finestra del punteggio
+ * @param gioco Finestra del gioco
+ * @param statistiche Finestra delle statistiche
+ * @param tane Finestra delle tane
+ * @param spondaSup Finestra della sponda superiore
+ * @param fiume Finestra del fiume
+ * @param spondaInf Finestra della sponda inferiore
+ * @param vite Finestra delle vite
+ * @param tempo Finestra del tempo
+ */
 void inizializzaColori(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
     
     init_color(COLOR_YELLOW, 600, 400, 200);
@@ -182,6 +181,18 @@ void inizializzaColori(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche,
     
 }
 
+/**
+ * @brief Funzione che ripristina lo sfondo delle finestre
+ * @param punteggio Finestra del punteggio
+ * @param gioco Finestra del gioco
+ * @param statistiche Finestra delle statistiche
+ * @param tane Finestra delle tane
+ * @param spondaSup Finestra della sponda superiore
+ * @param fiume Finestra del fiume
+ * @param spondaInf Finestra della sponda inferiore
+ * @param vite Finestra delle vite
+ * @param tempo Finestra del tempo
+ */
 void ripristinaSfondo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
     wbkgd(*punteggio, COLOR_PAIR(15));
     wbkgd(*tane, COLOR_PAIR(1));
@@ -192,6 +203,18 @@ void ripristinaSfondo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, 
     wbkgd(*tempo, COLOR_PAIR(15));
 }
 
+/**
+ * @brief Funzione che aggiorna tutte le finestre
+ * @param punteggio Finestra del punteggio
+ * @param gioco Finestra del gioco
+ * @param statistiche Finestra delle statistiche
+ * @param tane Finestra delle tane
+ * @param spondaSup Finestra della sponda superiore
+ * @param fiume Finestra del fiume
+ * @param spondaInf Finestra della sponda inferiore
+ * @param vite Finestra delle vite
+ * @param tempo Finestra del tempo
+ */
 void refreshAllWin(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
     wrefresh(*punteggio);
     wrefresh(*gioco);
@@ -205,6 +228,13 @@ void refreshAllWin(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WIN
 }
 
 //restituisce il colorpair dello sfondo in base alla coordinata y
+/**
+ * @brief Funzione che restituisce il color pair in base alla coordinata y
+ * La funzione serve per ovviare la selezione statica della scelta dello sfondo, e impostarlo in maniera dinamica
+ * @param y Coordinata y
+ * @param x Coordinata x
+ * @return intero che corrisponde al valore da inserire dentro le parentesi del COLOR_PAIR(..)
+ */
 int returnColorPair(int y, int x){
     if(y > 0 && y < DIM_TANA){
         return 1;
