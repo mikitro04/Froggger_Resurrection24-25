@@ -23,6 +23,8 @@ int main() {
 
     int score = 0;
 
+    int giustifica = 0;
+
     bool run = true, taneLibere[NUM_TANE];
         initBoolArrayTrue(taneLibere, NUM_TANE);
     
@@ -90,17 +92,18 @@ int main() {
     }
 
     printTane(tane, 0, 0, taneLibere);
+    giustifica = giustificaPunteggio(score);
     
     if(allFalse(taneLibere, NUM_TANE)){
         printWin(fiume, DIM_RANA, ((COLS / 2) - (LARGH_WIN / 2)));
-        printFrogWin(fiume, DIM_RANA + DIM_WIN, ((COLS / 2) - (WINNER_FROG_LARGH / 2)));
+        printFrogWin(fiume, DIM_RANA + DIM_WIN + 3, ((COLS / 2) - (WINNER_FROG_LARGH / 2)));
         //stampare lo score usando sprite
-        printFinalScore(fiume, score, DIM_RANA + DIM_WIN + WINNER_FROG_DIM, ((COLS / 2) - LARGH_SCORE));
+        printFinalScore(fiume, score, DIM_RANA + DIM_WIN + WINNER_FROG_DIM + 3, ((COLS / 2) - giustifica/2));
     } else {
         printGameOver(fiume, DIM_RANA, ((COLS / 2) - (LARGH_GAME_OVER / 2)));
         printFrogGhost(fiume, (DIM_RANA + DIM_GAME_OVER + (DIM_RANA/2)), ((COLS / 2) - (LOSER_FROG_LARGH / 2)));
         //stampare lo score usando sprite
-        printFinalScore(fiume, score, ((DIM_RANA * 2) + DIM_GAME_OVER + LOSER_FROG_DIM), ((COLS / 2) - LARGH_SCORE));
+        printFinalScore(fiume, score, ((DIM_RANA * 2) + DIM_GAME_OVER + LOSER_FROG_DIM), ((COLS / 2) - giustifica/2));
     }
     sleep(5);
     

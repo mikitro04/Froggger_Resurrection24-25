@@ -432,3 +432,19 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
             break;
     }
 }
+
+int giustificaPunteggio(int number){
+
+    int x = LARGH_SCORE;
+
+    char str[10];  
+    sprintf(str, "%d", number);
+
+    int len = strlen(str);
+    
+    for(int i = 0; i < len; i++){
+        x += 9;
+    }
+
+    return x;
+}

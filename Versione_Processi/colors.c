@@ -29,15 +29,15 @@ void initializeColorSprite() {
     init_color(TIME_PURPLE, 500, 0, 500);      // Viola
 
     //GAME WIN 
-    init_color(CROWN_LIGHT_YELLOW, 255, 255, 0);
-    init_color(CROWN_ORANGE_YELLOW, 255, 192, 0);
-    init_color(CROWN_DARK_YELLOW, 146, 111, 0);
-    init_color(LIGHT_GREY, 221, 222, 196);
+    init_color(CROWN_LIGHT_YELLOW, 755, 830, 0);
+    init_color(CROWN_ORANGE_YELLOW, 655, 530, 0);
+    init_color(CROWN_DARK_YELLOW, 255, 250, 80);
+    init_color(LIGHT_GREY, 800, 800, 800);
 
     //GAME LOSE
-    init_color(GHOST_LIGHT_GREY, 208, 208, 208);
-    init_color(GHOST_MEDIUM_GREY, 173, 173, 173);
-    init_color(GHOST_DARK_GREY, 89, 89, 89);
+    init_color(GHOST_LIGHT_GREY, 700, 700, 700);
+    init_color(GHOST_MEDIUM_GREY, 500, 500, 500);
+    init_color(GHOST_DARK_GREY, 200, 200, 230);
 
     //TANE
     init_color(TANA_VERDE_CHIARO, 550, 600, 300);
