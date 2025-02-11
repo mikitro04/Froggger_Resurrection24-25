@@ -168,7 +168,7 @@ void printFinalScore(WINDOW *win, int number, int y, int x){
         for(int j = 0; j < LARGH_SCORE; j++){
             if(score[i][j] != 0){
                 wattron(win, COLOR_PAIR(score[i][j]));
-                mvwprintw(win, y + i, x + j, "%c", 219);
+                mvwprintw(win, y + i, x + j, " " );
                 wattroff(win, COLOR_PAIR(score[i][j]));
             }
         }
@@ -325,7 +325,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteUno[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteUno[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " ");
                         wattroff(win, COLOR_PAIR(spriteUno[i][j]));
                     }
                 }
@@ -336,7 +336,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteDue[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteDue[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " " );
                         wattroff(win, COLOR_PAIR(spriteDue[i][j]));
                     }
                 }
@@ -347,7 +347,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteTre[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteTre[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " " );
                         wattroff(win, COLOR_PAIR(spriteTre[i][j]));
                     }
                 }
@@ -358,7 +358,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteQuattro[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteQuattro[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " ");
                         wattroff(win, COLOR_PAIR(spriteQuattro[i][j]));
                     }
                 }
@@ -369,7 +369,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteCinque[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteCinque[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " ");
                         wattroff(win, COLOR_PAIR(spriteCinque[i][j]));
                     }
                 }
@@ -380,7 +380,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteSei[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteSei[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " ");
                         wattroff(win, COLOR_PAIR(spriteSei[i][j]));
                     }
                 }
@@ -391,7 +391,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteSette[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteSette[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " " );
                         wattroff(win, COLOR_PAIR(spriteSette[i][j]));
                     }
                 }
@@ -402,7 +402,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteOtto[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteOtto[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " " );
                         wattroff(win, COLOR_PAIR(spriteOtto[i][j]));
                     }
                 }
@@ -413,7 +413,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteNove[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteNove[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " " );
                         wattroff(win, COLOR_PAIR(spriteNove[i][j]));
                     }
                 }
@@ -424,7 +424,7 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
                 for(int j = 0; j < 9; j++){
                     if(spriteZero[i][j] != 0){
                         wattron(win, COLOR_PAIR(spriteZero[i][j]));
-                        mvwprintw(win, y + i, x + j, "%c", 219);
+                        mvwprintw(win, y + i, x + j, " " );
                         wattroff(win, COLOR_PAIR(spriteZero[i][j]));
                     }
                 }
