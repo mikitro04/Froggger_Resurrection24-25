@@ -187,9 +187,17 @@
     ///definizione funzioni dei proiettili
         void gestisciProiettiliCoccodrillo(pid_t *bullet, Coordinate padre, Direction dir, int pipe_fds[]);
 
-        int traiettoria(int x, int dir, int dim);
+        int traiettoria(int x, int dir);
 
         void gestisciGranata(pid_t *granade, Coordinate padre, Direction dir, int pipe_fds[]);
     ///fine definizione funzioni dei proiettili
+
+    ///dichiarazione funzioni del menu
+        Mix_Chunk *chooseDifficultyMusic(Difficulties difficulty);
+
+        void printMod();
+
+        void printSelectedDiff(Difficulties diff);
+    ///fine dichiarazione funzioni del menu
 
 ///fine firme funzioni

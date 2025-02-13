@@ -11,6 +11,7 @@ void gestisciProiettiliCoccodrillo(pid_t *bullet, Coordinate padre, Direction di
         perror("Errore nella creazione del processo figlio");
         exit(1);
     }else if(*bullet == 0){
+
         figlio.tipo = PROIETTILE;
         figlio.bullet.coord.y = padre.y + 5;
 
@@ -28,7 +29,7 @@ void gestisciProiettiliCoccodrillo(pid_t *bullet, Coordinate padre, Direction di
 
         while(1){
 
-            figlio.bullet.coord.x = traiettoria(figlio.bullet.coord.x, dir, LARGH_PROIETTILE);
+            figlio.bullet.coord.x = traiettoria(figlio.bullet.coord.x, dir);
             
             write(pipe_fds[1], &figlio, sizeof(Message));
 
@@ -41,10 +42,9 @@ void gestisciProiettiliCoccodrillo(pid_t *bullet, Coordinate padre, Direction di
 }
 
 
-int traiettoria(int x, int dir, int dim){
+int traiettoria(int x, int dir){
 
-        x += dir;
-    
+    x += dir;
 
     return x;
 }
@@ -82,7 +82,7 @@ void gestisciGranata(pid_t *granade, Coordinate padre, Direction dir, int pipe_f
 
         while(1){
 
-            figlio.bullet.coord.x = traiettoria(figlio.bullet.coord.x, dir, LARGH_GRANATA);
+            figlio.bullet.coord.x = traiettoria(figlio.bullet.coord.x, dir);
 
             write(pipe_fds[1], &figlio, sizeof(Message));
 

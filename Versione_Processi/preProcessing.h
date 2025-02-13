@@ -11,6 +11,8 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 ///fine direttive di pre-processing
 
 
@@ -47,6 +49,9 @@
     #define DIM_CARTEL 10                                   //altezza cartello
     #define LARGH_CARTEL 33                                 //larghezza cartello
     #define SPAZIO_CARTEL 23                                //spazio tra i cartelli 
+    #define DIM_TITOLO 10
+    #define LARGH_FROGGER 94
+    #define LARGH_RESURRECTION 155
     #define VITE 2                                          //vite iniziali della rana
     #define TEMPO_MAX 90                                    //tempo massimo di gioco
     #define PUNTI1 1500                                     //punti se finisci in 30 secondi
@@ -147,6 +152,7 @@
     //colori menù di pausa
     #define BREAK_MEDIUM_BROWN 62
     #define BREAK_DARK_BROWN 63
+    #define WRITE_PINK 64
 ///fine dichiarazione colori
 
 

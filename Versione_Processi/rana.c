@@ -68,6 +68,15 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
     exit(0);
 }
 
+/**
+ * @brief Funzione che, preso in input il comando inserito dall'utente, permette di modificare le coordinate della rana dove possibile. Impedisce alla rana di uscire dalla finestra di gioco
+ * La funzione è uno semplice switch che permette di modificare le coordinate della rana in base al comando inserito dall'utente
+ * @param y Coordinata y della rana
+ * @param x Coordinata x della rana
+ * @param limitInf Limite inferiore della finestra di gioco
+ * @param scelta Input dell'utente
+ * @param running Booleano che indica se il gioco è in esecuzione, se viene premuto 'q' la rana muore
+ */
 void joystickRana(int *y, int *x, int limitInf, int scelta, bool *running){
     switch(scelta){
         case KEY_UP:
@@ -97,6 +106,12 @@ void joystickRana(int *y, int *x, int limitInf, int scelta, bool *running){
 
 }
 
+/**
+ * @brief Funzione che permette di inizializzare la rana con valori nulli
+ * La funzione permette di non rendere ridondanti all'interno del codice le inizializzazioni della rana
+ * @param frog Struttura di tipo Frog passata come puntatore da inizializzare
+ * @param startYX Coordinate di partenza della rana
+ */
 void initializeFrog(Frog *frog, Coordinate startYX){
     frog->pid = -1;
     frog->coord = startYX;

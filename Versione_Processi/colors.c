@@ -74,6 +74,7 @@ void initializeColorSprite() {
     //MENU' PAUSA 
     init_color(BREAK_MEDIUM_BROWN, 346, 311, 0);
     init_color(BREAK_DARK_BROWN, 196, 173, 0);
+    init_color(WRITE_PINK, 1000, 500, 500);
 
 
     //Associa colori a coppie foreground/background
@@ -150,6 +151,7 @@ void initializeColorSprite() {
     //PAUSA
     init_pair(62, COLOR_BLACK, BREAK_MEDIUM_BROWN);
     init_pair(63, COLOR_BLACK, BREAK_DARK_BROWN);
+    init_pair(64, COLOR_BLACK, WRITE_PINK);
 }
 
 
