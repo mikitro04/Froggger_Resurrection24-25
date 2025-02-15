@@ -170,17 +170,15 @@ void initializeColorSprite() {
 void inizializzaColori(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
     
     init_color(COLOR_YELLOW, 600, 400, 200);
-    init_color(COLOR_GREEN, 0, 700, 0);
     init_color(COLOR_CYAN, 200, 290, 210); 
     init_color(COLOR_GREY, 500, 500, 500);
 
     init_pair(1, COLOR_BLACK, COLOR_YELLOW);
-    init_pair(2, COLOR_BLACK, COLOR_GREEN);
+    init_pair(2, COLOR_BLACK, SPONDA_VERDE_SCURO_1);
     init_pair(3, COLOR_BLACK, COLOR_CYAN);
     init_pair(4, COLOR_BLACK, COLOR_GREY);
 
     ripristinaSfondo(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
-    
 }
 
 /**

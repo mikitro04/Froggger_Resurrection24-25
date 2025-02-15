@@ -1,7 +1,5 @@
 #include "funzioni.h"
 
-//Mix_PlayMusic(Mix_LoadMUS("Music/Croc_shoot.mp3"), 1);
-
 //funzione che gestisce i coccodrilli CHIAMATA SOLO DAL PADRE
 void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int difficulty){
 

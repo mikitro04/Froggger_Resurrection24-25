@@ -123,9 +123,6 @@
 
         void printSpace(WINDOW *tane, int y, int x, int repeat);
 
-        //SPONDE
-        void printGrass(WINDOW *sponda);
-
         //GRANATA        
         void printGranade(WINDOW *win, WINDOW *spondaSup, WINDOW *spondaInf, int y, int x, Direction dir);
 
