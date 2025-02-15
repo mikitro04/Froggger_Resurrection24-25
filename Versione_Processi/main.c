@@ -14,7 +14,7 @@ int main() {
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
     //inizializzazione librerie audio
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+    /*if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         printf("Errore inizializzazione SDL: %s\n", SDL_GetError());
         return 1;
     }
@@ -22,7 +22,7 @@ int main() {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         printf("Errore inizializzazione SDL_mixer: %s\n", Mix_GetError());
         return 1;
-    }
+    }*/
     
 
     //finestre
@@ -35,7 +35,7 @@ int main() {
     int pipe_fds[2], pipe_fds2[2];
     
     //interi
-    int cCorsie[NUM_CORSIE], viteTmp = 0, score = 0, giustifica = 0, difficulty = HARD, counterDown = 1, chose = 0;
+    int cCorsie[NUM_CORSIE], viteTmp = 0, score = 0, giustifica = 0, difficulty = HARD, chose = 0;
 
     //booleani
     bool run = true, taneLibere[NUM_TANE], go = true;
@@ -49,10 +49,10 @@ int main() {
     Message figlio, msg;
 
     //puntatori a canzoni
-    Mix_Music *menu = Mix_LoadMUS("Music/menu.mp3");
-    Mix_Music *sound, *endGame;
+    /*Mix_Music *menu = Mix_LoadMUS("Music/menu.mp3");
+    Mix_Music *sound, *endGame;*/
 
-    Mix_PlayMusic(menu, 1);
+    //Mix_PlayMusic(menu, 1);
      
     initializeColorSprite();
 
@@ -63,7 +63,7 @@ int main() {
     nodelay(gioco, TRUE);
     nodelay(stdscr, TRUE);
 
-    printMod();
+    //printMod();
 
     while(go){
         chose = getch();
@@ -73,13 +73,13 @@ int main() {
         }        
     }
 
-    printSelectedDiff(difficulty);
+    //printSelectedDiff(difficulty);
 
     viteTmp = VITE + difficulty;
     
-    Mix_HaltMusic();
+    /*Mix_HaltMusic();*/
 
-    sound = chooseDifficultyMusic(difficulty);
+    /*sound = chooseDifficultyMusic(difficulty);*/
 
     bkgd(1);
     refresh();
@@ -129,8 +129,8 @@ int main() {
         }
     }
 
-    Mix_HaltMusic();
-    Mix_FreeMusic(sound);
+    /*Mix_HaltMusic();
+    Mix_FreeMusic(sound);*/
 
     printTane(tane, 0, 0, taneLibere);
     giustifica = giustificaPunteggio(score);
@@ -148,9 +148,9 @@ int main() {
         //stampare lo score usando sprite
         printFinalScore(fiume, score, ((DIM_RANA * 2) + DIM_GAME_OVER + LOSER_FROG_DIM), ((COLS / 2) - giustifica/2));
         
-        endGame = Mix_LoadMUS("Music/endGame.mp3");
+        /*endGame = Mix_LoadMUS("Music/endGame.mp3");
 
-        Mix_PlayMusic(endGame, 1);
+        Mix_PlayMusic(endGame, 1);*/
 
     }
     sleep(3);
@@ -158,11 +158,11 @@ int main() {
     close(pipe_fds[0]);
     close(pipe_fds2[1]);
     
-    Mix_FreeMusic(endGame);
+    /*Mix_FreeMusic(endGame);*/
 
     endwin();
-    Mix_CloseAudio();
-    SDL_Quit();
+    /*Mix_CloseAudio();
+    SDL_Quit();*/
 
     system("./ctrResize.sh");
     

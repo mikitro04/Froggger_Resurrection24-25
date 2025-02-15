@@ -193,7 +193,7 @@
     ///fine definizione funzioni dei proiettili
 
     ///dichiarazione funzioni del menu
-        Mix_Chunk *chooseDifficultyMusic(Difficulties difficulty);
+        
 
         void printMod();
 

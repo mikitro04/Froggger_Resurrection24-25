@@ -1,25 +1,30 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -g
-LDFLAGS = -lncurses -lm -lrt -lSDL2 -lSDL2_mixer
+frogger.out: clean main.o start.o colors.o rana.o coccodrillo.o print.o tane.o proiettile.o score.o
+	gcc main.o start.o tane.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o -o frogger.out -lncurses -lm -lrt
 
-OBJ = main.o start.o tane.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o menu.o
+main.o: funzioni.h main.c
+	gcc -c main.c
 
-frogger.out: check-deps $(OBJ)
-	$(CC) $(OBJ) -o frogger.out $(LDFLAGS)
+score.o: funzioni.h score.c
+	gcc -c score.c
+proiettile.o: funzioni.h proiettile.c
+	gcc -c proiettile.c
+tane.o: funzioni.h tane.c
+	gcc -c tane.c
 
-check-deps:
-	@if [ ! -f .deps_checked ]; then \
-		echo "Verifica delle dipendenze..."; \
-		which sdl2-config > /dev/null || (echo "libsdl2-dev non trovato! Installazione..."; sudo apt-get update && sudo apt-get install -y libsdl2-dev); \
-		dpkg -l | grep -q libsdl2-mixer-dev || (echo "libsdl2-mixer-dev non trovato! Installazione..."; sudo apt-get install -y libsdl2-mixer-dev); \
-		dpkg -l | grep -q libncurses-dev || (echo "libncurses-dev non trovato! Installazione..."; sudo apt-get install -y libncurses-dev); \
-		touch .deps_checked; \
-	else \
-		echo "Le dipendenze sono già state verificate."; \
-	fi
+coccodrillo.o: funzioni.h coccodrillo.c
+	gcc -c coccodrillo.c
 
-%.o: %.c funzioni.h
-	$(CC) $(CFLAGS) -c $<
+print.o: funzioni.h print.c
+	gcc -c print.c
+
+rana.o: funzioni.h rana.c
+	gcc -c rana.c
+
+colors.o: funzioni.h colors.c
+	gcc -c colors.c
+
+start.o: funzioni.h start.c
+	gcc -c start.c
 
 clean:
-	rm -f *.o frogger.out .deps_checked
+	rm -f *.o frogger.out
