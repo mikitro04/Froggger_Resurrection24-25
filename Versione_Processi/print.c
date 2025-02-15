@@ -52,9 +52,9 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
     WINDOW *winPausa;
 
-    time_t start = time(NULL), now = time(NULL);
+    //time_t start = time(NULL), now = time(NULL);
 
-    time_t tempoTrascorso = 0;
+    //time_t tempoTrascorso = 0;
     
     pid_t pidPrjEl = -1, myPid = getpid();
 
@@ -105,11 +105,11 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             read(pipe_fds[0], &msg, sizeof(Message));
 
             //calcolo il tempo attuale
-            now = time(NULL);
+            //now = time(NULL);
     
             //calcolo il tempo trascorso
-            tempoTrascorso = (now - start);
-            printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
+            //tempoTrascorso = (now - start);
+            //printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
         }
 
         //il giocatore ha messo in pausa il gioco
@@ -128,8 +128,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             chose = wgetch(gioco);
             if(chose == RIPRENDI || chose == KEY_LEFT){
                 continueAll(crocAux, frogPid, arrPrj, auxGranadeSX.pid, auxGranadeDX.pid);
-                start = time(NULL);
-                start -= tempoTrascorso;
+                //start = time(NULL);
+                //start -= tempoTrascorso;
                 pausa = false;
                 selectButton(winPausa, chose);
                 usleep(75000);
@@ -177,6 +177,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             wnoutrefresh(fiume);
         }
 
+        
+
         if(msg.tipo == GRANATA){
             //salvo in una variabile ausiliaria le coordinate della granata
             if(msg.bullet.dir == TO_LEFT && granadeSX){
@@ -196,7 +198,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 waitpid(msg.bullet.pid, NULL, 0);
             }
 
-            printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+            (gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
 
             wnoutrefresh(gioco);
         }
@@ -268,12 +270,9 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
         }
         //se: la rana è sul fiume ma non su un coccodrillo || se il tempo è scaduto || se la rana è fuori dallo schermo || la rana è entrata male nella tana || la rana è stata colpita da un proiettile
-        if (/*newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            if(/*!frogOnCroc(newPosFrog.frog.coord, crocAux) || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-                Mix_Chunk *frogDead = Mix_LoadWAV("Music/Frog_dead.mp3");
-                if(Mix_PlayChannel(-1, frogDead, 0) == -1) {
-                fprintf(stderr, "Music/Frog_dead.mp3: %s\n", Mix_GetError());
-                }
+        if (/*newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || *//*tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || */(auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            if(/*!frogOnCroc(newPosFrog.frog.coord, crocAux) || *//*tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || */(auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+                
                 /*Cancello la rana nella posizione precedente, riassegno le nuove coordinate (quelle di spawn) e la stampo in quella posizione*/
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                 deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
@@ -308,10 +307,10 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
         //se la rana è entrata correttamente nella tana
         if(frogInTana(newPosFrog.frog.coord, taneLibere) != TANA_MISS && frogInTana(newPosFrog.frog.coord, taneLibere) != NON_IN_TANA){
-            Mix_Chunk *FrogInTana = Mix_LoadWAV("Music/Frog_in_tana.mp3");
-            if(Mix_PlayChannel(-1, FrogInTana, 0) == -1) {
-            fprintf(stderr, "Music/Frog_in_tana.mp3: %s\n", Mix_GetError());
-}
+            // Mix_Chunk *FrogInTana = Mix_LoadWAV("Music/Frog_in_tana.mp3");
+            // if(Mix_PlayChannel(-1, FrogInTana, 0) == -1) {
+            // fprintf(stderr, "Music/Frog_in_tana.mp3: %s\n", Mix_GetError());
+           //}
             //Mix_PlayMusic(Mix_LoadMUS("Music/Frog_in_tana.mp3"), 1);
             taneLibere[frogInTana(newPosFrog.frog.coord, taneLibere) - 1] = false;
             
@@ -328,13 +327,13 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
             initializeArrCroc(crocAux, MAX_CROC);
 
-            if (tempoTrascorso <= 30){
+            /*if (tempoTrascorso <= 30){
                 *score += 1500 + (750 / difficulty);
             }else if(tempoTrascorso > 30 && tempoTrascorso <= 45){
                 *score += 1000 + (750 / difficulty);
             }else if(tempoTrascorso > 45 && tempoTrascorso < (TEMPO_MAX - (20 * (3 - difficulty)))){
                 *score += 500 + (750 / difficulty);
-            }
+            }*/
 
             printScore(punteggio, score, 2, 0);
 
@@ -344,9 +343,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
         }
 
         //se durante la run o durante la pausa il giocatore preme 'q' usciamo dal gioco
-        if(msg.scelta == QUIT || chose == QUIT || chose == KEY_RIGHT){
-
-            Mix_HaltMusic();
+        if(/*msg.scelta == QUIT ||*/ chose == QUIT || chose == KEY_RIGHT){
 
             if(chose == QUIT){
                 selectButton(winPausa, chose);
@@ -372,6 +369,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
         }
 
         doupdate();
+        
     }
 
     //killo la rana
@@ -425,8 +423,10 @@ void stampaRana(WINDOW *gioco, WINDOW *spondaInf, WINDOW *spondaSup, Message msg
     ranaYX->x = msg.frog.coord.x;
 
     //stampo le sponde per evitare che si creino dei buchi grafici
-    printGrass(spondaSup);
-    printGrass(spondaInf);
+    if(ranaYX->y == (DIM_GIOCO - DIM_RANA) || ranaYX->y == DIM_TANA || ranaYX->y == (DIM_GIOCO - DIM_RANA*2) || ranaYX->y == (DIM_TANA+DIM_RANA) || ranaYX->y == (DIM_TANA - DIM_RANA)){
+        printGrass(spondaSup);
+        printGrass(spondaInf);
+    }
 
     //stampa la rana
     printFrog(gioco, ranaYX->y, ranaYX->x, frog);
@@ -569,6 +569,7 @@ void stampaCoccodrillo(WINDOW *fiume, Message msg, int *y, int *x){
 void gestisciStampaCoccodrillo(Message msg, WINDOW *fiume){
     Coordinate arrYXCroc[MAX_CROC];
 
+    
     for (int i = 0; i < MAX_CROC; i++){
         if (msg.tipo == COCCODRILLO && msg.id == i){
             stampaCoccodrillo(fiume, msg,  &arrYXCroc[i].y, &arrYXCroc[i].x);
@@ -1065,9 +1066,10 @@ void printGranade(WINDOW *win, WINDOW *spondaSup, WINDOW *spondaInf, int y, int 
     deleteGranade(win, y, (x - dir), spriteGranata);
 
     //stampo le sponde
-    printGrass(spondaSup);
-    printGrass(spondaInf);
+        printGrass(spondaSup);
+        printGrass(spondaInf);
     
+
     //stampo la granata nella nuova posizione
     for(int i = 0; i < DIM_GRANATA; i++){
         for(int j = 0; j < LARGH_GRANATA; j++){

@@ -11,8 +11,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+
 ///fine direttive di pre-processing
 
 

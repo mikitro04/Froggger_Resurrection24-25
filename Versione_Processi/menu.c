@@ -1,18 +1,24 @@
 #include "funzioni.h"
 
-Mix_Chunk *chooseDifficultyMusic(Difficulties difficulty){
-    switch(difficulty){
-        case HARD:
-            Mix_PlayMusic(Mix_LoadMUS("Music/hard.mp3"), -1);
-            break;
-        case MEDIUM:
-            Mix_PlayMusic(Mix_LoadMUS("Music/medium.mp3"), -1);
-            break;
-        case EASY:
-            Mix_PlayMusic(Mix_LoadMUS("Music/easy.mp3"), -1);
-            break;
-    }
-}
+// Mix_Music* chooseDifficultyMusic(Difficulties difficulty){
+
+//     Mix_Music *music;
+//     switch(difficulty){
+//         case HARD:
+//             music = Mix_LoadMUS("Music/hard.mp3");
+//             break;
+//         case MEDIUM:
+//             music = Mix_LoadMUS("Music/medium.mp3");
+//             break;
+//         case EASY:
+//             music = Mix_LoadMUS("Music/easy.mp3");
+//             break;
+//     }
+
+//     Mix_PlayMusic(music, -1);
+
+//     return music;
+// }
 
 void printMod(){
 
