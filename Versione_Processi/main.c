@@ -63,29 +63,29 @@ int main() {
     nodelay(gioco, TRUE);
     nodelay(stdscr, TRUE);
 
-    //printMod();
+    printMod();
 
     while(go){
         chose = getch();
         if(chose == '1' || chose == '2' || chose == '3'){
             difficulty = chose - '0';
             go = false;
-        }        
+        }else if(chose == 'q'){
+            usleep(350000);
+            endwin();
+            system("./ctrResize.sh");
+            return 0;
+        }
     }
 
-    //printSelectedDiff(difficulty);
+    printSelectedDiff(difficulty);
 
     viteTmp = VITE + difficulty;
-    
-    /*Mix_HaltMusic();*/
 
-    /*sound = chooseDifficultyMusic(difficulty);*/
-
-    bkgd(1);
+    bkgd(EYE_BLACK);
     refresh();
 
     while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
-        //sound = chooseDifficultyMusic(difficulty);
 
         initIntArray(cCorsie, NUM_CORSIE);
 
@@ -129,9 +129,6 @@ int main() {
         }
     }
 
-    /*Mix_HaltMusic();
-    Mix_FreeMusic(sound);*/
-
     printTane(tane, 0, 0, taneLibere);
     giustifica = giustificaPunteggio(score);
     
@@ -140,29 +137,18 @@ int main() {
         printFrogWin(fiume, DIM_RANA + DIM_WIN + 3, ((COLS / 2) - (WINNER_FROG_LARGH / 2)));
         //stampare lo score usando sprite
         printFinalScore(fiume, score, DIM_RANA + DIM_WIN + WINNER_FROG_DIM + 3, ((COLS / 2) - giustifica/2));
-
-        //Mix_PlayMusic(Mix_LoadMUS("Music/.mp3"), 1);
     } else {
         printGameOver(fiume, DIM_RANA, ((COLS / 2) - (LARGH_GAME_OVER / 2)));
         printFrogGhost(fiume, (DIM_RANA + DIM_GAME_OVER + (DIM_RANA/2)), ((COLS / 2) - (LOSER_FROG_LARGH / 2)));
         //stampare lo score usando sprite
         printFinalScore(fiume, score, ((DIM_RANA * 2) + DIM_GAME_OVER + LOSER_FROG_DIM), ((COLS / 2) - giustifica/2));
-        
-        /*endGame = Mix_LoadMUS("Music/endGame.mp3");
-
-        Mix_PlayMusic(endGame, 1);*/
-
     }
     sleep(3);
     
     close(pipe_fds[0]);
     close(pipe_fds2[1]);
-    
-    /*Mix_FreeMusic(endGame);*/
 
     endwin();
-    /*Mix_CloseAudio();
-    SDL_Quit();*/
 
     system("./ctrResize.sh");
     

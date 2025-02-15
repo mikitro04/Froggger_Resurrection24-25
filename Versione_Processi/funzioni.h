@@ -116,6 +116,8 @@
         //TEMPO
         void printTempo(WINDOW *tempo, int y, int x, int time, int difficulty);
 
+        void deleteTempo(WINDOW *tempo, int difficulty, time_t time);
+
         //TANE
         void printTane(WINDOW *tane, int y, int x, bool taneLibere[NUM_TANE]);
 
@@ -193,7 +195,6 @@
     ///fine definizione funzioni dei proiettili
 
     ///dichiarazione funzioni del menu
-        
 
         void printMod();
 

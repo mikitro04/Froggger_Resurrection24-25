@@ -1,13 +1,18 @@
-frogger.out: clean main.o start.o colors.o rana.o coccodrillo.o print.o tane.o proiettile.o score.o
-	gcc main.o start.o tane.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o -o frogger.out -lncurses -lm -lrt
+frogger.out: clean main.o start.o colors.o rana.o coccodrillo.o print.o tane.o proiettile.o score.o menu.o
+	gcc main.o start.o tane.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o menu.o -o frogger.out -lncurses -lm -lrt
 
 main.o: funzioni.h main.c
 	gcc -c main.c
 
+menu.o: funzioni.h menu.c
+	gcc -c menu.c
+
 score.o: funzioni.h score.c
 	gcc -c score.c
+
 proiettile.o: funzioni.h proiettile.c
 	gcc -c proiettile.c
+
 tane.o: funzioni.h tane.c
 	gcc -c tane.c
 

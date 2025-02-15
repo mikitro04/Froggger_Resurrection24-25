@@ -52,9 +52,9 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
     WINDOW *winPausa;
 
-    //time_t start = time(NULL), now = time(NULL);
+    time_t start = time(NULL), now = time(NULL);
 
-    //time_t tempoTrascorso = 0;
+    time_t tempoTrascorso = 0, tempoPrec = -1;
     
     pid_t pidPrjEl = -1, myPid = getpid();
 
@@ -94,6 +94,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
     printScore(punteggio, score, 2, 0);
 
+    printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
+
     nodelay(gioco, TRUE);
     keypad(gioco, TRUE);
 
@@ -105,11 +107,18 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             read(pipe_fds[0], &msg, sizeof(Message));
 
             //calcolo il tempo attuale
-            //now = time(NULL);
+            now = time(NULL);
     
             //calcolo il tempo trascorso
-            //tempoTrascorso = (now - start);
-            //printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
+            tempoTrascorso = (now - start);
+        }
+
+        if(tempoTrascorso != tempoPrec){
+            //cancello il tempo
+            deleteTempo(tempo, difficulty, tempoTrascorso);
+
+            //riassegno il tempo prec
+            tempoPrec = tempoTrascorso;
         }
 
         //il giocatore ha messo in pausa il gioco
@@ -128,8 +137,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             chose = wgetch(gioco);
             if(chose == RIPRENDI || chose == KEY_LEFT){
                 continueAll(crocAux, frogPid, arrPrj, auxGranadeSX.pid, auxGranadeDX.pid);
-                //start = time(NULL);
-                //start -= tempoTrascorso;
+                start = time(NULL);
+                start -= tempoTrascorso;
                 pausa = false;
                 selectButton(winPausa, chose);
                 usleep(75000);
@@ -270,8 +279,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
         }
         //se: la rana è sul fiume ma non su un coccodrillo || se il tempo è scaduto || se la rana è fuori dallo schermo || la rana è entrata male nella tana || la rana è stata colpita da un proiettile
-        if (/*newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || *//*tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || */(auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            if(/*!frogOnCroc(newPosFrog.frog.coord, crocAux) || *//*tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || */(auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+        if (/*newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            if(/*!frogOnCroc(newPosFrog.frog.coord, crocAux) || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
                 
                 /*Cancello la rana nella posizione precedente, riassegno le nuove coordinate (quelle di spawn) e la stampo in quella posizione*/
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
@@ -300,18 +309,11 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 werase(fiume);
                 wnoutrefresh(fiume);
                 wnoutrefresh(gioco);
-
-                //resetGame(gioco, fiume, vite, viteTmp, frog, auxYXRana, crocAux, frogPid, &running);
             }
         }
 
         //se la rana è entrata correttamente nella tana
         if(frogInTana(newPosFrog.frog.coord, taneLibere) != TANA_MISS && frogInTana(newPosFrog.frog.coord, taneLibere) != NON_IN_TANA){
-            // Mix_Chunk *FrogInTana = Mix_LoadWAV("Music/Frog_in_tana.mp3");
-            // if(Mix_PlayChannel(-1, FrogInTana, 0) == -1) {
-            // fprintf(stderr, "Music/Frog_in_tana.mp3: %s\n", Mix_GetError());
-           //}
-            //Mix_PlayMusic(Mix_LoadMUS("Music/Frog_in_tana.mp3"), 1);
             taneLibere[frogInTana(newPosFrog.frog.coord, taneLibere) - 1] = false;
             
             newPosFrog.frog.coord.x = COLS / 2;
@@ -327,23 +329,22 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
             initializeArrCroc(crocAux, MAX_CROC);
 
-            /*if (tempoTrascorso <= 30){
+            if (tempoTrascorso <= 30){
                 *score += 1500 + (750 / difficulty);
             }else if(tempoTrascorso > 30 && tempoTrascorso <= 45){
                 *score += 1000 + (750 / difficulty);
             }else if(tempoTrascorso > 45 && tempoTrascorso < (TEMPO_MAX - (20 * (3 - difficulty)))){
                 *score += 500 + (750 / difficulty);
-            }*/
+            }
 
             printScore(punteggio, score, 2, 0);
 
             werase(fiume);
             wnoutrefresh(fiume);
-            //wrefresh(fiume);
         }
 
         //se durante la run o durante la pausa il giocatore preme 'q' usciamo dal gioco
-        if(/*msg.scelta == QUIT ||*/ chose == QUIT || chose == KEY_RIGHT){
+        if(chose == QUIT || chose == KEY_RIGHT){
 
             if(chose == QUIT){
                 selectButton(winPausa, chose);
@@ -838,7 +839,11 @@ void printTempo(WINDOW *tempo, int y, int x, int time, int difficulty){
         }
     }
 
-    //cancelliamo la colonna y + (TEMPO_MAX - time) per cancellare il tempo trascorso
+    wnoutrefresh(tempo);
+}
+
+void deleteTempo(WINDOW *tempo, int difficulty, time_t time){
+    int x = 0, y = 1;
     for (int i = 0; i < DIM_STATS-2; i++){
         for (int j = (TEMPO_MAX - (20 * (3 - difficulty))) * 2; j > ((TEMPO_MAX - (20 * (3 - difficulty))) * 2) - (time * 2); j--){
             mvwaddch(tempo, y + i, x + j, ' ' | COLOR_PAIR(EYE_BLACK));

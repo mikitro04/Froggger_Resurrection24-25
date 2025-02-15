@@ -10,7 +10,6 @@ void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **ta
 
     resize_term(DIM_RANA * 16, currentx);
 
-
     //dichiarazione finestre principali
     *punteggio = newwin(DIM_STATS, currentx, 0, 0);
     *gioco = newwin(DIM_GIOCO, currentx, DIM_STATS, 0); 
@@ -24,15 +23,10 @@ void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **ta
 
 
     //dichiarazione subwin -> statistiche
-    *vite = subwin(*statistiche, DIM_STATS, (currentx/2) -1, altezzaStats, 0);
+    *vite = subwin(*statistiche, DIM_STATS, (currentx/2), altezzaStats, 0);
     *tempo = subwin(*statistiche, DIM_STATS, currentx/2, altezzaStats, currentx/2);
 
     inizializzaColori(punteggio, gioco, statistiche, tane, spondaSup, fiume, spondaInf, vite, tempo);
-    
-
-    //mvwprintw(*punteggio, 1, 1, "cols: %d", DIM_STATS);
-    //mvwprintw(*fiume, 1, 1, "cols: %d", DIM_RANA*12);
-    //mvwprintw(*vite, 1, 1, "cols: %d", DIM_STATS);
 
     wrefresh(*punteggio); 
     wrefresh(*gioco);

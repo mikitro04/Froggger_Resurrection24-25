@@ -51,6 +51,8 @@
     #define DIM_TITOLO 10
     #define LARGH_FROGGER 94
     #define LARGH_RESURRECTION 155
+    #define DIM_DIFFICULT 14
+    #define LARGH_DIFFICULT 101
     #define VITE 2                                          //vite iniziali della rana
     #define TEMPO_MAX 90                                    //tempo massimo di gioco
     #define PUNTI1 1500                                     //punti se finisci in 30 secondi
