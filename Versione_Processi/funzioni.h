@@ -45,7 +45,7 @@
     ///dichiarazione funzioni RANA
         void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco);
 
-        void joystickRana(int *y, int *x, int limitInf, int scelta, bool *running);
+        void joystickRana(int *y, int *x, int limitInf, int scelta);
 
         void initializeFrog(Frog *frog, Coordinate startYX);
 

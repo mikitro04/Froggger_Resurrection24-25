@@ -13,18 +13,6 @@ int main() {
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
-    //inizializzazione librerie audio
-    /*if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        printf("Errore inizializzazione SDL: %s\n", SDL_GetError());
-        return 1;
-    }
-    
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        printf("Errore inizializzazione SDL_mixer: %s\n", Mix_GetError());
-        return 1;
-    }*/
-    
-
     //finestre
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
@@ -47,12 +35,6 @@ int main() {
     Crocodile arrCroc[MAX_CROC];
 
     Message figlio, msg;
-
-    //puntatori a canzoni
-    /*Mix_Music *menu = Mix_LoadMUS("Music/menu.mp3");
-    Mix_Music *sound, *endGame;*/
-
-    //Mix_PlayMusic(menu, 1);
      
     initializeColorSprite();
 
@@ -80,7 +62,14 @@ int main() {
 
     printSelectedDiff(difficulty);
 
-    viteTmp = VITE + difficulty;
+    //viteTmp = VITE + difficulty;
+    if(difficulty == EASY){
+        viteTmp = 5;
+    }else if(difficulty == MEDIUM){
+        viteTmp = 3;
+    }else{
+        viteTmp = 1;
+    }
 
     bkgd(EYE_BLACK);
     refresh();

@@ -29,7 +29,7 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
     while(running){
         figlio.scelta = wgetch(gioco);
  
-        joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta, &running);
+        joystickRana(&figlio.frog.coord.y, &figlio.frog.coord.x, DIM_GIOCO, figlio.scelta);
 
         if(figlio.frog.coord.x != prec.x || figlio.frog.coord.y != prec.y || figlio.scelta == DEFENCE || figlio.scelta == PAUSE){
             write(pipe_fds[1], &figlio, sizeof(Message));
@@ -74,9 +74,8 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
  * @param x Coordinata x della rana
  * @param limitInf Limite inferiore della finestra di gioco
  * @param scelta Input dell'utente
- * @param running Booleano che indica se il gioco è in esecuzione, se viene premuto 'q' la rana muore
  */
-void joystickRana(int *y, int *x, int limitInf, int scelta, bool *running){
+void joystickRana(int *y, int *x, int limitInf, int scelta){
     switch(scelta){
         case KEY_UP:
             if (*y > DIM_STATS){

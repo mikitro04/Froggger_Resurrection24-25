@@ -11,7 +11,6 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <fcntl.h>
-
 ///fine direttive di pre-processing
 
 

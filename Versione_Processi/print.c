@@ -275,8 +275,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
         }
         //se: la rana è sul fiume ma non su un coccodrillo || se il tempo è scaduto || se la rana è fuori dallo schermo || la rana è entrata male nella tana || la rana è stata colpita da un proiettile
-        if (/*newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            if(/*!frogOnCroc(newPosFrog.frog.coord, crocAux) || */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            if(!frogOnCroc(newPosFrog.frog.coord, crocAux) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (auxYXRana.x + LARGH_RANA) > COLS || auxYXRana.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
                 
                 /*Cancello la rana nella posizione precedente, riassegno le nuove coordinate (quelle di spawn) e la stampo in quella posizione*/
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
