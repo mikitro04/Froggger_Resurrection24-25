@@ -1,5 +1,5 @@
-frogger.out: clean main.o start.o colors.o rana.o coccodrillo.o print.o tane.o proiettile.o score.o menu.o
-	gcc main.o start.o tane.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o menu.o -o frogger.out -lncurses -lpthread -lm -lrt
+frogger.out: clean main.o inizializzazione.o colors.o rana.o coccodrillo.o print.o tane.o proiettile.o score.o menu.o
+	gcc main.o inizializzazione.o tane.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o menu.o -o frogger.out -lncurses -lpthread -lm -lrt
 
 main.o: funzioni.h main.c
 	gcc -c main.c
@@ -28,8 +28,8 @@ rana.o: funzioni.h rana.c
 colors.o: funzioni.h colors.c
 	gcc -c colors.c
 
-start.o: funzioni.h start.c
-	gcc -c start.c
+inizializzazione.o: funzioni.h inizializzazione.c
+	gcc -c inizializzazione.c
 
 clean:
 	rm -f *.o frogger.out

@@ -12,30 +12,27 @@ int main(){
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
+    inizializzaMeccanismiSincronizzazione();
+
     //finestre
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
     //coordinate
     Coordinate startYX = {DIM_GIOCO - DIM_RANA, COLS/2};
 
-    //threads
-    pthread_t thread_frog;
-
-    //buffer
-
-
     //interi
     int cCorsie[NUM_CORSIE], viteTmp = 0, score = 0, giustifica = 0, difficulty = HARD, chose = 0;
 
     //booleani
     bool run = true, taneLibere[NUM_TANE], go = true;
-       
-    initBoolArrayTrue(taneLibere, NUM_TANE);
+        initBoolArrayTrue(taneLibere, NUM_TANE);
 
     //strutture rana, coccodrilli
     Frog rana;
 
     Crocodile arrCroc[MAX_CROC];
+
+    Message msg;
 
     initializeColorSprite();
 
@@ -74,27 +71,24 @@ int main(){
     bkgd(EYE_BLACK);
     refresh();
 
-    while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
+    while(run /*&& viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)*/){
+        initializeFrog(&rana, startYX);
+        
+        initializeArrCroc(arrCroc, MAX_CROC);
 
         initIntArray(cCorsie, NUM_CORSIE);
 
-        //DA MOFIFICARE: initializeFrog(&rana, startYX);
-        
-        //DA MOFIFICARE: initializeArrCroc(arrCroc, MAX_CROC);
-
         //creo il thread della rana
-
-        //quando sta girando il codice la rana (rana.pid == 0) deve potersi muovere
-        //richiamo muoviRana
+        pthread_create(&rana.threadID, NULL, &muoviRana, &startYX);
 
         //aspetto per assicurarmi che la rana sia stata generata correttamente ed evitare di perdere vite all'inizio del gioco
         usleep(1000);
-
+        
         //cosa deve fare il padre
-        //richiamare gestisciCoccodrilli
+        gestisciCoccodrilli(cCorsie, arrCroc, difficulty);
 
-        //nel caso sia il padre di tutti (coccodrilli e rana) allora può richiamare la funzione di rendering
-        //richiamare la funzione di rendering
+        //nel caso sia il thread main richiama la funzione di rendering
+        run = rendering(punteggio, gioco,  tane,  spondaSup,  fiume,  spondaInf,  statistiche,  vite,  tempo,  arrCroc, msg, taneLibere, difficulty, &viteTmp, &score);
     }/*
 
     printTane(tane, 0, 0, taneLibere);

@@ -195,6 +195,7 @@ void inizializzaColori(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche,
  */
 void ripristinaSfondo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
     wbkgd(*punteggio, COLOR_PAIR(15));
+    //wbkgd(*gioco, COLOR_PAIR(4)); 
     wbkgd(*tane, COLOR_PAIR(1));
     wbkgd(*spondaSup, COLOR_PAIR(2));
     wbkgd(*fiume, COLOR_PAIR(3));

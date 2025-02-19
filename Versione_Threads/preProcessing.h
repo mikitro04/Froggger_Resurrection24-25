@@ -187,6 +187,9 @@ typedef struct Crocodile{
     Direction dir;              //direzione per la quale la x del coccodrillo dovrà essere aumentata (se x + (1) o x + (-1))
     int corsia;                 //corsia (corrisondente coordinata y) del coccodrillo
     int speed;                  //velocità/frerquenza di movimento del coccodrillo
+    int n;                      //n generato dal thread main
+    int arrVel[NUM_CORSIE];     //array delle velocità di tutte le corsie
+    int turno;                  //turno di spawn del coccodrillo
 }Crocodile;
 
 //tipo che definisce la struttura della rana
@@ -201,4 +204,32 @@ typedef struct Bullet{
     Coordinate coord;           //coordinate y e x del proiettile attuali
     Direction dir;              //direzione per la quale la x del proiettile dovrà essere aumentata (se x + (1) o x + (-1))
 }Bullet;
+
+//tipo che definisce la struttura del messaggio scrivibile in pipe
+typedef struct Message{
+    int id;             //id del mittente del messaggio  
+    Types tipo;         //tipo del mittente del messaggio che può essere RANA, COCCODRILLO, SPARO, o GRANATA
+    Crocodile croc;
+    Bullet bullet;
+    Frog frog;
+    int scelta;         //scelta direzione del mittente o direzione coccodrillo(geneato casualmente)
+}Message;
 ///fine dichiarazione strutture
+
+
+///dichiarazione buffer e semafori
+
+#define DIM_BUFFER 256
+
+extern Message buffer1[DIM_BUFFER];
+extern Message buffer2[DIM_BUFFER];
+
+extern pthread_mutex_t mutex;
+
+extern sem_t semLiberi, semOccupati;
+
+extern int iLeggi, iScrivi;
+
+extern bool pausa;
+
+///fine dichiarazione buffer e semafori

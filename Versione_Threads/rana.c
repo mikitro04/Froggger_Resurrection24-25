@@ -1,11 +1,39 @@
 #include "funzioni.h"
 
 
-void* muoviRana(WINDOW *gioco){
+void* muoviRana(void* threadFrog){
 
-    // while(running){
-       
-    // }
+    Message msg;
+    Coordinate *auxCord = (Coordinate*)threadFrog;
+    Coordinate prec = {0,0};
+
+    msg.tipo = RANA;
+    msg.frog.coord = *auxCord; 
+    msg.frog.threadID = pthread_self();
+    msg.scelta = 0;
+    bool running = true;
+
+    WINDOW *win = newwin( 0, 0, DIM_STATS, 0);
+
+    keypad(win, TRUE);
+    nodelay(win, TRUE);
+
+
+    while(running){
+
+        if(!pausa){
+            msg.scelta = wgetch(win);
+
+            joystickRana(&msg.frog.coord.y, &msg.frog.coord.x, DIM_GIOCO, msg.scelta);
+
+            if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE){
+                writeBuffer(msg);
+                prec = msg.frog.coord;
+            }
+
+            usleep(1000);
+        }
+    }
 }
 
 /**
