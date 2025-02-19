@@ -76,7 +76,6 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
     }
 
     Coordinate startYX = {corsia, 0};
-    Message lifeFrog = {};
     pid_t proiettile;
     bool shootPermission = true;
     int attesa = generaNumeroCasuale(100, 1000), status, nCorsia;
