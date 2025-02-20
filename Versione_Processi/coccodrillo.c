@@ -1,12 +1,22 @@
 #include "funzioni.h"
 
 //funzione che gestisce i coccodrilli CHIAMATA SOLO DAL PADRE
+/**
+ * @brief Funzione che crea un numero di coccodrilli pari a MAX_CROC
+ * ATTENZIONE : Questa funzione viene chiamata solo dal padre, che dovrà gestire la fork dei coccodrilli
+ * @param cCorsie Array counter di coccodrilli per corsia (Max: MAX_CROC_CORSIA)
+ * @param arrCroc Array di coccodrilli che verrà aggiornato all'interno
+ * @param figlio Messaggio che verrà passato ai figli
+ * @param pipe_fds Pipe per la comunicazione tra padre e figli che verrà passato ai figli
+ * @param difficulty Difficoltà del gioco, che serve a determinare la velocità dei coccodrilli
+ */
 void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int pipe_fds[], int difficulty){
-
+    //generiamo la corsia in cui deve spawnare il coccodrillo in modo casuale
     int corsia = 0;
-    int n = rand() % 2;
-    int speedCorsia[NUM_CORSIE];
-    int turno[NUM_CORSIE];
+    int n = rand() % 2;             //generiamo un numero casuale per decidere la direzione del primo coccodrillo
+    int speedCorsia[NUM_CORSIE];    //array che contiene la velocità di ogni corsia, passato poi come parametro ai figli che gli servirà per il cambio di corsia
+    int turno[NUM_CORSIE];          //array che conta quanti coccodrilli ci sono in ogni corsia e assegna un turno per ogni coccodrillo
+    //inizializziamo l'array a -1
     for (int i = 0; i < NUM_CORSIE; i++){
         turno[i] = -1;
     }
@@ -27,7 +37,7 @@ void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int
         //creazione processo figlio
         arrCroc[i].pid = fork();
 
-        if (arrCroc[i].pid < 0){
+        if (arrCroc[i].pid < 0){            //errore nella fork
             perror("fork");
             exit(1);
         }else if(arrCroc[i].pid == 0){      //figlio che deve gestire un coccodrillo
@@ -53,6 +63,12 @@ int setSpeed(){
     }
 }
 
+/**
+ * @brief Funzione che inizializza l'array di coccodrilli con valori negativi
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for
+ * @param array Array di coccodrilli da inizializzare
+ * @param dim Dimensione dell'array
+ */
 void initializeArrCroc(Crocodile array[], int dim){
     for (int i = 0; i < dim; i++) {
         array[i].pid = -1;                    //Inizializzazione con valore non valido in modo che non dia problemi sucessivamente
@@ -66,6 +82,18 @@ void initializeArrCroc(Crocodile array[], int dim){
 }
 
 //funzione chiamata solo dal coccodrillo (figlio) che si occupa di generare e muovere il coccodrillo
+/**
+ * @brief Funzione che permette di gestire il movimento, l'uscita dallo schermo, il cambio di corsia e la sparatoria dei coccodrilli
+ * ATTENZIONE : Questa funzione viene chiamata SOLO da un processo figlio COCCODRILLO
+ * @param figlio Messaggio che contiene le informazioni del coccodrillo
+ * @param corsia Corsia in cui deve spownare il coccodrillo
+ * @param pipe_fds Pipe per la comunicazione tra padre e figli
+ * @param croc Coccodrillo che verrà aggiornato all'interno
+ * @param n Numero generato randomicamente per decidere la direzione del coccodrillo
+ * @param turno Turno del coccodrillo
+ * @param viteInit Vite iniziali della rana
+ * @param velocitaCorsia Array che contiene la velocità di ogni corsia
+ */
 void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *croc, int n, int turno, int viteInit, int velocitaCorsia[NUM_CORSIE]){
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo

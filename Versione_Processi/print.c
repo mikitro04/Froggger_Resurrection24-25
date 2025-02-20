@@ -10,10 +10,34 @@ ooooooooo.   oooooooooooo ooooo      ooo oooooooooo.   oooooooooooo ooooooooo.  
 o888o  o888o o888ooooood8 o8o        `8  o888bood8P'   o888ooooood8 o888o  o888o o888o o8o        `8   `Y8bood8P'   
 */
 
+/**
+ * @brief Questa funzione è cruciale: permette oltre che stampare tutti gli elementi in gioco, di gestirne la collisione, e la fine della partita e/o della manche
+ * ATTENZIONE : questa funzione viene richiamata solo dal processo padre (di tutti) e legge dalla pipe1 tutte le posizioni aggiornate dei figli e scrive sulla pipe2 la nuova posizione della rana quando essa si muove al di sopra di un coccodrillo
+ * @param punteggio Finestra di gioco su cui vive il punteggio
+ * @param gioco Finestra di gioco su cui vive la rana e le sue granate
+ * @param statistiche Finestra di gioco su cui vivono le statistiche (Vite a SX e tempo a DX)
+ * @param tane Sottofinestra di gioco su cui vivono le tane
+ * @param spondaSup Sottofinestra di gioco su cui vive la sponda superiore
+ * @param fiume Sottofinestra di gioco su cui vivono i coccodrilli e i loro proiettili
+ * @param spondaInf Sopttofinestra di gioco su cui vive la sponda inferiore
+ * @param vite Sottofinestra di statistiche su cui vivono le vite
+ * @param tempo Sottofinestra di statistiche su cui vive il tempo
+ * @param msg Messaggio che riceve dalla pipe1 le posizioni aggiornate dei figli
+ * @param pipe_fds Pipe1 su cui legge le posizioni aggiornate dei figli
+ * @param pipe_fds2 Pipe2 su cui scrive la nuova posizione della rana quando essa si muove al di sopra di un coccodrillo
+ * @param viteTmp Numero di vite attuali, passate come puntatore dal main in base alla difficoltà, queste verranno aggiornate all'interno di questa funzione solo quando la rana perde effettivamente una vita
+ * @param crocAux Array ausiliario di coccodrilli che viene aggiornato ad ogni lettura in base all'ID del coccodrillo
+ * @param frogPid Pid del processo rana, utile per la SIGKILL o SIGSTOP
+ * @param taneLibere Array di booleani che indica se una tana è libera o meno
+ * @param score Punteggio, passato come parametro dal main, che verrà aggiornato in base alle scelte e skills del player
+ * @param difficulty Difficoltà del gioco, passata come parametro dal main, che influisce sul punteggio finale e sul tempo
+ * @return true Se la partita deve continuare (booleano all'interno di una condizione di un while)
+ * @return false Se la partita deve terminare (booleano all'interno di una condizione di un while)
+ */
 bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *vite, WINDOW *tempo, Message msg, int pipe_fds[], int pipe_fds2[], int *viteTmp, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool taneLibere[NUM_TANE], int *score, int difficulty){
      
 
-    //matrice rana colorata
+    //matrice rana, granata e proiettile colorata
     int frog[DIM_RANA][LARGH_RANA] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0,	0,	FROG_LIGHT_GREEN1,	FROG_LIGHT_GREEN1,	0,	0,	FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN2,	0,	0,	FROG_LIGHT_GREEN1,	FROG_LIGHT_GREEN1,	0,	0},
@@ -42,29 +66,38 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
         BULLET_YELLOW_2, BULLET_YELLOW_1, BULLET_GREEN
     };
 
+    //interi
     int counter = 0, cCorsie[NUM_CORSIE] = {0}; 
     
+    //caratteri
     char chose;
 
+    //stampo le tane dettagliate
     printTane(tane, 0, 0, taneLibere);
 
+    //booleani
     bool running = true, alive = true, granadeSX = false, granadeDX = false, pausa = false;
 
+    //finestra di pausa
     WINDOW *winPausa;
 
-    time_t start = time(NULL), now = time(NULL);
+    //variabili del tempo
+    time_t start = time(NULL), now = time(NULL);    //start: tempo di inizio, now: tempo attuale
 
-    time_t tempoTrascorso = 0, tempoPrec = -1;
+    time_t tempoTrascorso = 0, tempoPrec = -1;      //tempoTrascorso: tempo trascorso dall'inizio del gioco, tempoPrec: tempo precedente (per la pausa)
     
-    pid_t pidPrjEl = -1, myPid = getpid();
+    //pid dei vari processi
+    pid_t pidPrjEl = -1, myPid = getpid();          //pidPrjEl: pid del proiettile eliminato, myPid: pid del processo padre
 
     pid_t arrPrj[MAX_CROC];
         initIntArrayNegative(arrPrj, MAX_CROC);
     
+    //coordinate di spawn della rana
     Coordinate auxYXRana;
         auxYXRana.y = DIM_GIOCO - DIM_RANA;
         auxYXRana.x = COLS/2;
 
+    //ausiliari delle due granate per gestirne la collisione
     Bullet auxGranadeSX;
         auxGranadeSX.pid = -1;
         auxGranadeSX.coord.y = -1;
@@ -78,23 +111,30 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
     wrefresh(spondaInf);
     wrefresh(spondaSup);
 
+    //stampo la rana nella posizione di spawn
     printFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
 
+    //messaggio da dover scrivere nella pipe2, che contiene le nuove posizioni della rana
     Message newPosFrog;
 
+    //chiusura della pipe1 in scrittura e della pipe2 in lettura
     close(pipe_fds[1]);
 
     close(pipe_fds2[0]);
 
+    //stampo le vite del giocatore
     printVite(vite, 1, 0, *viteTmp);
 
+    //stampo il punteggio del giocatore
     printScore(punteggio, score, 2, 0);
 
+    //stampo il tempo trascorso
     printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
 
     nodelay(gioco, TRUE);
     keypad(gioco, TRUE);
 
+    //ciclo di gioco per la manche
     while(running){
         
         //essendo la read bloccante, leggo solo se il gioco è in esecuzione e non in pausa
@@ -109,6 +149,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             tempoTrascorso = (now - start);
         }
 
+        //qualora il tempo si aggiornasse di un secondo, cancello il tempo trascorso
         if(tempoTrascorso != tempoPrec){
             //cancello il tempo
             deleteTempo(tempo, difficulty, tempoTrascorso);
@@ -119,56 +160,78 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
         //il giocatore ha messo in pausa il gioco
         if(msg.scelta == PAUSE && msg.tipo != 0){
+            //fermo TUTTI i processi
             stopAll(crocAux, frogPid, arrPrj, auxGranadeSX.pid, auxGranadeDX.pid, myPid);
+            //reinizializzo il messaggio
             initMessage(&msg);
+            //booleano che indica la pausa a true
             pausa = true;
+            //delay di default
             usleep(5000);
 
+            //inizializzazione nuova finestra di pausa
             winPausa = newwin(DIM_BREAK, LARGH_BREAK, (LINES - DIM_BREAK) / 2, (COLS - LARGH_BREAK) / 2);
+            //stampo il menu di pausa
             printPausa(winPausa, 0, 0);
         }
 
-        //verifico che il giocatore prema correttamente 'r' per riprendere il gioco
+        //se il messaggio è di tipo 0, il gioco è in pausa (RANA, 1° tipo di tipo 1)
         if(msg.tipo == 0){
+            //prendo in input un carattere
             chose = wgetch(gioco);
+            //verifico che il giocatore prema correttamente 'r' per riprendere il gioco
             if(chose == RIPRENDI || chose == KEY_LEFT){
+                //riprendo la corretta esecuzione di tutti i figli bloccati nella pausa
                 continueAll(crocAux, frogPid, arrPrj, auxGranadeSX.pid, auxGranadeDX.pid);
+                //riassegno il tempo di inizio così da non far cancellare il tempo trascorso durante la pusa
                 start = time(NULL);
                 start -= tempoTrascorso;
+                //booleano della pausa a false (il gioco può riprendere)
                 pausa = false;
+                //stampo la scelta del giocatore
                 selectButton(winPausa, chose);
+                //delay di default
                 usleep(75000);
+                //cancello il menù di pausa
                 svuotamenuPausa(winPausa);
+                //cancello la finestra di pausa
                 delwin(winPausa);
             }
         }
         
-
+        //se il messaggio è da parte della RANA (tipo 1)
         if (msg.tipo == RANA){
-
+            //aggiorno le coordinate della rana
             newPosFrog.frog.coord.x = msg.frog.coord.x;
             newPosFrog.frog.coord.y = msg.frog.coord.y;
+            //stampo la rana correttamente grazie alla funzione stampaRana
             stampaRana(gioco, spondaInf, spondaSup, msg, &auxYXRana);
             
+            //refresho la finestra di gioco
             wnoutrefresh(gioco);
         }
         
+        //se il giocatore ha premuto ' ' (spazio = DEFENCE), attivo le granate
         if(msg.scelta == DEFENCE){
             granadeDX = true;
             granadeSX = true;
         }
         
+        //se il messaggio è di tipo 2 (COCCODRILLO)
         if(msg.tipo == COCCODRILLO){
-
+            //aggiorno l'array ausiliario dei coccodrilli con la nuova posizione
             crocAux[msg.id] = msg.croc;
+            //essendo che il coccodrillo può stampare una sola volta, assegno il pid del suo proiettile all'array ausiliario
             arrPrj[msg.id] = msg.bullet.pid;
 
+            //cancello il coccodrillo nella posizione precedente
             deleteSingleCroc(fiume, crocAux[msg.id]);
 
+            //stampo il coccodrillo nella nuova posizione
             gestisciStampaCoccodrillo(msg, fiume);
             //verifico se la rana sia sopra un coccodrillo specifico
             if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA) && (newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO)){
-                
+                //cancello la rana nella posizione precedente
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                 
                 //incremento le coordinate della rana in base al flusso del coccodrillo 
@@ -177,15 +240,17 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 newPosFrog.croc.speed = msg.croc.speed;
                 auxYXRana = newPosFrog.frog.coord;
                 
+                //stampo la rana nella nuova posizione
                 printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
             }
+            //refresho la finestra del fiume
             wnoutrefresh(fiume);
         }
 
         
-
+        //se il messaggio è di tipo 3 (GRANATA)
         if(msg.tipo == GRANATA){
-            //salvo in una variabile ausiliaria le coordinate della granata
+            //salvo in una variabile ausiliaria le coordinate della granata e la stampo nell'apposita posizione
             if(msg.bullet.dir == TO_LEFT && granadeSX){
                 printGranade(gioco, spondaSup, spondaInf, msg.bullet.coord.y, msg.bullet.coord.x, msg.bullet.dir);
                 auxGranadeSX.pid = msg.bullet.pid;
@@ -198,29 +263,35 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 auxGranadeDX.coord.x = msg.bullet.coord.x;
             }
 
+            //verifico l'uscita dallo schermo della granata
             if((msg.bullet.coord.x + LARGH_RANA) <= 0 || msg.bullet.coord.x >= COLS){
                 kill(msg.bullet.pid, SIGKILL);
                 waitpid(msg.bullet.pid, NULL, 0);
             }
 
-            (gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-
+            //refresho la finestra di gioco
             wnoutrefresh(gioco);
         }
 
+        //se il messaggio è di tipo 4 (PROIETTILE)
         if(msg.tipo == PROIETTILE && pidPrjEl != msg.bullet.pid){
+            //stampo il proiettile nella posizione corretta
             printBullet(fiume, msg.bullet.coord.y, msg.bullet.coord.x, msg.bullet.dir);
         
             //verifico che la rana sia stata colpita da un proiettile
             if(msg.bullet.coord.y - 5 == (auxYXRana.y - DIM_RANA - DIM_TANA) && ((msg.bullet.coord.x + LARGH_PROIETTILE) == auxYXRana.x || msg.bullet.coord.x == (auxYXRana.x + LARGH_RANA))){
+                //booleano che indica se la rana è viva o meno
                 alive = false;
+                //killo il proiettile
                 kill(msg.bullet.pid, SIGKILL);
                 waitpid(msg.bullet.pid, NULL, 0);
             }
 
+            //verifico la collisione con le granate
             if(msg.bullet.coord.y - 3 == (auxGranadeDX.coord.y - DIM_RANA - DIM_TANA) || msg.bullet.coord.y - 3 == (auxGranadeSX.coord.y - DIM_RANA - DIM_TANA)){
                 if(msg.bullet.dir == TO_LEFT){
                     if(msg.bullet.coord.x <= (auxGranadeDX.coord.x + LARGH_GRANATA)){
+                        //verifico SEMPRE che il pid sia diverso da -1 perchè |-1| = 1 => systemd, e se il pid è -1 allora la granata è già esplosa
                         if(msg.bullet.pid != -1){
                             kill(msg.bullet.pid, SIGKILL);
                             waitpid(msg.bullet.pid, NULL, 0);
@@ -238,11 +309,14 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
                             granadeDX = false;
                         }
+                        //assegno il pid del proiettile eliminato
                         pidPrjEl = msg.bullet.pid;
+                        //quando il giocatore colpisce una granata, aumenta il punteggio di 100 punti
                         *score += 100;
                     }
                 }else if(msg.bullet.dir == TO_RIGHT){
                     if((msg.bullet.coord.x + LARGH_PROIETTILE) >= auxGranadeSX.coord.x){
+                        //verifico SEMPRE che il pid sia diverso da -1 perchè |-1| = 1 => systemd, e se il pid è -1 allora la granata è già esplosa
                         if(msg.bullet.pid != -1){
                             kill(msg.bullet.pid, SIGKILL);
                             waitpid(msg.bullet.pid, NULL, 0);
@@ -261,13 +335,17 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
                             granadeSX = false;
                         }
+                        //assegno il pid del proiettile eliminato
                         pidPrjEl = msg.bullet.pid;
+                        //quando il giocatore colpisce una granata, aumenta il punteggio di 100 punti
                         *score += 100;
                     }          
                 }
+                //refresho la finestra di fiume
                 wnoutrefresh(fiume);
             }
 
+            //verifico l'uscita dallo schermo del proiettile
             if(msg.bullet.coord.x <= 0 || msg.bullet.coord.x >= COLS){
                 kill(msg.bullet.pid, SIGKILL);
                 waitpid(msg.bullet.pid, NULL, 0);
@@ -282,12 +360,14 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 deleteFrog(gioco, auxYXRana.y, auxYXRana.x, frog);
                 deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
 
+                //aggiorno la posizione della rana nel punto di spawn
                 newPosFrog.frog.coord.x = COLS / 2;
                 newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
         
                 //cancello tutti i coccodrilli a schermo
                 deleteAllCroc(fiume, crocAux);
                 
+                //decremento le vite
                 (*viteTmp)--;
 
                 //cancello le vite a quante sono attualmente
@@ -296,12 +376,16 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 //killo tutti i coccodrilli
                 killSons(crocAux);
 
+                //booleano che esce dal ciclo della manche
                 running = false;
 
+                //azzero l'array ausiliario dei coccodrilli
                 initializeArrCroc(crocAux, MAX_CROC);
                 
+                //stampo le tane aggiornate con la rana nella nuova posizione
                 printTane(tane, 0, 0, taneLibere);
                 
+                //refresho le finestre
                 werase(fiume);
                 wnoutrefresh(fiume);
                 wnoutrefresh(gioco);
@@ -310,8 +394,10 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
 
         //se la rana è entrata correttamente nella tana
         if(frogInTana(newPosFrog.frog.coord, taneLibere) != TANA_MISS && frogInTana(newPosFrog.frog.coord, taneLibere) != NON_IN_TANA){
+            //rendo occupata la tana
             taneLibere[frogInTana(newPosFrog.frog.coord, taneLibere) - 1] = false;
             
+            //aggiorno la posizione della rana alle coordinate di spawn
             newPosFrog.frog.coord.x = COLS / 2;
             newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
     
@@ -321,10 +407,13 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             //killo tutti i coccodrilli
             killSons(crocAux);
 
+            //booleano che esce dal ciclo della manche
             running = false;
 
+            //azzero l'array ausiliario dei coccodrilli
             initializeArrCroc(crocAux, MAX_CROC);
 
+            //assegno il nuovo punteggio in base al tempo e alla difficoltà
             if (tempoTrascorso <= 30){
                 *score += 1500 + (750 / difficulty);
             }else if(tempoTrascorso > 30 && tempoTrascorso <= 45){
@@ -333,15 +422,17 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                 *score += 500 + (750 / difficulty);
             }
 
+            //stampo il punteggio aggiornato
             printScore(punteggio, score, 2, 0);
 
+            //refresho le finestre
             werase(fiume);
             wnoutrefresh(fiume);
         }
 
-        //se durante la run o durante la pausa il giocatore preme 'q' usciamo dal gioco
+        //se e solo durante la pausa il giocatore preme 'q' usciamo dal gioco
         if(chose == QUIT || chose == KEY_RIGHT){
-
+            //nel caso il giocatore abbia quittato
             if(chose == QUIT){
                 selectButton(winPausa, chose);
                 usleep(80000);
@@ -356,6 +447,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             kill(frogPid, SIGKILL);
             waitpid(frogPid, NULL, 0);
             
+            //esco dalla funzione e dal gioco
             return false;
         }
         
@@ -365,14 +457,15 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
             write(pipe_fds2[1], &newPosFrog, sizeof(Message));
         }
 
+        //faccio l'update delle finestre
         doupdate();
-        
     }
 
     //killo la rana
     kill(frogPid, SIGKILL);
     waitpid(frogPid, NULL, 0);
 
+    //ritorno true se la partita deve continuare
     return true;
 }
 
@@ -1557,13 +1650,14 @@ o888o        o88o     o8888o    `YbodP'    8""88888P'  o88o     o8888o
 
 /**
  * @brief Funzione che permette di stampare il menù di pausa
- * 
- * @param win 
- * @param y 
- * @param x 
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il menù di pausa
+ * @param y Coordinata y in cui stampare il menù di pausa
+ * @param x Coordinata x in cui stampare il menù di pausa
  */
 void printPausa(WINDOW *win, int y, int x){
     
+    //sprite del menù di pausa
     int menuBreak[DIM_BREAK][LARGH_BREAK] = {
         {BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_LIGHT_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	FROG_LIGHT_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	FROG_DARK_GREEN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN},
         {BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_LIGHT_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	FROG_DARK_GREEN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	FROG_DARK_GREEN,	BREAK_DARK_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN},
@@ -1632,9 +1726,11 @@ void printPausa(WINDOW *win, int y, int x){
         }
     } 
     
+    //stampo il cartello di resume e di quit
     printSignResume(win, DIM_BREAK - (DIM_BREAK/3) - DIM_CARTEL, LARGH_BREAK/2 - (LARGH_CARTEL/2) - SPAZIO_CARTEL);
     printSignQuit(win, DIM_BREAK - (DIM_BREAK/3) - DIM_CARTEL, LARGH_BREAK/2 + (SPAZIO_CARTEL / 2));
 
+    //refresh della finestra
     wrefresh(win);
 }
 
@@ -1653,7 +1749,15 @@ void svuotamenuPausa(WINDOW *win){
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che permette di stampare il cartello di resume
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il cartello
+ * @param y Coordinata y su cui stampare il cartello
+ * @param x Coordinata x su cui stampare il cartello
+ */
 void printSignResume(WINDOW *win, int y, int x){
+    //sprite del cartello di resume
     int resume[DIM_CARTEL][LARGH_CARTEL]={
         {FROG_MEDIUM_GREEN1,	FROG_DARK_GREEN,	10,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	10,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	FROG_DARK_GREEN,	10,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN},
         {FROG_DARK_GREEN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN},
@@ -1665,23 +1769,9 @@ void printSignResume(WINDOW *win, int y, int x){
         {BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN},
         {BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN},
         {BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN}
-
     };
 
-    int selectResume[DIM_CARTEL][LARGH_CARTEL] = {
-        {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-        {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-        {0,	0,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	0,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	0,	0},
-        {0,	0,	EYE_WHITE,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	EYE_WHITE,	0,	0,	0,	0,	EYE_WHITE,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	0,	0,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	0},
-        {0,	0,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	0,	0},
-        {0,	0,	EYE_WHITE,	0,	0,	EYE_WHITE,	0,	0,	EYE_WHITE,	0,	0,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	0,	0,	0},
-        {0,	0,	EYE_WHITE,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	0,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	0,	EYE_WHITE,	0,	0,	0,	0,	EYE_WHITE,	0,	EYE_WHITE,	EYE_WHITE,	0,	0},
-        {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-        {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-        {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}
-
-    };
-
+    //for che stampa lo sprite del cartello
     for(int i = 0; i < DIM_CARTEL; i++){
         for(int j = 0; j < LARGH_CARTEL; j++){
             wattron(win, COLOR_PAIR(resume[i][j]));
@@ -1690,10 +1780,19 @@ void printSignResume(WINDOW *win, int y, int x){
         }
     }
 
+    //refresh della finestra
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che permette di stampare il cartello di quit
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il cartello
+ * @param y Coordinata y su cui stampare il cartello
+ * @param x Coordinata x su cui stampare il cartello
+ */
 void printSignQuit(WINDOW *win, int y, int x){
+    //sprite del cartello di quit
     int spriteQuit[DIM_CARTEL][LARGH_CARTEL - 1] = {
         {FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN1,	FROG_DARK_GREEN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,		BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN, BREAK_MEDIUM_BROWN},
         {FROG_DARK_GREEN,	FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN},
@@ -1707,6 +1806,7 @@ void printSignQuit(WINDOW *win, int y, int x){
         {BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN,	BREAK_DARK_BROWN}
     };
 
+    //for che stampa lo sprite del cartello
     for(int i = 0; i < DIM_CARTEL; i++){
         for(int j = 0; j < LARGH_CARTEL - 1; j++){
             wattron(win, COLOR_PAIR(spriteQuit[i][j]));
@@ -1715,9 +1815,16 @@ void printSignQuit(WINDOW *win, int y, int x){
         }
     }
 
+    //refresh della finestra
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che permette di stampare la selezione del giocatore dal menù di pausa
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare la selezione
+ * @param button Scelta del giocatore
+ */
 void selectButton(WINDOW *win, int button){
 
     //sprite dei RESUME illuminato
@@ -1749,12 +1856,13 @@ void selectButton(WINDOW *win, int button){
         {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}
     };
 
+    //coordinate di partenza per la stampa dei cartelli
     int startY = DIM_BREAK - (DIM_BREAK/3) - DIM_CARTEL;
     int startXResume = LARGH_BREAK/2 - (LARGH_CARTEL/2) - SPAZIO_CARTEL;
     int startXQuit = LARGH_BREAK/2 + (SPAZIO_CARTEL / 2);
 
     //stampo RESUME o QUIT
-    if(button == RIPRENDI || button == KEY_LEFT){        //resume
+    if(button == RIPRENDI || button == KEY_LEFT){                   //resume
         for(int i = 0; i < DIM_CARTEL; i++){
             for(int j = 0; j < LARGH_CARTEL - 1; j++){
                 if(selectResume[i][j] != 0){
@@ -1764,8 +1872,6 @@ void selectButton(WINDOW *win, int button){
                 }
             }
         }
-    
-        wrefresh(win);
     }else if(button == QUIT || button == KEY_RIGHT){                  //quit
         for(int i = 0; i < DIM_CARTEL; i++){
             for(int j = 0; j < LARGH_CARTEL - 1; j++){
@@ -1778,6 +1884,7 @@ void selectButton(WINDOW *win, int button){
         }
     }
 
+    //refresh della finestra
     wrefresh(win);
 }
 
@@ -1792,23 +1899,32 @@ oo     .d8P      888       .8'     `888.   888  `88b.       888
 8""88888P'      o888o     o88o     o8888o o888o  o888o     o888o     
 */
 
+/**
+ * @brief Funzione che permette di stampare il titolo del gioco e i cartelli delle difficoltà
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il titolo
+ * @param yFrogger Coordinata y su cui stampare Frogger
+ * @param xFrogger Coordinata x su cui stampare Frogger
+ * @param yResurrection Coordinata y su cui stampare Resurrection
+ * @param xResurrection Coordinata x su cui stampare Resurrection
+ */
 void printStart(WINDOW *win, int yFrogger, int xFrogger, int yResurrection, int xResurrection){
+    //sprite di Frogger
     int frogger[DIM_TITOLO][LARGH_FROGGER] ={
-
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	0},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0},
-    {CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED},
-    {EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK}
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	0},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0},
+        {CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	CUORE_RED,	CUORE_RED,	EYE_BLACK,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	EYE_BLACK,	CUORE_RED,	CUORE_RED,	CUORE_RED},
+        {EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK,	0,	0,	0,	0,	0,	EYE_BLACK,	EYE_BLACK,	EYE_BLACK}
     };
 
+    //sprite di Resurrection
     int resurrection[DIM_TITOLO][LARGH_RESURRECTION] = {
-        
         {CUORE_RED, CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED},
         {CUORE_RED, CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED},
         {CUORE_RED, CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	EYE_WHITE,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	EYE_WHITE,	EYE_WHITE,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	CUORE_RED,	0,	0,	0,	CUORE_RED,	CUORE_RED,	CUORE_RED},
@@ -1822,6 +1938,7 @@ void printStart(WINDOW *win, int yFrogger, int xFrogger, int yResurrection, int 
     
     };
 
+    //for per stampare Frogger
     for(int i = 0; i < DIM_TITOLO; i++){
         for(int j = 0; j < LARGH_FROGGER - 1; j++){
             if(frogger[i][j] != 0){
@@ -1832,6 +1949,7 @@ void printStart(WINDOW *win, int yFrogger, int xFrogger, int yResurrection, int 
         }
     }
 
+    //for per stampare Resurrection
     for(int i = 0; i < DIM_TITOLO; i++){
         for(int j = 0; j < LARGH_RESURRECTION - 1; j++){
             if(resurrection[i][j] != 0){
@@ -1841,6 +1959,4 @@ void printStart(WINDOW *win, int yFrogger, int xFrogger, int yResurrection, int 
             }
         }
     }
-
-
 }

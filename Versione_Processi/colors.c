@@ -227,7 +227,6 @@ void refreshAllWin(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WIN
     wrefresh(*tempo);
 }
 
-//restituisce il colorpair dello sfondo in base alla coordinata y
 /**
  * @brief Funzione che restituisce il color pair in base alla coordinata y
  * La funzione serve per ovviare la selezione statica della scelta dello sfondo, e impostarlo in maniera dinamica
