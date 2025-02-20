@@ -72,6 +72,8 @@ void* generaCoccodrillo(void* threadCroc){
     
     Crocodile croc = *auxcroc;
 
+    Bullet CrockBullet;
+
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < croc.turno; i++){
         for (int j = 0; j < 6; j++){

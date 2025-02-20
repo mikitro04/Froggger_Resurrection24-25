@@ -48,11 +48,10 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
     bool running = true, alive = true, granadeSX = false, granadeDX = false;
 
-    WINDOW *winPausa, *inputWin;
-        inputWin = newwin(0, 0, 0, 0);
+    WINDOW *winPausa;
         noecho();
-        keypad(inputWin, TRUE);
-        nodelay(inputWin, TRUE);
+        keypad(winPausa, TRUE);
+        nodelay(winPausa, TRUE);
 
     time_t start = time(NULL), now = time(NULL), tempoTrascorso = 0, tempoPrec = -1;
 
@@ -120,7 +119,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
         //verifico che il giocatore prema correttamente 'r' per riprendere il gioco
         if(msg.tipo == 0){
-            chose = wgetch(inputWin);
+            chose = wgetch(winPausa);
             if(chose == RIPRENDI || chose == KEY_LEFT){
                 start = time(NULL);
                 start -= tempoTrascorso;
