@@ -30,6 +30,8 @@ int main(){
     //strutture rana, coccodrilli
     Frog rana;
 
+    rana.coord = startYX;
+
     Crocodile arrCroc[MAX_CROC];
 
     Message msg;
@@ -79,7 +81,7 @@ int main(){
         initIntArray(cCorsie, NUM_CORSIE);
 
         //creo il thread della rana
-        pthread_create(&rana.threadID, NULL, &muoviRana, &startYX);
+        pthread_create(&rana.threadID, NULL, &muoviRana, &rana);
 
         //aspetto per assicurarmi che la rana sia stata generata correttamente ed evitare di perdere vite all'inizio del gioco
         usleep(1000);

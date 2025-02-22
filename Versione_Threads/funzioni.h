@@ -194,3 +194,12 @@
 
     void selectButton(WINDOW *win, int button);
 ///fine dichiarazione funzioni print
+
+
+///dichiarazione funzioni print
+
+void gestisciGranata(void* threadGranade);
+
+int traiettoria(int x, int dir);
+
+///fine dichiarazione funzioni print

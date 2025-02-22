@@ -132,7 +132,12 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         }
 
         if(msg.tipo == RANA){
+
+            newPosFrog.frog.coord.x = msg.frog.coord.x;
+            newPosFrog.frog.coord.y = msg.frog.coord.y;
+
             stampaRana(gioco, msg.frog.coord, &ranaStartYX);
+            
             wnoutrefresh(gioco);
         }
 
@@ -143,11 +148,61 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
             gestisciStampaCoccodrillo(msg, fiume);
 
+            if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA) && (newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO)){
+
+            deleteFrog(gioco, ranaStartYX.y, ranaStartYX.x, frog);
+
+            //incremento le coordinate della rana in base al flusso del coccodrillo 
+            newPosFrog.frog.coord.x += msg.croc.dir;
+            newPosFrog.tipo = RANA;
+            newPosFrog.croc.speed = msg.croc.speed;
+
+            printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+
+            }
+
             wnoutrefresh(fiume);
+        }
+
+
+        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            if(!frogOnCroc(newPosFrog.frog.coord, arrCroc) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            
+                deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+
+                 //aggiorno la posizione della rana nel punto di spawn
+                newPosFrog.frog.coord.x = COLS / 2;
+                newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
+
+                deleteAllCroc(fiume, arrCroc);
+
+                (*viteTmp)--;
+
+                deleteVite(vite, 1, *viteTmp);
+
+                killSons(arrCroc);
+
+                running = false;
+
+                initializeArrCroc(arrCroc, MAX_CROC);
+
+                printTane(tane, 0, 0, taneLibere);
+
+                werase(fiume);
+                wnoutrefresh(fiume);
+                wnoutrefresh(gioco);
+
+            }
+            
         }
         
         doupdate();
     }
+
+    pthread_cancel(msg.frog.threadID);
+    pthread_join(msg.frog.threadID, NULL);
+
+    return false;
 }
 
 /*

@@ -59,6 +59,7 @@
 #define PUNTI4 100
 #define LOADING 1                                       //fase in cui il coccodrillo sta per sparare
 #define UNLOADING 0                                     ///fase in cui non sta per sparare 
+#define NUM_GRANATE 2                                   ///numero di granate utilizzabili contemporaneamente 
 ///fine dichiarazione macro di gioco
 
 //velocità a cui possono andare le entità
