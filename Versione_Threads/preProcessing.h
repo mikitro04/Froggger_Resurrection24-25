@@ -223,13 +223,16 @@ typedef struct Message{
 #define DIM_BUFFER 256
 
 extern Message buffer1[DIM_BUFFER];
-extern Message buffer2[DIM_BUFFER];
+extern Coordinate buffer2[DIM_BUFFER];
 
 extern pthread_mutex_t mutex;
+extern pthread_mutex_t mutex2;
 
 extern sem_t semLiberi, semOccupati;
+extern sem_t semLiberi2, semOccupati2;
 
 extern int iLeggi, iScrivi;
+extern int iLeggi2, iScrivi2;
 
 extern bool pausa;
 

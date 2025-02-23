@@ -49,9 +49,9 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
     bool running = true, alive = true, granadeSX = false, granadeDX = false;
 
     WINDOW *winPausa;
-        noecho();
-        keypad(winPausa, TRUE);
-        nodelay(winPausa, TRUE);
+        //noecho();
+        //keypad(winPausa, TRUE);
+        //nodelay(winPausa, TRUE);
 
     time_t start = time(NULL), now = time(NULL), tempoTrascorso = 0, tempoPrec = -1;
 
@@ -165,7 +165,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         }
 
 
-        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+        /*if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
             if(!frogOnCroc(newPosFrog.frog.coord, arrCroc) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
             
                 deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
@@ -194,7 +194,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
             }
             
-        }
+        }*/
         
         doupdate();
     }

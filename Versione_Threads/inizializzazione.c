@@ -1,13 +1,16 @@
 #include "funzioni.h"
 
 Message buffer1[DIM_BUFFER];
-Message buffer2[DIM_BUFFER];
+Coordinate buffer2[DIM_BUFFER];
 
 pthread_mutex_t mutex;
+pthread_mutex_t mutex2;
 
 sem_t semLiberi, semOccupati;
+sem_t semLiberi2, semOccupati2;
 
 int iLeggi, iScrivi;
+int iLeggi2, iScrivi2;
 
 bool pausa;
 
@@ -93,26 +96,51 @@ bool atLeastOneTrue(bool *array, int size){
 void inizializzaMeccanismiSincronizzazione(){
     
     pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&mutex2, NULL);
+
     sem_init(&semOccupati, 0, 0); 
     sem_init(&semLiberi, 0, DIM_BUFFER); 
+
+    sem_init(&semOccupati2, 0, 0); 
+    sem_init(&semLiberi2, 0, DIM_BUFFER); 
+
     iLeggi = 0;
     iScrivi = 0;
+
+    iLeggi2 = 0;
+    iScrivi2 = 0;
+
     pausa = false;
 }
 
 void writeBuffer(Message msg){
 
-sem_wait(&semLiberi);
+    sem_wait(&semLiberi);
 
-pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&mutex);
 
-buffer1[iScrivi] = msg;
-iScrivi = (iScrivi + 1) % DIM_BUFFER;
+    buffer1[iScrivi] = msg;
+    iScrivi = (iScrivi + 1) % DIM_BUFFER;
 
-pthread_mutex_unlock(&mutex);
-sem_post(&semOccupati);
+    pthread_mutex_unlock(&mutex);
+    sem_post(&semOccupati);
 
 }
+
+void writeBuffer2(Coordinate coord){
+
+    sem_wait(&semLiberi2);
+
+    pthread_mutex_lock(&mutex2);
+
+    buffer2[iScrivi2] = coord;
+    iScrivi2 = (iScrivi2 + 1) % DIM_BUFFER;
+
+    pthread_mutex_unlock(&mutex2);
+    sem_post(&semOccupati2);
+
+}
+
 
 
 Message readBuffer(){
@@ -129,6 +157,24 @@ Message readBuffer(){
     sem_post(&semLiberi);
 
     return msg;
+}
+
+
+
+Coordinate readBuffer2(){
+    Coordinate coord;
+
+    sem_wait(&semOccupati2);
+
+    pthread_mutex_lock(&mutex2);
+    coord = buffer2[iLeggi2];
+    iLeggi2 = (iLeggi2 + 1) % DIM_BUFFER;
+
+    pthread_mutex_unlock(&mutex2);
+
+    sem_post(&semLiberi2);
+
+    return coord;
 }
 
 void initMessage(Message *msg){
