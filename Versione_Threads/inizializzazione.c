@@ -117,6 +117,28 @@ void inizializzaMeccanismiSincronizzazione(){
     onCroc = false;
 }
 
+void distruggiMeccanismiSincronizzazione(){
+
+    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&mutex2);
+
+    sem_destroy(&semOccupati);
+    sem_destroy(&semLiberi);
+
+    sem_destroy(&semOccupati2);
+    sem_destroy(&semLiberi2);
+
+    iLeggi = 0;
+    iScrivi = 0;
+
+    iLeggi2 = 0;
+    iScrivi2 = 0;
+
+    pausa = false;
+
+
+}
+
 void writeBuffer(Message msg){
 
     sem_wait(&semLiberi);

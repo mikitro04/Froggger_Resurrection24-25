@@ -28,14 +28,11 @@ void* muoviRana(void* threadFrog){
     while(running){
         //while(pausa);
 
-        //newPosFrog.x = -1;
-        //newPosFrog.y = -1;
-
         msg.scelta = wgetch(win);
 
         joystickRana(&msg.frog.coord.y, &msg.frog.coord.x, DIM_GIOCO, msg.scelta);
 
-        if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE){
+        if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE || msg.frog.coord.x < 0 || msg.frog.coord.x + LARGH_RANA > COLS){
             writeBuffer(msg);
             prec = msg.frog.coord;
         }

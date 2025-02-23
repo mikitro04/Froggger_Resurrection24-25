@@ -46,7 +46,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
     printTane(tane, 0, 0, taneLibere);
 
-    bool running = true, alive = true, granadeSX = false, granadeDX = false;
+    bool running = true, granadeSX = false, granadeDX = false, alive = true;
 
     WINDOW *winPausa;
 
@@ -83,8 +83,12 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
     printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
     
     ripristinaSfondo(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
-    refreshAllWin(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
+    //refreshAllWin(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
 
+    wrefresh(spondaSup);
+    wrefresh(fiume);
+    wrefresh(spondaInf);
+    
     while (running){
         if(!pausa){
             msg = readBuffer();
@@ -143,36 +147,42 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             arrCroc[msg.croc.id] = msg.croc;
 
             deleteSingleCroc(fiume, arrCroc[msg.croc.id]);
-
-            gestisciStampaCoccodrillo(msg, fiume);
+            
+            if (msg.croc.coord.y != -5){
+                gestisciStampaCoccodrillo(msg, fiume);
+            }
 
             if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA) && (newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO)){
                 deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
 
-                //incremento le coordinate della rana in base al flusso del coccodrillo 
+                //incremento le coordinate della rana in base al flusso del coccodrillo
                 newPosFrog.frog.coord.x += msg.croc.dir;
                 newPosFrog.tipo = RANA;
                 newPosFrog.croc.speed = msg.croc.speed;
                 
                 writeBuffer2(newPosFrog.frog.coord);
 
+                //stampaRana(gioco, newPosFrog.frog.coord, &ranaStartYX);
                 printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
             }
 
             wnoutrefresh(fiume);
         }
 
+        /*if((ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0){
+            alive = false;
+        }*/
 
-        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            if(!frogOnCroc(newPosFrog.frog.coord, arrCroc) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+        if (((newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA) && (newPosFrog.frog.coord.y > DIM_TANA)) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) >= COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            if(/*!frogOnCroc(newPosFrog.frog.coord, arrCroc) || */ tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
             
-                deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+                //deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
 
                 //aggiorno la posizione della rana nel punto di spawn
                 newPosFrog.frog.coord.x = COLS / 2;
                 newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
 
-                deleteAllCroc(fiume, arrCroc);
+                //deleteAllCroc(fiume, arrCroc);
 
                 (*viteTmp)--;
 
@@ -182,16 +192,68 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
                 running = false;
 
-                initializeArrCroc(arrCroc, MAX_CROC);
-
                 printTane(tane, 0, 0, taneLibere);
 
+                //
+                werase(punteggio);
+                werase(spondaSup);
                 werase(fiume);
-                wnoutrefresh(fiume);
-                wnoutrefresh(gioco);
+                werase(spondaInf);
+                werase(vite);
+                werase(tempo);
+                
+                pthread_cancel(msg.frog.threadID);
+                pthread_join(msg.frog.threadID, NULL);
 
-                beep();
+                return true;
             }
+        }
+
+        //se la rana è entrata correttamente nella tana
+        if(frogInTana(newPosFrog.frog.coord, taneLibere) != TANA_MISS && frogInTana(newPosFrog.frog.coord, taneLibere) != NON_IN_TANA){
+            //rendo occupata la tana
+            taneLibere[frogInTana(newPosFrog.frog.coord, taneLibere) - 1] = false;
+            
+            //aggiorno la posizione della rana alle coordinate di spawn
+            newPosFrog.frog.coord.x = COLS / 2;
+            newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
+    
+            //cancello tutti i coccodrilli a schermo
+            deleteAllCroc(fiume, arrCroc);
+
+            //killo tutti i coccodrilli
+            killSons(arrCroc);
+
+            //booleano che esce dal ciclo della manche
+            running = false;
+
+            //azzero l'array ausiliario dei coccodrilli
+            initializeArrCroc(arrCroc, MAX_CROC);
+
+            //assegno il nuovo punteggio in base al tempo e alla difficoltà
+            if (tempoTrascorso <= 30){
+                *score += 1500 + (750 / difficulty);
+            }else if(tempoTrascorso > 30 && tempoTrascorso <= 45){
+                *score += 1000 + (750 / difficulty);
+            }else if(tempoTrascorso > 45 && tempoTrascorso < (TEMPO_MAX - (20 * (3 - difficulty)))){
+                *score += 500 + (750 / difficulty);
+            }
+
+            //stampo il punteggio aggiornato
+            printScore(punteggio, score, 2, 0);
+
+            //refresho le finestre
+            werase(punteggio);
+            werase(spondaSup);
+            werase(fiume);
+            werase(spondaInf);
+            werase(vite);
+            werase(tempo);
+
+            pthread_cancel(msg.frog.threadID);
+            pthread_join(msg.frog.threadID, NULL);
+
+            return true;
         }
         
         if(chose == QUIT){
@@ -199,29 +261,21 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             usleep(80000);
             svuotamenuPausa(winPausa);
             delwin(winPausa);
+            pausa = false;
 
             //killo tutti i coccodrilli
             killSons(arrCroc);
 
             //killo la rana
             pthread_cancel(frogID);
-            pthread_tryjoin_np(frogID, NULL);
+            pthread_join(frogID, NULL);
             
             //esco dalla funzione e dal gioco
             return false;
         }
 
-        // if(!pausa){
-        //     printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-        //     //writeBuffer2(newPosFrog.frog.coord);
-        //     wnoutrefresh(gioco);
-        // }
-
         doupdate();
     }
-
-    pthread_cancel(msg.frog.threadID);
-    pthread_join(msg.frog.threadID, NULL);
 
     return true;
 }

@@ -36,7 +36,7 @@ void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], int difficulty){
         arrCroc[i].n = n;
 
         //creazione thread coccodrillo
-        pthread_create(&arrCroc[i].threadID, NULL, &generaCoccodrillo, &arrCroc[i]);
+        pthread_create(&(arrCroc[i].threadID), NULL, &generaCoccodrillo, &arrCroc[i]);
     }
 }
 
@@ -84,8 +84,11 @@ void* generaCoccodrillo(void* threadCroc){
     figlio.croc.id = croc.id;
     figlio.croc.coord = croc.coord;
     figlio.croc.dir = croc.dir;
+    figlio.croc.coord.y = -5;
 
-    writeBuffer(figlio);
+
+
+    //writeBuffer(figlio);
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < croc.turno; i++){

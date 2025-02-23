@@ -12,8 +12,6 @@ int main(){
 
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
-    inizializzaMeccanismiSincronizzazione();
-
     //finestre
     WINDOW *punteggio, *gioco, *statistiche, *tane, *spondaSup, *fiume, *spondaInf, *vite, *tempo;
 
@@ -74,6 +72,12 @@ int main(){
     refresh();
 
     while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
+        
+        bkgd(EYE_BLACK);
+        refresh();
+
+        inizializzaMeccanismiSincronizzazione();
+
         initializeFrog(&rana, startYX);
         
         initializeArrCroc(arrCroc, MAX_CROC);
@@ -92,7 +96,9 @@ int main(){
         //nel caso sia il thread main richiama la funzione di rendering
         run = rendering(punteggio, gioco,  tane,  spondaSup,  fiume,  spondaInf,  statistiche,  vite,  tempo,  arrCroc, msg, taneLibere, difficulty, &viteTmp, &score);
         
-        iLeggi = iScrivi = iLeggi2 = iScrivi2 = 0;
+        distruggiMeccanismiSincronizzazione();
+
+
     }
 
     printTane(tane, 0, 0, taneLibere);

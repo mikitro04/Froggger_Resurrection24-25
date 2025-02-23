@@ -111,6 +111,9 @@
     void writeBuffer2(Coordinate coord);
 
     Coordinate readBuffer2();
+
+    void distruggiMeccanismiSincronizzazione();
+    
 ///fine dichiarazione funzione dei SEMAFORI
 
 
