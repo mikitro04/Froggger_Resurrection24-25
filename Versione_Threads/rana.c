@@ -41,8 +41,8 @@ void* muoviRana(void* threadFrog){
                 BulletCord[0].dir = TO_LEFT;
                 BulletCord[1].dir = TO_RIGHT;
 
-                pthread_create(&BulletCord[0].threadID, NULL, &gestisciGranata, &BulletCord);
-                pthread_create(&BulletCord[1].threadID, NULL, &gestisciGranata, &BulletCord);
+                //pthread_create(&BulletCord[0].threadID, NULL, &gestisciGranata, &BulletCord);
+                //pthread_create(&BulletCord[1].threadID, NULL, &gestisciGranata, &BulletCord);
                 //shootPermission = false;
             }
 

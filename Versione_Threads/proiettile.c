@@ -1,10 +1,10 @@
 #include "funzioni.h"
 
-void gestisciGranata(void* threadGranade){
+void* gestisciGranata(void* threadGranade){
 
     Message msg;
 
-    Bullet *aux_granata = (Coordinate*)threadGranade;
+    Bullet *aux_granata = (Bullet*)threadGranade;
 
     msg.tipo = GRANATA;
 

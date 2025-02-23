@@ -96,6 +96,8 @@
     int findSpeed(Crocodile arrCroc[], int yCorsia);
 
     void usleepCrocSpeed(int speed);
+
+    void killSons(Crocodile arrCroc[MAX_CROC]);
 ///fine dichiarazione funzioni dei COCCODRILLI
 
 
@@ -198,7 +200,7 @@
 
 ///dichiarazione funzioni print
 
-void gestisciGranata(void* threadGranade);
+void* gestisciGranata(void* threadGranade);
 
 int traiettoria(int x, int dir);
 
