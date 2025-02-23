@@ -58,7 +58,6 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
     for (int i = 0; i < MAX_CROC; i++){
         idPrjCroc[i] = -1;
     }
-    
 
     Coordinate ranaStartYX = {DIM_GIOCO - DIM_RANA, COLS/2};
 
@@ -148,17 +147,17 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             gestisciStampaCoccodrillo(msg, fiume);
 
             if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA) && (newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO)){
-                //deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+                deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
 
                 //incremento le coordinate della rana in base al flusso del coccodrillo 
                 newPosFrog.frog.coord.x += msg.croc.dir;
                 newPosFrog.tipo = RANA;
                 newPosFrog.croc.speed = msg.croc.speed;
-                onCroc = true;
+                
                 writeBuffer2(newPosFrog.frog.coord);
 
                 printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-            } 
+            }
 
             wnoutrefresh(fiume);
         }
@@ -191,8 +190,8 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
                 wnoutrefresh(fiume);
                 wnoutrefresh(gioco);
 
+                beep();
             }
-            
         }
         
         if(chose == QUIT){

@@ -91,6 +91,8 @@ int main(){
 
         //nel caso sia il thread main richiama la funzione di rendering
         run = rendering(punteggio, gioco,  tane,  spondaSup,  fiume,  spondaInf,  statistiche,  vite,  tempo,  arrCroc, msg, taneLibere, difficulty, &viteTmp, &score);
+        
+        iLeggi = iScrivi = iLeggi2 = iScrivi2 = 0;
     }
 
     printTane(tane, 0, 0, taneLibere);

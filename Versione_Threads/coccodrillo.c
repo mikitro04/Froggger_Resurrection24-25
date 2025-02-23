@@ -67,10 +67,6 @@ void initializeArrCroc(Crocodile array[], int dim){
 
 //funzione chiamata solo dal coccodrillo (figlio) che si occupa di generare e muovere il coccodrillo
 void* generaCoccodrillo(void* threadCroc){
-
-    // Abilita la cancellazione e la rende differita (più sicura)
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
     
     Crocodile *auxcroc = (Crocodile*)threadCroc;
     
@@ -78,8 +74,18 @@ void* generaCoccodrillo(void* threadCroc){
 
     Bullet CrockBullet;
 
+    Message figlio = {};
+
     if(croc.corsia == 0)
         croc.turno--;
+
+    figlio.tipo = COCCODRILLO;
+    figlio.croc.threadID = pthread_self();
+    figlio.croc.id = croc.id;
+    figlio.croc.coord = croc.coord;
+    figlio.croc.dir = croc.dir;
+
+    writeBuffer(figlio);
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < croc.turno; i++){
@@ -90,16 +96,12 @@ void* generaCoccodrillo(void* threadCroc){
     }
 
     Coordinate startYX = {croc.corsia, 0};
-    Message figlio = {};
     pid_t proiettile;
     bool shootPermission = true;
     int attesa = generaNumeroCasuale(100, 1000), status, nCorsia;
 
-    figlio.id = croc.id;
-    figlio.tipo = COCCODRILLO;
     figlio.croc.coord.y = croc.corsia;
     figlio.croc.speed = croc.speed;
-    figlio.croc.threadID = pthread_self();
 
 
     croc.dir = dirCocc(croc.corsia, croc.n, &figlio);       //direzione del coccodrillo generata in base a n e la corsia, modifica figlio.scelta e figlio.coord.x
@@ -292,7 +294,7 @@ int generaYCorsia(int counterCorsie[]){
 bool frogOnCroc(Coordinate frog, Crocodile croc[]){
     for (int i = 0; i < MAX_CROC; i++){
         if(croc[i].id != -1){
-            if(croc[i].coord.y == (frog.y - DIM_RANA - DIM_RANA- DIM_TANA) && (frog.x >= croc[i].coord.x && (frog.x + DIM_RANA) < croc[i].coord.x + DIM_COCCODRILLO)){
+            if(croc[i].coord.y == (frog.y - DIM_RANA - DIM_TANA) && (frog.x >= croc[i].coord.x && (frog.x + DIM_RANA) < croc[i].coord.x + DIM_COCCODRILLO)){
                 return true;
             }
         }
@@ -302,9 +304,9 @@ bool frogOnCroc(Coordinate frog, Crocodile croc[]){
 
 void killSons(Crocodile arrCroc[MAX_CROC]){
     for (int i = 0; i < MAX_CROC; i++){
-        if (arrCroc[i].threadID != (pthread_t)0 && arrCroc[i].threadID != (pthread_t)-1){
+        if (arrCroc[i].threadID != (pthread_t)-1){
             pthread_cancel(arrCroc[i].threadID);
-            pthread_tryjoin_np(arrCroc[i].threadID, NULL);
+            pthread_join(arrCroc[i].threadID, NULL);
         }
     }
 }
