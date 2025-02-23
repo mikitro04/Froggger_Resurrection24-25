@@ -4,14 +4,16 @@
 void* muoviRana(void* threadFrog){
 
     Message msg;
-    Coordinate *auxCord = (Coordinate*)threadFrog;
+    Frog *auxFrog = (Frog*)threadFrog;
     Coordinate prec = {0,0};
 
     msg.tipo = RANA;
-    msg.frog.coord = *auxCord; 
-    msg.frog.threadID = pthread_self();
+    msg.frog = *auxFrog; 
+    //msg.frog.threadID = pthread_self();
     msg.scelta = 0;
     bool running = true;
+    bool shootPermission = true;
+    Bullet BulletCord[NUM_GRANATE];
 
     WINDOW *win = newwin( 0, 0, DIM_STATS, 0);
 
@@ -29,6 +31,19 @@ void* muoviRana(void* threadFrog){
             if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE){
                 writeBuffer(msg);
                 prec = msg.frog.coord;
+            }
+
+            if(msg.scelta == DEFENCE && shootPermission){
+                
+                BulletCord[0].coord = msg.frog.coord;
+                BulletCord[1].coord = msg.frog.coord;
+
+                BulletCord[0].dir = TO_LEFT;
+                BulletCord[1].dir = TO_RIGHT;
+
+                pthread_create(&BulletCord[0].threadID, NULL, &gestisciGranata, &BulletCord);
+                pthread_create(&BulletCord[1].threadID, NULL, &gestisciGranata, &BulletCord);
+                //shootPermission = false;
             }
 
             usleep(1000);

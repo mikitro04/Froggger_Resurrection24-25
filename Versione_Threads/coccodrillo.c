@@ -72,6 +72,8 @@ void* generaCoccodrillo(void* threadCroc){
     
     Crocodile croc = *auxcroc;
 
+    Bullet CrockBullet;
+
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < croc.turno; i++){
         for (int j = 0; j < 6; j++){
@@ -290,15 +292,14 @@ bool frogOnCroc(Coordinate frog, Crocodile croc[]){
     return false;
 }
 
-/*void killSons(Crocodile arrCroc[MAX_CROC]){
+void killSons(Crocodile arrCroc[MAX_CROC]){
     for (int i = 0; i < MAX_CROC; i++){
-        if (arrCroc[i].pid != 0 && arrCroc[i].pid != -1){
-            kill(arrCroc[i].pid, SIGKILL);
-            //wait(NULL);
-            waitpid(arrCroc[i].pid, NULL, 0);
+        if (arrCroc[i].threadID != 0 && arrCroc[i].threadID != -1){
+            pthread_cancel(arrCroc[i].threadID);
+            pthread_join(arrCroc[i].threadID, NULL);
         }
     }
-}*/
+}
 
 int findSpeed(Crocodile arrCroc[], int yCorsia){
     for (int i = 0; i < MAX_CROC; i++){
