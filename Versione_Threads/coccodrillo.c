@@ -292,7 +292,7 @@ int generaYCorsia(int counterCorsie[]){
 bool frogOnCroc(Coordinate frog, Crocodile croc[]){
     for (int i = 0; i < MAX_CROC; i++){
         if(croc[i].id != -1){
-            if(croc[i].coord.y == (frog.y - DIM_RANA - DIM_TANA) && (frog.x >= croc[i].coord.x && (frog.x + DIM_RANA) < croc[i].coord.x + DIM_COCCODRILLO)){
+            if(croc[i].coord.y == (frog.y - DIM_RANA - DIM_RANA- DIM_TANA) && (frog.x >= croc[i].coord.x && (frog.x + DIM_RANA) < croc[i].coord.x + DIM_COCCODRILLO)){
                 return true;
             }
         }

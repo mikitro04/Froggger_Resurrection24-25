@@ -238,4 +238,6 @@ extern int iLeggi2, iScrivi2;
 
 extern bool pausa;
 
+extern bool onCroc;
+
 ///fine dichiarazione buffer e semafori

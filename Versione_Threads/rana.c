@@ -26,10 +26,10 @@ void* muoviRana(void* threadFrog){
 
 
     while(running){
-        while(pausa);
+        //while(pausa);
 
-        newPosFrog.x = -1;
-        newPosFrog.y = -1;
+        //newPosFrog.x = -1;
+        //newPosFrog.y = -1;
 
         msg.scelta = wgetch(win);
 
@@ -54,11 +54,19 @@ void* muoviRana(void* threadFrog){
         }
 
         newPosFrog = readBuffer2();
+        //if (onCroc){
+        //msg.frog.coord = newPosFrog;
+        //}
 
-        if(newPosFrog.x != -1 && newPosFrog.y != -1){
-            msg.frog.coord = newPosFrog;
-            prec = newPosFrog;
+        if (newPosFrog.y != -1){
+            msg.frog.coord.x = newPosFrog.x;
+            prec = msg.frog.coord;
         }
+
+        // if(newPosFrog.x != -1 && newPosFrog.y != -1){
+        //     msg.frog.coord = newPosFrog;
+        //     prec = newPosFrog;
+        // }
 
         usleep(1000);
     }
