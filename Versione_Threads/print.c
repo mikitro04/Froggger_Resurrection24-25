@@ -154,15 +154,17 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
                 newPosFrog.frog.coord.x += msg.croc.dir;
                 newPosFrog.tipo = RANA;
                 newPosFrog.croc.speed = msg.croc.speed;
+                onCroc = true;
+                writeBuffer2(newPosFrog.frog.coord);
 
-                //printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-            }
+                printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+            } 
 
             wnoutrefresh(fiume);
         }
 
 
-        /*if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+        if (newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA && newPosFrog.frog.coord.y > DIM_TANA || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
             if(!frogOnCroc(newPosFrog.frog.coord, arrCroc) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
             
                 deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
@@ -191,7 +193,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
             }
             
-        }*/
+        }
         
         if(chose == QUIT){
             selectButton(winPausa, chose);
@@ -210,11 +212,11 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             return false;
         }
 
-        if(!pausa){
-            printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
-            writeBuffer2(newPosFrog.frog.coord);
-            wnoutrefresh(gioco);
-        }
+        // if(!pausa){
+        //     printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+        //     //writeBuffer2(newPosFrog.frog.coord);
+        //     wnoutrefresh(gioco);
+        // }
 
         doupdate();
     }
@@ -222,7 +224,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
     pthread_cancel(msg.frog.threadID);
     pthread_join(msg.frog.threadID, NULL);
 
-    return false;
+    return true;
 }
 
 /*

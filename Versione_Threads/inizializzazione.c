@@ -14,6 +14,8 @@ int iLeggi2, iScrivi2;
 
 bool pausa;
 
+bool onCroc;
+
 void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
 
     int altezzaSpondaSup =  DIM_STATS + DIM_TANA;
@@ -111,6 +113,8 @@ void inizializzaMeccanismiSincronizzazione(){
     iScrivi2 = 0;
 
     pausa = false;
+
+    onCroc = false;
 }
 
 void writeBuffer(Message msg){
@@ -164,16 +168,18 @@ Message readBuffer(){
 Coordinate readBuffer2(){
     Coordinate coord;
 
-    sem_trywait(&semOccupati2);
+    
+    if (!sem_trywait(&semOccupati2)){
+        pthread_mutex_lock(&mutex2);
+        coord = buffer2[iLeggi2];
+        iLeggi2 = (iLeggi2 + 1) % DIM_BUFFER;
 
-    pthread_mutex_lock(&mutex2);
-    coord = buffer2[iLeggi2];
-    iLeggi2 = (iLeggi2 + 1) % DIM_BUFFER;
+        pthread_mutex_unlock(&mutex2);
 
-    pthread_mutex_unlock(&mutex2);
-
-    sem_post(&semLiberi2);
-
+        sem_post(&semLiberi2);
+    }else{
+        coord.y = -1;
+    }
     return coord;
 }
 

@@ -73,7 +73,7 @@ int main(){
     bkgd(EYE_BLACK);
     refresh();
 
-    while(run /*&& viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)*/){
+    while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
         initializeFrog(&rana, startYX);
         
         initializeArrCroc(arrCroc, MAX_CROC);
@@ -91,7 +91,7 @@ int main(){
 
         //nel caso sia il thread main richiama la funzione di rendering
         run = rendering(punteggio, gioco,  tane,  spondaSup,  fiume,  spondaInf,  statistiche,  vite,  tempo,  arrCroc, msg, taneLibere, difficulty, &viteTmp, &score);
-    }/*
+    }
 
     printTane(tane, 0, 0, taneLibere);
     giustifica = giustificaPunteggio(score);
@@ -106,7 +106,7 @@ int main(){
         printFrogGhost(fiume, (DIM_RANA + DIM_GAME_OVER + (DIM_RANA/2)), ((COLS / 2) - (LOSER_FROG_LARGH / 2)));
         //stampare lo score usando sprite
         printFinalScore(fiume, score, ((DIM_RANA * 2) + DIM_GAME_OVER + LOSER_FROG_DIM), ((COLS / 2) - giustifica/2));
-    }*/
+    }
     sleep(3);
 
     endwin();
