@@ -164,7 +164,7 @@ Message readBuffer(){
 Coordinate readBuffer2(){
     Coordinate coord;
 
-    sem_wait(&semOccupati2);
+    sem_trywait(&semOccupati2);
 
     pthread_mutex_lock(&mutex2);
     coord = buffer2[iLeggi2];

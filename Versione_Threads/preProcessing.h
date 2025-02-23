@@ -1,4 +1,5 @@
 ///direttive di pre-processing
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
@@ -9,6 +10,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+
 
 ///fine direttive di pre-processing
 
@@ -220,7 +222,7 @@ typedef struct Message{
 
 ///dichiarazione buffer e semafori
 
-#define DIM_BUFFER 256
+#define DIM_BUFFER 512
 
 extern Message buffer1[DIM_BUFFER];
 extern Coordinate buffer2[DIM_BUFFER];

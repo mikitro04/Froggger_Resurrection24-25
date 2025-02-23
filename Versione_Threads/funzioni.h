@@ -107,6 +107,10 @@
     Message readBuffer();
 
     void writeBuffer(Message msg);
+
+    void writeBuffer2(Coordinate coord);
+
+    Coordinate readBuffer2();
 ///fine dichiarazione funzione dei SEMAFORI
 
 
@@ -200,8 +204,8 @@
 
 ///dichiarazione funzioni print
 
-void* gestisciGranata(void* threadGranade);
+    void* gestisciGranata(void* threadGranade);
 
-int traiettoria(int x, int dir);
+    int traiettoria(int x, int dir);
 
 ///fine dichiarazione funzioni print

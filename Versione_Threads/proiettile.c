@@ -2,6 +2,10 @@
 
 void* gestisciGranata(void* threadGranade){
 
+    // Abilita la cancellazione e la rende differita (più sicura)
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+
     Message msg;
 
     Bullet *aux_granata = (Bullet*)threadGranade;

@@ -81,12 +81,10 @@ void muoviRana(Message figlio, int pipe_fds[], int pipe_fds2[], WINDOW *gioco){
         //se la rana legge un messaggio dalla pipe2, vorrà dire che la rana si sta spostando secondo specifiche di gioco
         if(read(pipe_fds2[0], &newCoord, sizeof(Message)) > 0){
             //aggiorno le coordinate della rana
-            figlio.frog.coord.x = newCoord.frog.coord.x;
-            figlio.frog.coord.y = newCoord.frog.coord.y;
+            figlio.frog.coord = newCoord.frog.coord;
             figlio.frog.vite = newCoord.frog.vite;
 
-            prec.x = figlio.frog.coord.x;
-            prec.y = figlio.frog.coord.y;
+            prec = figlio.frog.coord;
         }
     }
 }

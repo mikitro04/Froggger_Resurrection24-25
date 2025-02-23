@@ -3,9 +3,13 @@
 
 void* muoviRana(void* threadFrog){
 
+    // Abilita la cancellazione e la rende differita (più sicura)
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+
     Message msg;
     Frog *auxFrog = (Frog*)threadFrog;
-    Coordinate prec = {0,0};
+    Coordinate prec = {0,0}, newPosFrog;
 
     msg.tipo = RANA;
     msg.frog = *auxFrog; 
@@ -22,32 +26,41 @@ void* muoviRana(void* threadFrog){
 
 
     while(running){
+        while(pausa);
 
-        if(!pausa){
-            msg.scelta = wgetch(win);
+        newPosFrog.x = -1;
+        newPosFrog.y = -1;
 
-            joystickRana(&msg.frog.coord.y, &msg.frog.coord.x, DIM_GIOCO, msg.scelta);
+        msg.scelta = wgetch(win);
 
-            if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE){
-                writeBuffer(msg);
-                prec = msg.frog.coord;
-            }
+        joystickRana(&msg.frog.coord.y, &msg.frog.coord.x, DIM_GIOCO, msg.scelta);
 
-            if(msg.scelta == DEFENCE && shootPermission){
-                
-                BulletCord[0].coord = msg.frog.coord;
-                BulletCord[1].coord = msg.frog.coord;
-
-                BulletCord[0].dir = TO_LEFT;
-                BulletCord[1].dir = TO_RIGHT;
-
-                //pthread_create(&BulletCord[0].threadID, NULL, &gestisciGranata, &BulletCord);
-                //pthread_create(&BulletCord[1].threadID, NULL, &gestisciGranata, &BulletCord);
-                //shootPermission = false;
-            }
-
-            usleep(1000);
+        if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE){
+            writeBuffer(msg);
+            prec = msg.frog.coord;
         }
+
+        if(msg.scelta == DEFENCE && shootPermission){
+            
+            BulletCord[0].coord = msg.frog.coord;
+            BulletCord[1].coord = msg.frog.coord;
+
+            BulletCord[0].dir = TO_LEFT;
+            BulletCord[1].dir = TO_RIGHT;
+
+            //pthread_create(&BulletCord[0].threadID, NULL, &gestisciGranata, &BulletCord);
+            //pthread_create(&BulletCord[1].threadID, NULL, &gestisciGranata, &BulletCord);
+            //shootPermission = false;
+        }
+
+        newPosFrog = readBuffer2();
+
+        if(newPosFrog.x != -1 && newPosFrog.y != -1){
+            msg.frog.coord = newPosFrog;
+            prec = newPosFrog;
+        }
+
+        usleep(1000);
     }
 }
 

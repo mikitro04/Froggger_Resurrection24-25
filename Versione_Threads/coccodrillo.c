@@ -67,6 +67,10 @@ void initializeArrCroc(Crocodile array[], int dim){
 
 //funzione chiamata solo dal coccodrillo (figlio) che si occupa di generare e muovere il coccodrillo
 void* generaCoccodrillo(void* threadCroc){
+
+    // Abilita la cancellazione e la rende differita (più sicura)
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
     
     Crocodile *auxcroc = (Crocodile*)threadCroc;
     
@@ -74,9 +78,13 @@ void* generaCoccodrillo(void* threadCroc){
 
     Bullet CrockBullet;
 
+    if(croc.corsia == 0)
+        croc.turno--;
+
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < croc.turno; i++){
         for (int j = 0; j < 6; j++){
+            while(pausa);
             usleep(((DIM_COCCODRILLO * croc.speed)) / 2);
         }
     }
@@ -103,55 +111,55 @@ void* generaCoccodrillo(void* threadCroc){
     bool repeat = true;
 
     while(1){
-        if(!pausa){
-            /*if(waitpid(proiettile, &status, WNOHANG) > 0 && WIFEXITED(status)){
-                attesa = generaNumeroCasuale(500, 1000);
-                shootPermission = true;
-                figlio.bullet.pid = -1;
-            }
-
-            if(attesa == 0 && shootPermission){
-                gestisciProiettiliCoccodrillo(&proiettile, figlio.croc.coord, croc->dir, pipe_fds);
-                shootPermission = false;
-                figlio.bullet.pid = proiettile;
-            }*/
-            
-            //aggiorniamo le coordinate attuali
-            figlio.croc.coord.x += figlio.croc.dir;
-            
-            //il coccodrillo deve spownare 2 corsie più in alto
-            if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
-                startYX.y = (figlio.croc.coord.y - (DIM_RANA * 2));
-                if(startYX.y < 0){
-                    startYX.y = DIM_FIUME + startYX.y;
-                }
-                figlio.croc.coord = startYX;
-                croc.speed = croc.arrVel[returnNCorsia(startYX.y)-1];
-                figlio.croc.speed = croc.speed;
-                usleepCrocSpeed(croc.speed);
-            }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
-                startYX.y = (figlio.croc.coord.y - (DIM_RANA * 2));
-                if(startYX.y < 0){
-                    startYX.y = DIM_FIUME + startYX.y;
-                }
-                figlio.croc.coord = startYX;
-                croc.speed = croc.arrVel[returnNCorsia(startYX.y)-1];
-                figlio.croc.speed = croc.speed;
-                usleepCrocSpeed(croc.speed);
-            }
-            
-            if(attesa <= 30 && attesa > 0){
-                figlio.scelta = LOADING;
-            } else{
-                figlio.scelta = UNLOADING;
-            }
-            
-            //velocità di movimento del coccodrillo
-            writeBuffer(figlio);
-            usleep(croc.speed);
-
-            attesa--;
+        /*if(waitpid(proiettile, &status, WNOHANG) > 0 && WIFEXITED(status)){
+            attesa = generaNumeroCasuale(500, 1000);
+            shootPermission = true;
+            figlio.bullet.pid = -1;
         }
+
+        if(attesa == 0 && shootPermission){
+            gestisciProiettiliCoccodrillo(&proiettile, figlio.croc.coord, croc->dir, pipe_fds);
+            shootPermission = false;
+            figlio.bullet.pid = proiettile;
+        }*/
+
+        while(pausa);
+        
+        //aggiorniamo le coordinate attuali
+        figlio.croc.coord.x += figlio.croc.dir;
+        
+        //il coccodrillo deve spownare 2 corsie più in alto
+        if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra
+            startYX.y = (figlio.croc.coord.y - (DIM_RANA * 2));
+            if(startYX.y < 0){
+                startYX.y = DIM_FIUME + startYX.y;
+            }
+            figlio.croc.coord = startYX;
+            croc.speed = croc.arrVel[returnNCorsia(startYX.y)-1];
+            figlio.croc.speed = croc.speed;
+            usleepCrocSpeed(croc.speed);
+        }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
+            startYX.y = (figlio.croc.coord.y - (DIM_RANA * 2));
+            if(startYX.y < 0){
+                startYX.y = DIM_FIUME + startYX.y;
+            }
+            figlio.croc.coord = startYX;
+            croc.speed = croc.arrVel[returnNCorsia(startYX.y)-1];
+            figlio.croc.speed = croc.speed;
+            usleepCrocSpeed(croc.speed);
+        }
+        
+        if(attesa <= 30 && attesa > 0){
+            figlio.scelta = LOADING;
+        } else{
+            figlio.scelta = UNLOADING;
+        }
+        
+        //velocità di movimento del coccodrillo
+        writeBuffer(figlio);
+        usleep(croc.speed);
+
+        attesa--;
     }
     exit(0);
 }
@@ -294,9 +302,9 @@ bool frogOnCroc(Coordinate frog, Crocodile croc[]){
 
 void killSons(Crocodile arrCroc[MAX_CROC]){
     for (int i = 0; i < MAX_CROC; i++){
-        if (arrCroc[i].threadID != 0 && arrCroc[i].threadID != -1){
+        if (arrCroc[i].threadID != (pthread_t)0 && arrCroc[i].threadID != (pthread_t)-1){
             pthread_cancel(arrCroc[i].threadID);
-            pthread_join(arrCroc[i].threadID, NULL);
+            pthread_tryjoin_np(arrCroc[i].threadID, NULL);
         }
     }
 }
@@ -313,8 +321,9 @@ int findSpeed(Crocodile arrCroc[], int yCorsia){
 
 
 void usleepCrocSpeed(int speed){
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
+    for (int i = 0; i < 8; i++){
+        while(pausa);
+        usleep(((DIM_COCCODRILLO * speed)) / 4);
+    }
+    
 }
