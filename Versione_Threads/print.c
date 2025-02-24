@@ -143,6 +143,11 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             wnoutrefresh(gioco);
         }
 
+        if(msg.scelta == DEFENCE){
+            granadeDX = true;
+            granadeSX = true;
+        }
+
         if(msg.tipo == COCCODRILLO){
             arrCroc[msg.croc.id] = msg.croc;
 
@@ -172,6 +177,65 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         /*if((ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0){
             alive = false;
         }*/
+
+        //se il messaggio è di tipo 3 (GRANATA)
+        if(msg.tipo == GRANATA){
+            //salvo in una variabile ausiliaria le coordinate della granata e la stampo nell'apposita posizione
+            if(msg.bullet.dir == TO_LEFT && granadeSX){
+                printGranade(gioco, spondaSup, spondaInf, msg.bullet.coord.y, msg.bullet.coord.x, msg.bullet.dir);
+                auxGranadeSX.threadID = msg.bullet.threadID;
+                auxGranadeSX.coord.y = msg.bullet.coord.y;
+                auxGranadeSX.coord.x = msg.bullet.coord.x;
+            }else if(msg.bullet.dir == TO_RIGHT && granadeDX){
+                printGranade(gioco, spondaSup, spondaInf, msg.bullet.coord.y, msg.bullet.coord.x, msg.bullet.dir);
+                auxGranadeDX.threadID = msg.bullet.threadID;
+                auxGranadeDX.coord.y = msg.bullet.coord.y;
+                auxGranadeDX.coord.x = msg.bullet.coord.x;
+            }
+
+            //verifico l'uscita dallo schermo della granata
+            if((msg.bullet.coord.x + LARGH_RANA) <= 0 || msg.bullet.coord.x >= COLS){
+                
+                if (msg.bullet.dir == TO_LEFT){
+                    pthread_cancel(msg.bullet.threadID);
+                    pthread_join(msg.bullet.threadID, NULL);
+
+                    ended1 = true;
+
+                } else if (msg.bullet.dir == TO_RIGHT){
+                    pthread_cancel(msg.bullet.threadID);
+                    pthread_join(msg.bullet.threadID, NULL);
+
+                    ended2 = true;
+                }
+            }
+
+            //refresho la finestra di gioco
+            wnoutrefresh(gioco);
+        }
+
+        if(msg.tipo == PROIETTILE && idPrjEl != msg.bullet.threadID){
+            //stampo il proiettile nella posizione corretta
+            printBullet(fiume, msg.bullet.coord.y, msg.bullet.coord.x, msg.bullet.dir);
+        
+            //verifico che la rana sia stata colpita da un proiettile
+            if(msg.bullet.coord.y - 5 == (ranaStartYX.y - DIM_RANA - DIM_TANA) && ((msg.bullet.coord.x + LARGH_PROIETTILE) == ranaStartYX.x || msg.bullet.coord.x == (ranaStartYX.x + LARGH_RANA))){
+                //booleano che indica se la rana è viva o meno
+                alive = false;
+                //killo il proiettile
+                pthread_cancel(msg.bullet.threadID);
+                pthread_join(msg.bullet.threadID, NULL);
+                ended3 = true;
+            }
+
+            //verifico l'uscita dallo schermo del proiettile
+            if(msg.bullet.coord.x <= 0 || msg.bullet.coord.x >= COLS){
+                pthread_cancel(msg.bullet.threadID);
+                pthread_join(msg.bullet.threadID, NULL);
+                ended3 = true;
+            }
+
+        }
 
         if (((newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA) && (newPosFrog.frog.coord.y > DIM_TANA)) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) >= COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
             if(/*!frogOnCroc(newPosFrog.frog.coord, arrCroc) || */ tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){

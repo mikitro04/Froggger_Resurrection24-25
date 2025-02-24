@@ -1,5 +1,9 @@
 #include "funzioni.h"
 
+bool ended1 = false;
+
+bool ended2 = false;
+
 
 void* muoviRana(void* threadFrog){
 
@@ -17,6 +21,7 @@ void* muoviRana(void* threadFrog){
     msg.scelta = 0;
     bool running = true;
     bool shootPermission = true;
+    
     Bullet BulletCord[NUM_GRANATE];
 
     WINDOW *win = newwin( 0, 0, DIM_STATS, 0);
@@ -37,6 +42,24 @@ void* muoviRana(void* threadFrog){
             prec = msg.frog.coord;
         }
 
+
+
+        // if (pthread_tryjoin_np(BulletCord[0].threadID, NULL) == 0){
+        //     ended1 = true;
+
+        // }
+
+        // if (pthread_tryjoin_np(BulletCord[1].threadID, NULL) == 0){
+        //     ended2 = true;
+        // }
+
+        if (ended1 && ended2){
+            shootPermission = true;
+            ended1 = false;
+            ended2 = false;
+        }
+
+
         if(msg.scelta == DEFENCE && shootPermission){
             
             BulletCord[0].coord = msg.frog.coord;
@@ -45,9 +68,9 @@ void* muoviRana(void* threadFrog){
             BulletCord[0].dir = TO_LEFT;
             BulletCord[1].dir = TO_RIGHT;
 
-            //pthread_create(&BulletCord[0].threadID, NULL, &gestisciGranata, &BulletCord);
-            //pthread_create(&BulletCord[1].threadID, NULL, &gestisciGranata, &BulletCord);
-            //shootPermission = false;
+            pthread_create(&BulletCord[0].threadID, NULL, &gestisciGranata, &BulletCord[0]);
+            pthread_create(&BulletCord[1].threadID, NULL, &gestisciGranata, &BulletCord[1]);
+            shootPermission = false;
         }
 
         newPosFrog = readBuffer2();
