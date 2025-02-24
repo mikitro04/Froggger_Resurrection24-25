@@ -111,6 +111,9 @@
     void writeBuffer2(Coordinate coord);
 
     Coordinate readBuffer2();
+
+    void distruggiMeccanismiSincronizzazione();
+
 ///fine dichiarazione funzione dei SEMAFORI
 
 
@@ -202,10 +205,12 @@
 ///fine dichiarazione funzioni print
 
 
-///dichiarazione funzioni print
+///dichiarazione funzioni granata-proiettile
+
+    void* gestisciProiettiliCoccodrillo(void* threadProjectile);
 
     void* gestisciGranata(void* threadGranade);
 
     int traiettoria(int x, int dir);
 
-///fine dichiarazione funzioni print
+///fine dichiarazione funzioni granata-proiettile

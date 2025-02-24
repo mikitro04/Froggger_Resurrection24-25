@@ -1,5 +1,7 @@
 #include "funzioni.h"
 
+bool ended3 = false;
+
 //Funzione del Thread Main
 void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], int difficulty){
 
@@ -36,7 +38,7 @@ void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], int difficulty){
         arrCroc[i].n = n;
 
         //creazione thread coccodrillo
-        pthread_create(&arrCroc[i].threadID, NULL, &generaCoccodrillo, &arrCroc[i]);
+        pthread_create(&(arrCroc[i].threadID), NULL, &generaCoccodrillo, &arrCroc[i]);
     }
 }
 
@@ -84,8 +86,11 @@ void* generaCoccodrillo(void* threadCroc){
     figlio.croc.id = croc.id;
     figlio.croc.coord = croc.coord;
     figlio.croc.dir = croc.dir;
+    figlio.croc.coord.y = -5;
 
-    writeBuffer(figlio);
+
+
+    //writeBuffer(figlio);
 
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < croc.turno; i++){
@@ -96,7 +101,6 @@ void* generaCoccodrillo(void* threadCroc){
     }
 
     Coordinate startYX = {croc.corsia, 0};
-    pid_t proiettile;
     bool shootPermission = true;
     int attesa = generaNumeroCasuale(100, 1000), status, nCorsia;
 
@@ -112,23 +116,27 @@ void* generaCoccodrillo(void* threadCroc){
 
     bool repeat = true;
 
+    
+
     while(1){
-        /*if(waitpid(proiettile, &status, WNOHANG) > 0 && WIFEXITED(status)){
+        if(ended3){
             attesa = generaNumeroCasuale(500, 1000);
             shootPermission = true;
-            figlio.bullet.pid = -1;
+            ended3 = false;
         }
 
         if(attesa == 0 && shootPermission){
-            gestisciProiettiliCoccodrillo(&proiettile, figlio.croc.coord, croc->dir, pipe_fds);
+            CrockBullet.dir = croc.dir;
+            CrockBullet.coord = croc.coord;
+            pthread_create(&CrockBullet.threadID, NULL, &gestisciProiettiliCoccodrillo, &CrockBullet);
             shootPermission = false;
-            figlio.bullet.pid = proiettile;
-        }*/
+        }
 
         while(pausa);
         
         //aggiorniamo le coordinate attuali
         figlio.croc.coord.x += figlio.croc.dir;
+        
         
         //il coccodrillo deve spownare 2 corsie più in alto
         if(startYX.x == -DIM_COCCODRILLO && figlio.croc.coord.x > COLS){           //coccodrillo spowna a sinistra e arriva a destra

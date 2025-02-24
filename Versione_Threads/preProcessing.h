@@ -240,4 +240,10 @@ extern bool pausa;
 
 extern bool onCroc;
 
+extern bool ended1;
+
+extern bool ended2;
+
+extern bool ended3;
+
 ///fine dichiarazione buffer e semafori

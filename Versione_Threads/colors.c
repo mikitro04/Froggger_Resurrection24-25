@@ -218,12 +218,12 @@ void ripristinaSfondo(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, 
  */
 void refreshAllWin(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
     wrefresh(*punteggio);
-    wrefresh(*gioco);
-    wrefresh(*statistiche);
+    //wrefresh(*gioco);
     wrefresh(*tane);
     wrefresh(*spondaSup);
     wrefresh(*fiume);
     wrefresh(*spondaInf);
+    //wrefresh(*statistiche);
     wrefresh(*vite);
     wrefresh(*tempo);
 }
