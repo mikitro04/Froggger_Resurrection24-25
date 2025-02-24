@@ -16,6 +16,10 @@ bool pausa;
 
 bool onCroc;
 
+bool fineManche;
+
+Bullet arrBullet[MAX_CROC];
+
 void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo){
 
     int altezzaSpondaSup =  DIM_STATS + DIM_TANA;
@@ -115,6 +119,10 @@ void inizializzaMeccanismiSincronizzazione(){
     pausa = false;
 
     onCroc = false;
+
+    fineManche = false;
+
+    initArrBullet(arrBullet, MAX_CROC);
 }
 
 void distruggiMeccanismiSincronizzazione(){
@@ -136,7 +144,7 @@ void distruggiMeccanismiSincronizzazione(){
 
     pausa = false;
 
-
+    initArrBullet(arrBullet, MAX_CROC);
 }
 
 void writeBuffer(Message msg){

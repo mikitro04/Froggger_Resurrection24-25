@@ -71,6 +71,8 @@
     int frogInTana(Coordinate frog, bool taneLibere[NUM_TANE]);
     
     void initializeFrog(Frog *frog, Coordinate startYX);
+
+    bool ranaColpita(Coordinate frog);
 ///fine dichiarazione funzioni della RANA
 
 
@@ -206,11 +208,11 @@
 
 
 ///dichiarazione funzioni granata-proiettile
-
     void* gestisciProiettiliCoccodrillo(void* threadProjectile);
 
     void* gestisciGranata(void* threadGranade);
 
     int traiettoria(int x, int dir);
 
+    void initArrBullet(Bullet arrBullet[], int dim);
 ///fine dichiarazione funzioni granata-proiettile

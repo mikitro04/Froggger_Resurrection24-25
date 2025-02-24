@@ -83,7 +83,6 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
     printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
     
     ripristinaSfondo(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
-    //refreshAllWin(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
 
     wrefresh(spondaSup);
     wrefresh(fiume);
@@ -164,19 +163,16 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
                 newPosFrog.frog.coord.x += msg.croc.dir;
                 newPosFrog.tipo = RANA;
                 newPosFrog.croc.speed = msg.croc.speed;
-                
+
+                ranaStartYX = newPosFrog.frog.coord;
+
                 writeBuffer2(newPosFrog.frog.coord);
 
-                //stampaRana(gioco, newPosFrog.frog.coord, &ranaStartYX);
                 printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
             }
 
             wnoutrefresh(fiume);
         }
-
-        /*if((ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0){
-            alive = false;
-        }*/
 
         //se il messaggio è di tipo 3 (GRANATA)
         if(msg.tipo == GRANATA){
@@ -214,60 +210,67 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             wnoutrefresh(gioco);
         }
 
-        if(msg.tipo == PROIETTILE && idPrjEl != msg.bullet.threadID){
-            //stampo il proiettile nella posizione corretta
+        if (msg.tipo == PROIETTILE && idPrjEl != msg.bullet.threadID) {
+            arrBullet[msg.bullet.id] = msg.bullet;
+            // Stampo il proiettile nella posizione corretta
             printBullet(fiume, msg.bullet.coord.y, msg.bullet.coord.x, msg.bullet.dir);
         
-            //verifico che la rana sia stata colpita da un proiettile
-            if(msg.bullet.coord.y - 5 == (ranaStartYX.y - DIM_RANA - DIM_TANA) && ((msg.bullet.coord.x + LARGH_PROIETTILE) == ranaStartYX.x || msg.bullet.coord.x == (ranaStartYX.x + LARGH_RANA))){
-                //booleano che indica se la rana è viva o meno
+            // Verifico che la rana sia stata colpita da un proiettile
+            if (msg.bullet.coord.y - 5 == (ranaStartYX.y - DIM_RANA - DIM_TANA) && (((msg.bullet.coord.x + LARGH_PROIETTILE) == ranaStartYX.x) || (msg.bullet.coord.x == (ranaStartYX.x + LARGH_RANA)))) {
+                // Booleano che indica se la rana è viva o meno
                 alive = false;
-                //killo il proiettile
+                // Killo il proiettile
                 pthread_cancel(msg.bullet.threadID);
                 pthread_join(msg.bullet.threadID, NULL);
                 ended3 = true;
             }
 
-            //verifico l'uscita dallo schermo del proiettile
-            if(msg.bullet.coord.x <= 0 || msg.bullet.coord.x >= COLS){
+            //se le coordinate del proiettile sono comprese nelle coordinate della granata
+            if(msg.bullet.coord.y - 5 == auxGranadeSX.coord.y - 2 - DIM_TANA - DIM_RANA){
+                if(msg.bullet.coord.x >= auxGranadeSX.coord.x && msg.bullet.coord.x <= (auxGranadeSX.coord.x + LARGH_GRANATA)){
+                    pthread_cancel(msg.bullet.threadID);
+                    pthread_join(msg.bullet.threadID, NULL);
+                    ended1 = true;
+                }
+                if(msg.bullet.coord.x >= auxGranadeDX.coord.x && msg.bullet.coord.x <= (auxGranadeDX.coord.x + LARGH_GRANATA)){
+                    pthread_cancel(msg.bullet.threadID);
+                    pthread_join(msg.bullet.threadID, NULL);
+                    ended2 = true;
+                }
+                *score += 100;
+            }
+        
+            // Verifico l'uscita dallo schermo del proiettile
+            if (msg.bullet.coord.x <= 0 || msg.bullet.coord.x >= COLS) {
                 pthread_cancel(msg.bullet.threadID);
                 pthread_join(msg.bullet.threadID, NULL);
                 ended3 = true;
+                arrBullet[msg.bullet.id].id = -1;
             }
-
         }
 
         if (((newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA) && (newPosFrog.frog.coord.y > DIM_TANA)) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) >= COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            if(/*!frogOnCroc(newPosFrog.frog.coord, arrCroc) || */ tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            
-                //deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
+            if(!frogOnCroc(newPosFrog.frog.coord, arrCroc) ||  tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+                
+                fineManche = true;
 
                 //aggiorno la posizione della rana nel punto di spawn
                 newPosFrog.frog.coord.x = COLS / 2;
                 newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
 
-                //deleteAllCroc(fiume, arrCroc);
-
                 (*viteTmp)--;
 
                 deleteVite(vite, 1, *viteTmp);
 
-                killSons(arrCroc);
-
                 running = false;
-
-                printTane(tane, 0, 0, taneLibere);
-
-                //
+                
+                //aggiorno tutto lo schermo
                 werase(punteggio);
                 werase(spondaSup);
                 werase(fiume);
                 werase(spondaInf);
                 werase(vite);
                 werase(tempo);
-                
-                pthread_cancel(msg.frog.threadID);
-                pthread_join(msg.frog.threadID, NULL);
 
                 return true;
             }
@@ -281,12 +284,9 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             //aggiorno la posizione della rana alle coordinate di spawn
             newPosFrog.frog.coord.x = COLS / 2;
             newPosFrog.frog.coord.y = DIM_GIOCO - DIM_RANA;
-    
-            //cancello tutti i coccodrilli a schermo
-            deleteAllCroc(fiume, arrCroc);
 
-            //killo tutti i coccodrilli
-            killSons(arrCroc);
+            //termino la manche per i coccodrilli e la rana
+            fineManche = true;
 
             //booleano che esce dal ciclo della manche
             running = false;
@@ -314,9 +314,6 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             werase(vite);
             werase(tempo);
 
-            pthread_cancel(msg.frog.threadID);
-            pthread_join(msg.frog.threadID, NULL);
-
             return true;
         }
         
@@ -327,15 +324,14 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             delwin(winPausa);
             pausa = false;
 
-            //killo tutti i coccodrilli
-            killSons(arrCroc);
-
-            //killo la rana
-            pthread_cancel(frogID);
-            pthread_join(frogID, NULL);
+            fineManche = true;
             
             //esco dalla funzione e dal gioco
             return false;
+        }
+
+        if(!pausa){
+            printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
         }
 
         doupdate();

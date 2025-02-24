@@ -8,6 +8,7 @@ void* gestisciProiettiliCoccodrillo(void* threadProjectile){
     Bullet *auxProjectile = (Bullet*)threadProjectile;
  
     msg.tipo = PROIETTILE;
+    msg.bullet.id = auxProjectile->id;
     msg.bullet.coord.y = auxProjectile->coord.y + 5;
     msg.bullet.threadID = auxProjectile->threadID;
 
@@ -22,6 +23,10 @@ void* gestisciProiettiliCoccodrillo(void* threadProjectile){
 
     while(1){
 
+        if(fineManche){
+            return NULL;
+        }
+
         msg.bullet.coord.x = traiettoria(msg.bullet.coord.x, auxProjectile->dir);
         
         writeBuffer(msg);
@@ -32,9 +37,6 @@ void* gestisciProiettiliCoccodrillo(void* threadProjectile){
 }
 
 void* gestisciGranata(void* threadGranade){
-
-    // Abilita la cancellazione e la rende differita (più sicura)
-
     Message msg;
 
     Bullet *auxGranata = (Bullet*)threadGranade;
@@ -55,6 +57,9 @@ void* gestisciGranata(void* threadGranade){
     
 
     while(1){
+        if(fineManche){
+            return NULL;
+        }
 
         msg.bullet.coord.x = traiettoria(msg.bullet.coord.x, msg.bullet.dir);
 
@@ -72,3 +77,13 @@ int traiettoria(int x, int dir){
     return x;
 }
 
+void initArrBullet(Bullet arrBullet[], int dim){
+
+    for (int i = 0; i < dim; i++){
+        arrBullet[i].id = -1;
+        arrBullet[i].threadID = 0;
+        arrBullet[i].coord.x = 0;
+        arrBullet[i].coord.y = 0;
+        arrBullet[i].dir = 0;
+    }
+}

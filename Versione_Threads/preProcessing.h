@@ -203,6 +203,7 @@ typedef struct Frog{
 }Frog;
 
 typedef struct Bullet{
+    int id;                     //id del proiettile
     pthread_t threadID;         //thread id del proiettile
     Coordinate coord;           //coordinate y e x del proiettile attuali
     Direction dir;              //direzione per la quale la x del proiettile dovrà essere aumentata (se x + (1) o x + (-1))
@@ -246,4 +247,7 @@ extern bool ended2;
 
 extern bool ended3;
 
+extern bool fineManche;
+
+extern Bullet arrBullet[MAX_CROC];
 ///fine dichiarazione buffer e semafori

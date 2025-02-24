@@ -88,14 +88,13 @@ void* generaCoccodrillo(void* threadCroc){
     figlio.croc.dir = croc.dir;
     figlio.croc.coord.y = -5;
 
-
-
-    //writeBuffer(figlio);
-
     //aspetto che generi interamente tutti i coccodrilli prima di questo
     for (int i = 0; i < croc.turno; i++){
         for (int j = 0; j < 6; j++){
             while(pausa);
+            if(fineManche){
+                return NULL;
+            }
             usleep(((DIM_COCCODRILLO * croc.speed)) / 2);
         }
     }
@@ -119,6 +118,11 @@ void* generaCoccodrillo(void* threadCroc){
     
 
     while(1){
+
+        if(fineManche){
+            return NULL;
+        }
+
         if(ended3){
             attesa = generaNumeroCasuale(500, 1000);
             shootPermission = true;
@@ -126,8 +130,9 @@ void* generaCoccodrillo(void* threadCroc){
         }
 
         if(attesa == 0 && shootPermission){
+            CrockBullet.id = croc.id;
             CrockBullet.dir = croc.dir;
-            CrockBullet.coord = croc.coord;
+            CrockBullet.coord = figlio.croc.coord;
             pthread_create(&CrockBullet.threadID, NULL, &gestisciProiettiliCoccodrillo, &CrockBullet);
             shootPermission = false;
         }
@@ -170,6 +175,10 @@ void* generaCoccodrillo(void* threadCroc){
         usleep(croc.speed);
 
         attesa--;
+        
+        if(fineManche){
+            return NULL;
+        }
     }
     exit(0);
 }

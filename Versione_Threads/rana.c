@@ -7,10 +7,6 @@ bool ended2 = false;
 
 void* muoviRana(void* threadFrog){
 
-    // Abilita la cancellazione e la rende differita (più sicura)
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-
     Message msg;
     Frog *auxFrog = (Frog*)threadFrog;
     Coordinate prec = {0,0}, newPosFrog;
@@ -31,18 +27,19 @@ void* muoviRana(void* threadFrog){
 
 
     while(running){
-        //while(pausa);
+        
+        if(fineManche){
+            return NULL;
+        }
 
         msg.scelta = wgetch(win);
 
         joystickRana(&msg.frog.coord.y, &msg.frog.coord.x, DIM_GIOCO, msg.scelta);
 
-        if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE || msg.frog.coord.x < 0 || msg.frog.coord.x + LARGH_RANA > COLS){
+        if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE || /*msg.frog.coord.x < 0 || msg.frog.coord.x + LARGH_RANA > COLS || */ranaColpita(msg.frog.coord)){
             writeBuffer(msg);
             prec = msg.frog.coord;
         }
-
-
 
         // if (pthread_tryjoin_np(BulletCord[0].threadID, NULL) == 0){
         //     ended1 = true;
@@ -88,7 +85,7 @@ void* muoviRana(void* threadFrog){
         //     prec = newPosFrog;
         // }
 
-        usleep(1000);
+        //usleep(1000);
     }
 }
 
@@ -165,4 +162,15 @@ int frogInTana(Coordinate frog, bool taneLibere[NUM_TANE]) {
     }
 
     return TANA_MISS;
+}
+
+bool ranaColpita(Coordinate frog){
+    for (int i = 0; i < MAX_CROC; i++){
+        if(arrBullet[i].id != -1){
+            if (arrBullet[i].coord.y - 5 == (frog.y - DIM_RANA - DIM_TANA) && (((arrBullet[i].coord.x + LARGH_PROIETTILE) == frog.x) || (arrBullet[i].coord.x == (frog.x + LARGH_RANA)))){
+                return true;
+            }
+        }
+    }
+    return false;
 }
