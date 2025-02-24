@@ -3,13 +3,16 @@
 const char *path = "./resize.sh";
 
 int main(){
+    //ridimensiono il terminale
     system(path);
 
+    //aspetto 1 secondo per evitare che il terminale si ridimensioni durante l'esecuzione del gioco
     sleep(1);
 
     //seed
     srand(time(NULL));
 
+    //inizializzazione ncurses
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
     //finestre
@@ -34,8 +37,10 @@ int main(){
 
     Message msg;
 
+    //definisce e inizializza tutti i colori presenti nel gioco
     initializeColorSprite();
 
+    //inizializza tutte le finestre e gli sfondi 
     start(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
 
     keypad(gioco, TRUE);
@@ -43,13 +48,17 @@ int main(){
     nodelay(gioco, TRUE);
     nodelay(stdscr, TRUE);
 
+    //stampa a schermo il menu di selezione della difficoltà 
     printMod();
 
+    //if di selezione della difficoltà
     while(go){
         chose = getch();
         if(chose == '1' || chose == '2' || chose == '3'){
             difficulty = chose - '0';
             go = false;
+
+        //chiusura programma da menu
         }else if(chose == 'q'){
             usleep(350000);
             endwin();
@@ -71,13 +80,11 @@ int main(){
     bkgd(EYE_BLACK);
     refresh();
 
+    //ciclo che inizializza il turno 
     while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
-        
-        bkgd(EYE_BLACK);
-        refresh();
 
         inizializzaMeccanismiSincronizzazione();
-
+        
         initializeFrog(&rana, startYX);
         
         initializeArrCroc(arrCroc, MAX_CROC);
@@ -99,10 +106,13 @@ int main(){
         distruggiMeccanismiSincronizzazione();
         sleep(3);
     }
-
+    //stampo le tane aggiornate per l'ultima volta
     printTane(tane, 0, 0, taneLibere);
+
+    //calcolo la giustifica per centrare lo score
     giustifica = giustificaPunteggio(score);
     
+    //stampa a schermo il messaggio di vittoria o sconfitta
     if(allFalse(taneLibere, NUM_TANE)){
         printWin(fiume, DIM_RANA, ((COLS / 2) - (LARGH_WIN / 2)));
         printFrogWin(fiume, DIM_RANA + DIM_WIN + 3, ((COLS / 2) - (WINNER_FROG_LARGH / 2)));
@@ -116,8 +126,10 @@ int main(){
     }
     sleep(3);
 
+    //termino ncurses
     endwin();
 
+    //ridimensiono il terminale
     system("./ctrResize.sh");
     
     return 0;

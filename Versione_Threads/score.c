@@ -10,6 +10,14 @@ oo     .d8P `88b    ooo  `88b    d88'  888  `88b.   888       o
 8""88888P'   `Y8bood8P'   `Y8bood8P'  o888o  o888o o888ooooood8 
 */
 
+/**
+ * @brief Funzione che stampa lo SCORE (quello in alto a destra)
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param win Finestra dove andare a stampare
+ * @param number Score da stampare
+ * @param y Coordinata Y dove iniziare a stampare
+ * @param x Coordinata X dove iniziare a stampare
+ */
 void printNumber(WINDOW *win, int *number, int y, int x) {
     //Definizione degli sprite delle cifre in un array
     char numeri[10][6][10] = {
@@ -115,6 +123,14 @@ void printNumber(WINDOW *win, int *number, int y, int x) {
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che stampa la scritta SCORE e il numero di score (quello in alto a destra)
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param win Finestra dove andare a stampare
+ * @param number Numero da stampare
+ * @param y Coordinata Y dove iniziare a stampare
+ * @param x Coordinata X dove iniziare a stampare
+ */
 void printScore(WINDOW *win, int *number, int y, int x){
     char spriteScore[] = 
         "    _____  _____ ____  _____  ______      \n"
@@ -146,7 +162,14 @@ oooooooooooo ooooo ooooo      ooo       .o.       ooooo              .oooooo..o 
 o888o        o888o o8o        `8  o88o     o8888o o888ooooood8      8""88888P'   `Y8bood8P'   `Y8bood8P'  o888o  o888o o888ooooood8 
 */
 
-
+/**
+ * @brief Funzione che stampa il punteggio di fine partita
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param win Finestra dove andare a stampare
+ * @param number Numero da stampare
+ * @param y Coordinata Y dove iniziare a stampare
+ * @param x Coordinata X dove iniziare a stampare
+ */
 void printFinalScore(WINDOW *win, int number, int y, int x){
     int score[DIM_SCORE][LARGH_SCORE] = {
         {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
@@ -188,6 +211,14 @@ void printFinalScore(WINDOW *win, int number, int y, int x){
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che stampa il punteggio di fine partita
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param win Finestra dove andare a stampare
+ * @param y Coordinata Y dove iniziare a stampare
+ * @param x Coordinata X dove iniziare a stampare
+ * @param number Numero da stampare
+ */
 void printFinalNumber(WINDOW *win, int y, int x, char number){
     //ZERO
     int spriteZero[9][9] = {
@@ -433,6 +464,12 @@ void printFinalNumber(WINDOW *win, int y, int x, char number){
     }
 }
 
+/**
+ * @brief Funzione che giustifica il punteggio in base alla lunghezza del numero
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param number Numero da giustificare
+ * @return int Giustifica
+ */
 int giustificaPunteggio(int number){
 
     int x = LARGH_SCORE;

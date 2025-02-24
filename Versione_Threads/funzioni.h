@@ -94,9 +94,7 @@
     int generaYCorsia(int counterCorsie[]);
 
     bool frogOnCroc(Coordinate frog, Crocodile croc[]);
-
-    int findSpeed(Crocodile arrCroc[], int yCorsia);
-
+    
     void usleepCrocSpeed(int speed);
 
     void killSons(Crocodile arrCroc[MAX_CROC]);

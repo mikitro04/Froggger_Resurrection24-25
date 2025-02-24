@@ -48,17 +48,17 @@
 #define DIM_CARTEL 10                                   //altezza cartello
 #define LARGH_CARTEL 33                                 //larghezza cartello
 #define SPAZIO_CARTEL 23                                //spazio tra i cartelli 
-#define DIM_TITOLO 10
-#define LARGH_FROGGER 94
-#define LARGH_RESURRECTION 155
-#define DIM_DIFFICULT 14
-#define LARGH_DIFFICULT 101
+#define DIM_TITOLO 10                                   //altezza del titolo
+#define LARGH_FROGGER 94                                //larghezza scritta frogger
+#define LARGH_RESURRECTION 155                          //larghezza scritta resurrection
+#define DIM_DIFFICULT 14                                //altezza cartello difficoltà
+#define LARGH_DIFFICULT 101                             //larghezza cartello difficoltà
 #define VITE 2                                          //vite iniziali della rana
 #define TEMPO_MAX 90                                    //tempo massimo di gioco
 #define PUNTI1 1500                                     //punti se finisci in 30 secondi
 #define PUNTI2 1000                                     //punti se finisci in 45 secondi
 #define PUNTI3 500                                      //punti se finisci in 60 secondi
-#define PUNTI4 100
+#define PUNTI4 100                                      //punti se colpisci un proiettile
 #define LOADING 1                                       //fase in cui il coccodrillo sta per sparare
 #define UNLOADING 0                                     ///fase in cui non sta per sparare 
 #define NUM_GRANATE 2                                   ///numero di granate utilizzabili contemporaneamente 
@@ -177,6 +177,7 @@ typedef enum {DEFENCE = ' ', PAUSE = 'p', QUIT = 'q', RIPRENDI = 'r'} Comamnds;
 //tipo che gestisce le enumerazioni delle difficoltà
 typedef enum {HARD = 1, MEDIUM, EASY} Difficulties;
 
+//tipo che definisce la struttura delle coordinate
 typedef struct Coordinate{
     int y;              //coordinata y
     int x;              //coordinata x
@@ -202,6 +203,7 @@ typedef struct Frog{
     int vite;                   //vite della rana
 }Frog;
 
+//tipo che definisce la struttura del proiettile
 typedef struct Bullet{
     int id;                     //id del proiettile
     pthread_t threadID;         //thread id del proiettile
@@ -222,32 +224,31 @@ typedef struct Message{
 
 
 ///dichiarazione buffer e semafori
+    #define DIM_BUFFER 512
 
-#define DIM_BUFFER 512
+    extern Message buffer1[DIM_BUFFER];
+    extern Coordinate buffer2[DIM_BUFFER];
 
-extern Message buffer1[DIM_BUFFER];
-extern Coordinate buffer2[DIM_BUFFER];
+    extern pthread_mutex_t mutex;
+    extern pthread_mutex_t mutex2;
 
-extern pthread_mutex_t mutex;
-extern pthread_mutex_t mutex2;
+    extern sem_t semLiberi, semOccupati;
+    extern sem_t semLiberi2, semOccupati2;
 
-extern sem_t semLiberi, semOccupati;
-extern sem_t semLiberi2, semOccupati2;
+    extern int iLeggi, iScrivi;
+    extern int iLeggi2, iScrivi2;
 
-extern int iLeggi, iScrivi;
-extern int iLeggi2, iScrivi2;
+    extern bool pausa;
 
-extern bool pausa;
+    extern bool onCroc;
 
-extern bool onCroc;
+    extern bool ended1;
 
-extern bool ended1;
+    extern bool ended2;
 
-extern bool ended2;
+    extern bool ended3;
 
-extern bool ended3;
+    extern bool fineManche;
 
-extern bool fineManche;
-
-extern Bullet arrBullet[MAX_CROC];
+    extern Bullet arrBullet[MAX_CROC];
 ///fine dichiarazione buffer e semafori

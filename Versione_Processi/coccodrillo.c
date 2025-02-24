@@ -50,7 +50,12 @@ void gestisciCoccodrilli(int cCorsie[], Crocodile arrCroc[], Message figlio, int
 
 }
 
-//funzione che genera una velocità casuale per il coccodrillo
+//
+/**
+ * @brief funzione che genera una velocità casuale per il coccodrillo
+ * La funzione serve solo per rendere più leggibile il codice
+ * @return int Velocià del coccodrillo
+ */
 int setSpeed(){
     int randomSpeed = generaNumeroCasuale(1, 3);
     switch(randomSpeed){
@@ -103,38 +108,49 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
         }
     }
 
+    //Coordinate
     Coordinate startYX = {corsia, 0};
+    //pid del proiettile
     pid_t proiettile;
+    //variabile che permette di sparare
     bool shootPermission = true;
+    //variabile che gestisce il count down del tempo di sparo 
     int attesa = generaNumeroCasuale(100, 1000), status, nCorsia;
 
+    //dichiaro il messaggio che verrà passato al padre
     figlio.id = croc->id;
     figlio.tipo = COCCODRILLO;
     figlio.croc.coord.y = corsia;
     figlio.croc.speed = croc->speed;
-    figlio.croc.pid = getpid();
+    figlio.croc.pid = getpid();                     //pid di questo processo
 
-
+    //aggiorno l'array di coccodrilli passato come parametro
     croc->dir = dirCocc(corsia, n, &figlio);        //direzione del coccodrillo generata in base a n e la corsia, modifica figlio.scelta e figlio.coord.x
     croc->coord.y = corsia;                         //generato casualmente prima del richiamo della funzione
     croc->coord.x = figlio.croc.coord.x;            //coordinata x del coccodrillo
 
+    //aggiorno la posizione iniziale del coccodrillo
     startYX.x = figlio.croc.coord.x;
 
+    //chudo la pipe in lettura
     close(pipe_fds[0]);
-
-    bool repeat = true;
 
     while(1){
 
+        //aspetto la terminazione del processo proiettile figlio in maniera non bloccante
         if(waitpid(proiettile, &status, WNOHANG) > 0 && WIFEXITED(status)){
+            //una volta terminato genero un numero casuale che sarà l'attesa
             attesa = generaNumeroCasuale(500, 1000);
+            //booleano che permette di determinare se il coccodrillo può sparare
             shootPermission = true;
+            //azzero il pid del proiettile
             figlio.bullet.pid = -1;
         }
 
+        //se l'attesa di sparo è terminata e il coccodrillo può sparare, spara
         if(attesa == 0 && shootPermission){
             gestisciProiettiliCoccodrillo(&proiettile, figlio.croc.coord, croc->dir, pipe_fds);
+            //essendo che il proiettile può sparare
             shootPermission = false;
             figlio.bullet.pid = proiettile;
         }
@@ -149,8 +165,10 @@ void generaCoccodrillo(Message figlio, int corsia, int pipe_fds[], Crocodile *cr
                 startYX.y = DIM_FIUME + startYX.y;
             }
             figlio.croc.coord = startYX;
+            //assegno la velocità della corsia in cui si trova il coccodrillo
             croc->speed = velocitaCorsia[returnNCorsia(startYX.y)-1];
             figlio.croc.speed = croc->speed;
+            //aspetto prima di respawnare
             usleepCrocSpeed(croc->speed);
         }else if(startYX.x == COLS && figlio.croc.coord.x <= -DIM_COCCODRILLO){   //coccodrillo spowna a destra e arriva a sinistra
             startYX.y = (figlio.croc.coord.y - (DIM_RANA * 2));
@@ -212,7 +230,12 @@ Direction dirCocc(int y, int n, Message *messaggio){
     }
 }
 
-
+/**
+ * @brief Funzione che in base alla coordinata y del coccodrillo restituisce la corsia corrispondente
+ * Questa funzione serve solo per rendere più leggibile il codice
+ * @param y coordinata y del coccodrillo
+ * @return int numero della corsia
+ */
 int returnNCorsia(int y){
     if(y == CORSIA1Y){
         return 1;
@@ -233,6 +256,12 @@ int returnNCorsia(int y){
     }
 }
 
+/**
+ * @brief Funzione che in base al numero della corsia restituisce la coordinata y corrispondente
+ * Questa funzione serve solo per rendere più leggibile il codice
+ * @param nCorsia Numero della corsia
+ * @return int Y della corsia
+ */
 int returnYCorisa(int nCorsia){
     switch (nCorsia){
         case CORSIA1:
@@ -303,8 +332,18 @@ int generaYCorsia(int counterCorsie[]){
     }
 }
 
+/**
+ * @brief Funzione che permette di verificare se la rana è sopra un coccodrillo
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param frog Coordinate della rana
+ * @param croc Array di coccodrilli da controllare
+ * @return true Se la rana è sopra un coccodrillo
+ * @return false Se la rana non è sopra un coccodrillo
+ */
 bool frogOnCroc(Coordinate frog, Crocodile croc[]){
+    //ciclo tutto l'array e comparo le coordinate per verificare se la rana è compresa tra le coordinate del coccodrillo
     for (int i = 0; i < MAX_CROC; i++){
+        //se l'id è diverso da -1 allora il coccodrillo è attivo
         if(croc[i].id != -1){
             if(croc[i].coord.y == (frog.y - DIM_RANA - DIM_TANA) && (frog.x >= croc[i].coord.x && (frog.x + DIM_RANA) < croc[i].coord.x + DIM_COCCODRILLO)){
                 return true;
@@ -314,6 +353,11 @@ bool frogOnCroc(Coordinate frog, Crocodile croc[]){
     return false;
 }
 
+/**
+ * @brief Funzione che gestisce l'eliminazione dell'array dei coccodrilli
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param arrCroc Array di coccodrilli da eliminare (tramite il loro pid)
+ */
 void killSons(Crocodile arrCroc[MAX_CROC]){
     for (int i = 0; i < MAX_CROC; i++){
         if (arrCroc[i].pid != 0 && arrCroc[i].pid != -1){
@@ -324,20 +368,14 @@ void killSons(Crocodile arrCroc[MAX_CROC]){
     }
 }
 
-int findSpeed(Crocodile arrCroc[], int yCorsia){
-    for (int i = 0; i < MAX_CROC; i++){
-        if(arrCroc[i].coord.y == yCorsia){
-            return arrCroc[i].speed;
-        }
-    }
-    perror("Errore nella ricerca della velocità del coccodrillo");
-    exit(1);
-}
-
-
+/**
+ * @brief Funzione che, essendo la usleep non bloccante, questa viene finita di eseguire quando viene chiamata SIGSTOP, ma facendone di più, al massimo ne perdiamo uno solo
+ * Questa funzione serve solo per rendere più leggibile il codice
+ * @param speed Velocità di movimento del coccodrillo
+ */
 void usleepCrocSpeed(int speed){
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
-        usleep(((DIM_COCCODRILLO * speed)) / 2);
+    usleep(((DIM_COCCODRILLO * speed)) / 2);
+    usleep(((DIM_COCCODRILLO * speed)) / 2);
+    usleep(((DIM_COCCODRILLO * speed)) / 2);
+    usleep(((DIM_COCCODRILLO * speed)) / 2);
 }

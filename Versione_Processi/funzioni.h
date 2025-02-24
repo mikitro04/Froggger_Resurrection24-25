@@ -1,6 +1,6 @@
 #include "preProcessing.h"
 
-///firme funzioni
+///inizio firme funzioni
 
     ///dichiarazioni funzioni start
         void start(WINDOW **punteggio, WINDOW **gioco, WINDOW **statistiche, WINDOW **tane, WINDOW **spondaSup, WINDOW **fiume, WINDOW **spondaInf, WINDOW **vite, WINDOW **tempo);
@@ -12,8 +12,6 @@
         void initMessage(Message *msg);
 
         void initIntArray(int array[], int dim);
-
-        void resetGame(WINDOW *gioco, WINDOW *fiume, WINDOW *vite, int *viteTmp, int frog[DIM_RANA][LARGH_RANA], Coordinate auxYXRana, Crocodile crocAux[MAX_CROC], pid_t frogPid, bool *running);
     
         void initBoolArrayFalse(bool *array, int size);
 
@@ -75,8 +73,6 @@
     
         void killSon(Crocodile croc);
     
-        int findSpeed(Crocodile arrCroc[], int yCorsia);
-
         void usleepCrocSpeed(int speed);
     ///fine dichiarazione funzioni COCCODRILLO
 

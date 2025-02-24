@@ -312,7 +312,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                         //assegno il pid del proiettile eliminato
                         pidPrjEl = msg.bullet.pid;
                         //quando il giocatore colpisce una granata, aumenta il punteggio di 100 punti
-                        *score += 100;
+                        *score += PUNTI4;
                     }
                 }else if(msg.bullet.dir == TO_RIGHT){
                     if((msg.bullet.coord.x + LARGH_PROIETTILE) >= auxGranadeSX.coord.x){
@@ -339,7 +339,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *statistiche, WINDOW *ta
                         pidPrjEl = msg.bullet.pid;
                         //quando il giocatore colpisce una granata, aumenta il punteggio di 100 punti
                         *score += 100;
-                    }          
+                    }
                 }
                 //refresho la finestra di fiume
                 wnoutrefresh(fiume);

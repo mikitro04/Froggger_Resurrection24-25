@@ -27,8 +27,7 @@
     #define DIM_STATS 11                                    //altezza finestra statistiche
     #define LARGH_CUORE 20                                  //larghezza cuore
     #define MAX_CROC_CORSIA 3                               //numero massimo di coccodrilli per corsia
-    //#define DIM_PROIETTILE 5                                //altezza del proiettile
-    #define LARGH_PROIETTILE 3                             //larghezza del proiettile
+    #define LARGH_PROIETTILE 3                              //larghezza del proiettile
     #define DIM_GRANATA 7                                   //altezza della granata
     #define LARGH_GRANATA 11                                //larghezza della granata
     #define MAX_CROC (MAX_CROC_CORSIA * NUM_CORSIE)         //numero massimo di coccodrilli
@@ -47,37 +46,37 @@
     #define DIM_CARTEL 10                                   //altezza cartello
     #define LARGH_CARTEL 33                                 //larghezza cartello
     #define SPAZIO_CARTEL 23                                //spazio tra i cartelli 
-    #define DIM_TITOLO 10
-    #define LARGH_FROGGER 94
-    #define LARGH_RESURRECTION 155
-    #define DIM_DIFFICULT 14
-    #define LARGH_DIFFICULT 101
+    #define DIM_TITOLO 10                                   //dimensione del titolo
+    #define LARGH_FROGGER 94                                //larghezza scritta frogger
+    #define LARGH_RESURRECTION 155                          //larghezza scritta resurrection
+    #define DIM_DIFFICULT 14                                //altezza cartello difficoltà
+    #define LARGH_DIFFICULT 101                             //larghezza cartello difficoltà
     #define VITE 2                                          //vite iniziali della rana
     #define TEMPO_MAX 90                                    //tempo massimo di gioco
     #define PUNTI1 1500                                     //punti se finisci in 30 secondi
     #define PUNTI2 1000                                     //punti se finisci in 45 secondi
     #define PUNTI3 500                                      //punti se finisci in 60 secondi
-    #define PUNTI4 100
+    #define PUNTI4 100                                      //punti se colpisci una granata
     #define LOADING 1                                       //fase in cui il coccodrillo sta per sparare
     #define UNLOADING 0                                     ///fase in cui non sta per sparare 
 ///fine dichiarazione macro di gioco
 
 //velocità a cui possono andare le entità
-    #define VEL1 13000
-    #define VEL2 15000
-    #define VEL3 17000
+    #define VEL1 13000                                      //velocità massima
+    #define VEL2 15000                                      //velocità media
+    #define VEL3 17000                                      //velocità minima
     #define VEL_BULLET 2000
 //fine velocità a cui possono andare le entità
 
 //coordinate y delle corsie
-#define CORSIA1Y (DIM_FIUME - DIM_RANA)
-#define CORSIA2Y (DIM_FIUME - (DIM_RANA*2))
-#define CORSIA3Y (DIM_FIUME - (DIM_RANA*3))
-#define CORSIA4Y (DIM_FIUME - (DIM_RANA*4))
-#define CORSIA5Y (DIM_FIUME - (DIM_RANA*5))
-#define CORSIA6Y (DIM_FIUME - (DIM_RANA*6))
-#define CORSIA7Y (DIM_FIUME - (DIM_RANA*7))
-#define CORSIA8Y (DIM_FIUME - (DIM_RANA*8))
+#define CORSIA1Y (DIM_FIUME - DIM_RANA)                     //coordinata y della corsia 1
+#define CORSIA2Y (DIM_FIUME - (DIM_RANA*2))                 //coordinata y della corsia 2
+#define CORSIA3Y (DIM_FIUME - (DIM_RANA*3))                 //coordinata y della corsia 3
+#define CORSIA4Y (DIM_FIUME - (DIM_RANA*4))                 //coordinata y della corsia 4
+#define CORSIA5Y (DIM_FIUME - (DIM_RANA*5))                 //coordinata y della corsia 5
+#define CORSIA6Y (DIM_FIUME - (DIM_RANA*6))                 //coordinata y della corsia 6
+#define CORSIA7Y (DIM_FIUME - (DIM_RANA*7))                 //coordinata y della corsia 7
+#define CORSIA8Y (DIM_FIUME - (DIM_RANA*8))                 //coordinata y della corsia 8
 ///fine dichiarazione macro
 
 
@@ -121,7 +120,7 @@
     #define TANA_NERO_CHIARO 40
     #define TANA_NERO 41
 
-    //colori per i PROIETITLI
+    //colori per i PROIETTILI
     #define BULLET_GREY 43
     #define BULLET_GREEN 44
     #define BULLET_YELLOW_1 45
@@ -166,12 +165,16 @@ typedef enum {CORSIA1 = 1, CORSIA2, CORSIA3, CORSIA4, CORSIA5, CORSIA6, CORSIA7,
 //tipo che gestisce le enumerazioni delle tane
 typedef enum {TANA_MISS = -1, NON_IN_TANA = 0, TANA1 = 1, TANA2, TANA3, TANA4, TANA5} Tane;
 
-typedef enum {TO_RIGHT = 1, TO_LEFT = -1} Direction;    //tipo che gestisce le enumerazioni delle direzioni
+//tipo che gestisce le enumerazioni delle direzioni
+typedef enum {TO_RIGHT = 1, TO_LEFT = -1} Direction;
 
+//comandi che immette l'utente
 typedef enum {DEFENCE = ' ', PAUSE = 'p', QUIT = 'q', RIPRENDI = 'r'} Comamnds;
 
+//tipo che gestisce le enumerazioni delle difficoltà
 typedef enum {HARD = 1, MEDIUM, EASY} Difficulties;
 
+//tipo che definisce la struttura delle coordinate
 typedef struct Coordinate{
     int y;              //coordinata y
     int x;              //coordinata x
@@ -194,6 +197,7 @@ typedef struct Frog{
     int vite;           //vite della rana
 }Frog;
 
+//tipo che definisce la struttura del proiettile
 typedef struct Bullet{
     pid_t pid;
     Coordinate coord;
@@ -204,9 +208,9 @@ typedef struct Bullet{
 typedef struct Message{
     int id;             //id del mittente del messaggio  
     Types tipo;         //tipo del mittente del messaggio che può essere RANA, COCCODRILLO, SPARO, o GRANATA
-    Crocodile croc;
-    Bullet bullet;
-    Frog frog;
+    Crocodile croc;     //caratteristiche del coccodrillo, se presente
+    Bullet bullet;      //caratteristiche del proiettile, se presente
+    Frog frog;          //caratteristiche della rana, se presente
     int scelta;         //scelta direzione del mittente o direzione coccodrillo(geneato casualmente)
 }Message;
 ///fine dichiarazione strutture

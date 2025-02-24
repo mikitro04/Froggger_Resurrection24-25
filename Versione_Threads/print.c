@@ -10,6 +10,28 @@ ooooooooo.   oooooooooooo ooooo      ooo oooooooooo.   oooooooooooo ooooooooo.  
 o888o  o888o o888ooooood8 o8o        `8  o888bood8P'   o888ooooood8 o888o  o888o o888o o8o        `8   `Y8bood8P'   
 */
 
+ /**
+ * @brief Questa funzione è cruciale: permette oltre che stampare tutti gli elementi in gioco, di gestirne la collisione, e la fine della partita e/o della manche
+ * ATTENZIONE : questa funzione viene richiamata solo dal processo padre (di tutti) e legge dalla pipe1 tutte le posizioni aggiornate dei figli e scrive sulla pipe2 la nuova posizione della rana quando essa si muove al di sopra di un coccodrillo
+ * @param punteggio Finestra di gioco su cui vive il punteggio
+ * @param gioco Finestra di gioco su cui vive la rana e le sue granate
+ * @param statistiche Finestra di gioco su cui vivono le statistiche (Vite a SX e tempo a DX)
+ * @param tane Sottofinestra di gioco su cui vivono le tane
+ * @param spondaSup Sottofinestra di gioco su cui vive la sponda superiore
+ * @param fiume Sottofinestra di gioco su cui vivono i coccodrilli e i loro proiettili
+ * @param spondaInf Sopttofinestra di gioco su cui vive la sponda inferiore
+ * @param vite Sottofinestra di statistiche su cui vivono le vite
+ * @param tempo Sottofinestra di statistiche su cui vive il tempo
+ * @param msg Messaggio che riceve dalla pipe1 le posizioni aggiornate dei figli
+ * @param viteTmp Numero di vite attuali, passate come puntatore dal main in base alla difficoltà, queste verranno aggiornate all'interno di questa funzione solo quando la rana perde effettivamente una vita
+ * @param arrCroc Array ausiliario di coccodrilli che viene aggiornato ad ogni lettura in base all'ID del coccodrillo
+ * @param frogPid Pid del processo rana, utile per la SIGKILL o SIGSTOP
+ * @param taneLibere Array di booleani che indica se una tana è libera o meno
+ * @param score Punteggio, passato come parametro dal main, che verrà aggiornato in base alle scelte e skills del player
+ * @param difficulty Difficoltà del gioco, passata come parametro dal main, che influisce sul punteggio finale e sul tempo
+ * @return true Se la partita deve continuare (booleano all'interno di una condizione di un while)
+ * @return false Se la partita deve terminare (booleano all'interno di una condizione di un while)
+ */
 bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup, WINDOW *fiume, WINDOW *spondaInf, WINDOW *statistiche, WINDOW *vite, WINDOW *tempo, Crocodile arrCroc[MAX_CROC], Message msg, bool taneLibere[NUM_TANE], Difficulties difficulty, int *viteTmp, int *score){
     /*SPRITE DELLA RANA, DEL CROC E DEL BULLET*/
     int frog[DIM_RANA][LARGH_RANA] = {
@@ -40,18 +62,25 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         BULLET_YELLOW_2, BULLET_YELLOW_1, BULLET_GREEN
     };
 
+    //interi
     int counter = 0, cCorsie[NUM_CORSIE] = {0};
 
+    //scelta dell'utente
     char chose;
 
+    //stampo la tana
     printTane(tane, 0, 0, taneLibere);
 
+    //booleani
     bool running = true, granadeSX = false, granadeDX = false, alive = true;
 
+    //finestra della pausa
     WINDOW *winPausa;
 
+    //variabili del tempo
     time_t start = time(NULL), now = time(NULL), tempoTrascorso = 0, tempoPrec = -1;
 
+    //pthread_t
     pthread_t idPrjEl = -1, myId = pthread_self(), frogID = -1;
 
     pthread_t idPrjCroc[MAX_CROC];
@@ -59,8 +88,10 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         idPrjCroc[i] = -1;
     }
 
+    //coordinate ausiliari della rana
     Coordinate ranaStartYX = {DIM_GIOCO - DIM_RANA, COLS/2};
 
+    //variabili di appoggio per la granata
     Bullet auxGranadeSX;
         auxGranadeSX.threadID = -1;
         auxGranadeSX.coord.y = -1;
@@ -71,24 +102,33 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         auxGranadeDX.coord.y = -1;
         auxGranadeDX.coord.x = COLS;
     
+    //stampo la rana
     printFrog(gioco, ranaStartYX.y, ranaStartYX.x, frog);
 
+    //inizializzo il messaggio per la rana
     Message newPosFrog;
         newPosFrog.frog.coord = ranaStartYX;
 
+    //stampo le vite
     printVite(vite, 1, 0, *viteTmp);
 
+    //stampo il punteggio
     printScore(punteggio, score, 2, 0);
 
+    //stampo il tempo
     printTempo(tempo, 1, 0, tempoTrascorso, difficulty);
     
+    //ripulisco le finestre
     ripristinaSfondo(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
 
+    //refresho le finestre
     wrefresh(spondaSup);
     wrefresh(fiume);
     wrefresh(spondaInf);
     
+    //ciclo di gioco
     while (running){
+        //se il gioco non è in pausa leggo dal buffer e aggiorno il tempo
         if(!pausa){
             msg = readBuffer();
 
@@ -99,6 +139,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             tempoTrascorso = (now - start);
         }
 
+        //se il tempo trascorso è aggiornato rispetto al tempo precedente
         if(tempoTrascorso != tempoPrec){
             //cancello il tempo
             deleteTempo(tempo, difficulty, tempoTrascorso);
@@ -109,10 +150,13 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
         //il giocatore ha messo in pausa il gioco
         if(msg.scelta == PAUSE && msg.tipo != 0){
+            //reinizializzo il messaggio
             initMessage(&msg);
+            //variabile globale di pausa a true
             pausa = true;
             usleep(5000);
 
+            //creo la finestra di pausa e la stampo
             winPausa = newwin(DIM_BREAK, LARGH_BREAK, (LINES - DIM_BREAK) / 2, (COLS - LARGH_BREAK) / 2);
             printPausa(winPausa, 0, 0);
         }
@@ -121,41 +165,54 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         if(msg.tipo == 0){
             chose = wgetch(winPausa);
             if(chose == RIPRENDI || chose == KEY_LEFT){
+                //riassegno il tempo di inizio così da non far cancellare il tempo trascorso durante la pusa
                 start = time(NULL);
                 start -= tempoTrascorso;
+                //quando pausa è false il gioco riprende
                 pausa = false;
+                //stampo la scelta del giocatore
                 selectButton(winPausa, chose);
                 usleep(75000);
+                //cancello il menu di pausa
                 svuotamenuPausa(winPausa);
                 delwin(winPausa);
             }
         }
 
+        //se il messaggio è da parte della RANA (tipo 1)
         if(msg.tipo == RANA){
             frogID = msg.frog.threadID;
 
+            //aggiorno le coordinate della rana
             newPosFrog.frog.coord.x = msg.frog.coord.x;
             newPosFrog.frog.coord.y = msg.frog.coord.y;
 
+            //stampo la rana
             stampaRana(gioco, msg.frog.coord, &ranaStartYX);
             
             wnoutrefresh(gioco);
         }
 
+        //se il giocatore ha premuto ' ' (spazio = DEFENCE), attivo le granate
         if(msg.scelta == DEFENCE){
             granadeDX = true;
             granadeSX = true;
         }
 
+        //se il messaggio è di tipo 2 (COCCODRILLO)
         if(msg.tipo == COCCODRILLO){
+            //aggiorno l'array ausiliario dei coccodrilli
             arrCroc[msg.croc.id] = msg.croc;
 
+            //cancello il coccodrillo
             deleteSingleCroc(fiume, arrCroc[msg.croc.id]);
             
+            //stampo il coccodrillo se è all'interno dello schermo
             if (msg.croc.coord.y != -5){
                 gestisciStampaCoccodrillo(msg, fiume);
             }
 
+            //se la rana è sopra il coccodrillo
             if(msg.croc.coord.y == (newPosFrog.frog.coord.y - DIM_RANA - DIM_TANA) && (newPosFrog.frog.coord.x >= msg.croc.coord.x && (newPosFrog.frog.coord.x + DIM_RANA) < msg.croc.coord.x + DIM_COCCODRILLO)){
                 deleteFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
 
@@ -164,10 +221,13 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
                 newPosFrog.tipo = RANA;
                 newPosFrog.croc.speed = msg.croc.speed;
 
+                //aggiorno la posizione della rana
                 ranaStartYX = newPosFrog.frog.coord;
 
+                //scrivo alla rana la sua nuova posizione
                 writeBuffer2(newPosFrog.frog.coord);
 
+                //stampo la rana
                 printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
             }
 
@@ -231,13 +291,17 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
                     pthread_cancel(msg.bullet.threadID);
                     pthread_join(msg.bullet.threadID, NULL);
                     ended1 = true;
+                    granadeSX = false;
                 }
                 if(msg.bullet.coord.x >= auxGranadeDX.coord.x && msg.bullet.coord.x <= (auxGranadeDX.coord.x + LARGH_GRANATA)){
                     pthread_cancel(msg.bullet.threadID);
                     pthread_join(msg.bullet.threadID, NULL);
                     ended2 = true;
+                    granadeDX = false;
                 }
-                *score += 100;
+                deleteGranade(gioco, auxGranadeSX.coord.y, auxGranadeSX.coord.x, spriteGranata);
+                deleteGranade(gioco, auxGranadeDX.coord.y, auxGranadeDX.coord.x, spriteGranata);
+                *score += PUNTI4;
             }
         
             // Verifico l'uscita dallo schermo del proiettile
@@ -250,7 +314,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
         }
 
         if (((newPosFrog.frog.coord.y < DIM_GIOCO - DIM_RANA) && (newPosFrog.frog.coord.y > DIM_TANA)) || tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) >= COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
-            if(!frogOnCroc(newPosFrog.frog.coord, arrCroc) ||  tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
+            if(/*!frogOnCroc(newPosFrog.frog.coord, arrCroc) ||  */tempoTrascorso == (TEMPO_MAX - (20 * (3 - difficulty))) || (ranaStartYX.x + LARGH_RANA) > COLS || ranaStartYX.x < 0 || frogInTana(newPosFrog.frog.coord, taneLibere) == TANA_MISS || !alive){
                 
                 fineManche = true;
 
@@ -264,7 +328,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
 
                 running = false;
                 
-                //aggiorno tutto lo schermo
+                //ripuliamo tutto lo schermo
                 werase(punteggio);
                 werase(spondaSup);
                 werase(fiume);
@@ -317,6 +381,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             return true;
         }
         
+        //se durante la pausa il giocatore preme 'q' (QUIT) esco dal gioco
         if(chose == QUIT){
             selectButton(winPausa, chose);
             usleep(80000);
@@ -330,6 +395,7 @@ bool rendering(WINDOW *punteggio, WINDOW *gioco, WINDOW *tane, WINDOW *spondaSup
             return false;
         }
 
+        //se il gioco è in esecuzione stampo la rana
         if(!pausa){
             printFrog(gioco, newPosFrog.frog.coord.y, newPosFrog.frog.coord.x, frog);
         }
@@ -349,6 +415,14 @@ ooooooooo.         .o.       ooooo      ooo       .o.
  888  `88b.   .8'     `888.   8       `888   .8'     `888.  
 o888o  o888o o88o     o8888o o8o        `8  o88o     o8888o 
 */
+
+/**
+ * @brief funzione che permette di cancellare la rana nella posizione precedente e ristamparla nella nuova posizione
+ * La funzione è composta dello sprite della rana, le coordinate vecchie che verranno poi aggiornate, le nuove coordinate e le finestre su cui opera
+ * @param gioco Finestra di gioco su cui vive la rana
+ * @param newCoord Messaggio contenente principalmente le nuove coordinate della rana
+ * @param ranaYX Vecchie coordinate della rana che verranno poi aggiornate (puntatore)
+ */
 void stampaRana(WINDOW *gioco, Coordinate newCoord, Coordinate *ranaYX){
     
     //matrice rana colorata
@@ -1511,10 +1585,10 @@ o888o        o88o     o8888o    `YbodP'    8""88888P'  o88o     o8888o
 
 /**
  * @brief Funzione che permette di stampare il menù di pausa
- * 
- * @param win 
- * @param y 
- * @param x 
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il menù di pausa
+ * @param y Coordinata y in cui stampare il menù di pausa
+ * @param x Coordinata x in cui stampare il menù di pausa
  */
 void printPausa(WINDOW *win, int y, int x){
     
@@ -1607,6 +1681,13 @@ void svuotamenuPausa(WINDOW *win){
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che permette di stampare il cartello di resume
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il cartello
+ * @param y Coordinata y su cui stampare il cartello
+ * @param x Coordinata x su cui stampare il cartello
+ */
 void printSignResume(WINDOW *win, int y, int x){
     int resume[DIM_CARTEL][LARGH_CARTEL]={
         {FROG_MEDIUM_GREEN1,	FROG_DARK_GREEN,	10,	FROG_DARK_GREEN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	10,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	FROG_DARK_GREEN,	10,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN},
@@ -1647,6 +1728,13 @@ void printSignResume(WINDOW *win, int y, int x){
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che permette di stampare il cartello di quit
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il cartello
+ * @param y Coordinata y su cui stampare il cartello
+ * @param x Coordinata x su cui stampare il cartello
+ */
 void printSignQuit(WINDOW *win, int y, int x){
     int spriteQuit[DIM_CARTEL][LARGH_CARTEL - 1] = {
         {FROG_MEDIUM_GREEN2,	FROG_MEDIUM_GREEN1,	FROG_DARK_GREEN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN1,	BREAK_MEDIUM_BROWN,	FROG_DARK_GREEN,		BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN,	FROG_MEDIUM_GREEN2,	BREAK_MEDIUM_BROWN,	BREAK_MEDIUM_BROWN, BREAK_MEDIUM_BROWN},
@@ -1672,6 +1760,12 @@ void printSignQuit(WINDOW *win, int y, int x){
     wrefresh(win);
 }
 
+/**
+ * @brief Funzione che permette di stampare la selezione del giocatore dal menù di pausa
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare la selezione
+ * @param button Scelta del giocatore
+ */
 void selectButton(WINDOW *win, int button){
 
     //sprite dei RESUME illuminato
@@ -1746,6 +1840,15 @@ oo     .d8P      888       .8'     `888.   888  `88b.       888
 8""88888P'      o888o     o88o     o8888o o888o  o888o     o888o     
 */
 
+/**
+ * @brief Funzione che permette di stampare il titolo del gioco e i cartelli delle difficoltà
+ * La funzione serve solo per rendere più leggibile il codice e per per ovviare ripetuti cicli for o dichiarazioni di sprite all'interno del codice
+ * @param win Finestra su cui stampare il titolo
+ * @param yFrogger Coordinata y su cui stampare Frogger
+ * @param xFrogger Coordinata x su cui stampare Frogger
+ * @param yResurrection Coordinata y su cui stampare Resurrection
+ * @param xResurrection Coordinata x su cui stampare Resurrection
+ */
 void printStart(WINDOW *win, int yFrogger, int xFrogger, int yResurrection, int xResurrection){
     int frogger[DIM_TITOLO][LARGH_FROGGER] ={
 
@@ -1795,6 +1898,4 @@ void printStart(WINDOW *win, int yFrogger, int xFrogger, int yResurrection, int 
             }
         }
     }
-
-
 }

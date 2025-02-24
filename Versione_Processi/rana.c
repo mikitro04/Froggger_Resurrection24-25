@@ -144,22 +144,28 @@ void initializeFrog(Frog *frog, Coordinate startYX){
  * @return int -1 -> La Rana non è in nessuna tana, 0 -> La Rana è entrata male nelle tane, > 0 -> La Rana è entrata correttamente nella tana
  */
 int frogInTana(Coordinate frog, bool taneLibere[NUM_TANE]) {
+    //calcolo della distanza dinamicamente in base alla dimensione della finestra
     int distanceX = returnDistance();
 
+    //calcolo delle coordinate di inizio e fine di ogni tana
     int startTana, endTana;
 
+    //se la rana è fuori dalla finestra delle tane
     if (frog.y >= DIM_TANA) {
         return NON_IN_TANA;
     }
 
+    //controllo una volta che la rana è nella finestra delle tane
     for (int i = 0; i < NUM_TANE; i++) {
         startTana = (i * (LARGH_TANA + distanceX)) + (distanceX / 2);
         endTana = startTana + LARGH_TANA;
 
+        //ritorno della tana in cui la rana è entarta
         if ((frog.x >= startTana && (frog.x + LARGH_RANA) <= endTana) && taneLibere[i]) {
             return TANA1 + i;
         }
     }
 
+    //nel caso non sia entrata in una tana (ha preso il muro)
     return TANA_MISS;
 }

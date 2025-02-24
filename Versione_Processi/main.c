@@ -3,14 +3,16 @@
 const char *path = "./resize.sh";
 
 int main() {
-
+    //ridimensiono il terminale
     system(path);
 
+    //attendo 1 secondo per evitare che il terminale si ridimensioni mentre il gioco è in esecuzione
     sleep(1);
 
     //seed
     srand(time(NULL));
 
+    //inizializzazione ncurses
     initscr(); cbreak(); curs_set(0); noecho(); start_color();
 
     //finestre
@@ -35,18 +37,23 @@ int main() {
     Crocodile arrCroc[MAX_CROC];
 
     Message figlio, msg;
-     
+    
+    //inizializzo i colori
     initializeColorSprite();
 
+    //inizializzo le finestre
     start(&punteggio, &gioco, &statistiche, &tane, &spondaSup, &fiume, &spondaInf, &vite, &tempo);
 
+    //abilito il keypad
     keypad(gioco, TRUE);
     keypad(stdscr, TRUE);
     nodelay(gioco, TRUE);
     nodelay(stdscr, TRUE);
 
+    //stampa il menu
     printMod();
 
+    //scelta della difficoltà
     while(go){
         chose = getch();
         if(chose == '1' || chose == '2' || chose == '3'){
@@ -60,9 +67,10 @@ int main() {
         }
     }
 
+    //stampa la difficoltà scelta
     printSelectedDiff(difficulty);
 
-    //viteTmp = VITE + difficulty;
+    //imposto le vite
     if(difficulty == EASY){
         viteTmp = 5;
     }else if(difficulty == MEDIUM){
@@ -71,20 +79,26 @@ int main() {
         viteTmp = 1;
     }
 
+    //pulisco lo schermo
     bkgd(EYE_BLACK);
     refresh();
 
+    //ciclo di una manche
     while(run && viteTmp > 0 && atLeastOneTrue(taneLibere, NUM_TANE)){
-
+        //inizializzo il counter delle corsie
         initIntArray(cCorsie, NUM_CORSIE);
 
+        //inizializzo la rana
         initializeFrog(&rana, startYX);
 
+        //inizializzo i messaggi
         initMessage(&figlio);
         initMessage(&msg);
         
+        //inizializzo l'array dei coccodrilli
         initializeArrCroc(arrCroc, MAX_CROC);
         
+        //creo le pipe
         if(pipe(pipe_fds) == -1) {
             perror("Pipe call");
             exit(1);
@@ -118,9 +132,13 @@ int main() {
         }
     }
 
+    //stampo per l'ultima volta le tane aggiornate
     printTane(tane, 0, 0, taneLibere);
+
+    //calcolo la giustifica per centrare lo score
     giustifica = giustificaPunteggio(score);
     
+    //stampo il risultato finale (vittoria o sconfitta)
     if(allFalse(taneLibere, NUM_TANE)){
         printWin(fiume, DIM_RANA, ((COLS / 2) - (LARGH_WIN / 2)));
         printFrogWin(fiume, DIM_RANA + DIM_WIN + 3, ((COLS / 2) - (WINNER_FROG_LARGH / 2)));
@@ -134,11 +152,14 @@ int main() {
     }
     sleep(3);
     
+    //chiudo le pipe per l'ultima volta
     close(pipe_fds[0]);
     close(pipe_fds2[1]);
 
+    //chiudo ncurses
     endwin();
 
+    //ridimensiono il terminale
     system("./ctrResize.sh");
     
     return 0;

@@ -4,7 +4,18 @@ bool ended1 = false;
 
 bool ended2 = false;
 
+/**
+ * @brief thread che si occupa di muovere la rana e generare i thread granata. Ogni volta che il giocatore da un imput di movimento, le coordinate vengono aggiornate 
+ * e inviate alla funzione di rendering. Quando il giocatore preme space vengono generati i threads granata che fino a quando non termineranno entrambe, 
+ * non se ne potranno generare delle altre.
+ * @param msg contiene tutte le coordinate e valori aggiornate che verranno inviati nel buffer 
+ * @param auxFrog fa il cast dei parametri passati alla creazione del thread
+ * @param prec si salva le coordinate ogni volta che quelle principali della rana vengono modificate
+ * @param BulletCord si occupa di passare le coordinate di spown e la direzione per i threads granata
+ * @param newPosFrog si salva le coordinate aggiornate che vengono inviate dzlla funzione di rendering
 
+ * @return void* 
+ */
 void* muoviRana(void* threadFrog){
 
     Message msg;
@@ -13,13 +24,13 @@ void* muoviRana(void* threadFrog){
 
     msg.tipo = RANA;
     msg.frog = *auxFrog; 
-    //msg.frog.threadID = pthread_self();
     msg.scelta = 0;
     bool running = true;
     bool shootPermission = true;
     
     Bullet BulletCord[NUM_GRANATE];
 
+    //inizializza la finestra per gli imput
     WINDOW *win = newwin( 0, 0, DIM_STATS, 0);
 
     keypad(win, TRUE);
@@ -28,40 +39,39 @@ void* muoviRana(void* threadFrog){
 
     while(running){
         
+        //se finisce la partita termina il thread
         if(fineManche){
             return NULL;
         }
 
+        //prende gli imput
         msg.scelta = wgetch(win);
 
+        //aggiorna le cordinate in base all'imput direzionale ricevuto
         joystickRana(&msg.frog.coord.y, &msg.frog.coord.x, DIM_GIOCO, msg.scelta);
 
+        //se è stato dato un qualsiasi imput di movimento, la posizione della rana aggiornata viene inviata al consumatore
         if(msg.frog.coord.y != prec.y || msg.frog.coord.x != prec.x || msg.scelta == DEFENCE || msg.scelta == PAUSE || /*msg.frog.coord.x < 0 || msg.frog.coord.x + LARGH_RANA > COLS || */ranaColpita(msg.frog.coord)){
             writeBuffer(msg);
+            //le cordinate di prec vengono aggiornte con quelle attuali
             prec = msg.frog.coord;
         }
 
-        // if (pthread_tryjoin_np(BulletCord[0].threadID, NULL) == 0){
-        //     ended1 = true;
-
-        // }
-
-        // if (pthread_tryjoin_np(BulletCord[1].threadID, NULL) == 0){
-        //     ended2 = true;
-        // }
-
+        //se entrambi i processi granata terminano
         if (ended1 && ended2){
             shootPermission = true;
             ended1 = false;
             ended2 = false;
         }
 
-
+        //se viene dato l'imput di sparo e c'è il booleano settato a true, vengono genrati i processi granata 
         if(msg.scelta == DEFENCE && shootPermission){
             
+            //si assegnano le coordinate di spown 
             BulletCord[0].coord = msg.frog.coord;
             BulletCord[1].coord = msg.frog.coord;
 
+            //si assegna la direzione che dovrà seguire la granata 
             BulletCord[0].dir = TO_LEFT;
             BulletCord[1].dir = TO_RIGHT;
 
@@ -70,22 +80,16 @@ void* muoviRana(void* threadFrog){
             shootPermission = false;
         }
 
+        //viene consumato il prodotto dal buffer
         newPosFrog = readBuffer2();
-        //if (onCroc){
-        //msg.frog.coord = newPosFrog;
-        //}
-
+     
+        //se effettivamente è stato inviato un prodotto da consumare, vengono aggiornate le coordiante 
         if (newPosFrog.y != -1){
             msg.frog.coord.x = newPosFrog.x;
             prec = msg.frog.coord;
         }
 
-        // if(newPosFrog.x != -1 && newPosFrog.y != -1){
-        //     msg.frog.coord = newPosFrog;
-        //     prec = newPosFrog;
-        // }
-
-        //usleep(1000);
+       
     }
 }
 
@@ -164,6 +168,13 @@ int frogInTana(Coordinate frog, bool taneLibere[NUM_TANE]) {
     return TANA_MISS;
 }
 
+/**
+ * @brief Funzione che permette di verificare se la rana è stata colpita da un proiettile
+ * Questa funzione serve solo per rendere più leggibile il codice e per ovviare ripetuti cicli for
+ * @param frog Coordinate della rana
+ * @return true Se la rana è stata colpita
+ * @return false Se la rana non è stata colpita
+ */
 bool ranaColpita(Coordinate frog){
     for (int i = 0; i < MAX_CROC; i++){
         if(arrBullet[i].id != -1){
