@@ -1,5 +1,5 @@
-frogger.out: main.o inizializzazione.o colors.o rana.o coccodrillo.o print.o tane.o proiettile.o score.o menu.o
-	gcc main.o inizializzazione.o tane.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o menu.o -o frogger.out -lncurses -lpthread -lm -lrt
+frogger.out: main.o inizializzazione.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o menu.o
+	gcc main.o inizializzazione.o colors.o rana.o coccodrillo.o print.o proiettile.o score.o menu.o -o frogger.out -lncurses -lpthread -lm -lrt
 
 main.o: funzioni.h main.c  preProcessing.h
 	gcc -c main.c -o main.o
@@ -12,9 +12,6 @@ score.o: funzioni.h score.c preProcessing.h
 
 proiettile.o: funzioni.h proiettile.c preProcessing.h
 	gcc -c proiettile.c -o proiettile.o
-
-tane.o: funzioni.h tane.c preProcessing.h
-	gcc -c tane.c -o tane.o
 
 coccodrillo.o: funzioni.h coccodrillo.c preProcessing.h
 	gcc -c coccodrillo.c -o coccodrillo.o
