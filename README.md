@@ -6,7 +6,7 @@
 
 L'obiettivo del gioco è aiutare la rana ad attraversare la strada e il fiume per raggiungere le tane, evitando ostacoli come automobili e coccodrilli!  
 
-🔹 **Sviluppato in collaborazione con Nicolò Loi**  
+🔹 **Sviluppato in collaborazione con Nicolò Loi**    https://github.com/G1MB0
 
 ---
 
