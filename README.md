@@ -14,11 +14,11 @@ L'obiettivo del gioco è aiutare la rana ad attraversare la strada e il fiume pe
 
 Il gioco è disponibile in **due implementazioni**:  
 
-1️⃣ **Versione con Processi** 🏗️  
+1️⃣ **Versione con Processi**   
    - Utilizza la creazione di **processi separati** per gestire i vari elementi del gioco.  
    - Maggiore isolamento tra le parti, ma più consumo di risorse.  
 
-2️⃣ **Versione con Thread** 🔄  
+2️⃣ **Versione con Thread**   
    - Utilizza **thread concorrenti** per una gestione più leggera dei processi di gioco.  
    - Maggiore efficienza nell'uso delle risorse, ma con gestione della sincronizzazione.  
 
