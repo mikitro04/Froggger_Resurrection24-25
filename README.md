@@ -58,8 +58,8 @@ make clean
 ```
 🎮 Controlli di Gioco
 Tasto	Azione
-⬆️ **Freccia Su**	Salta in avanti
-⬇️ **Freccia Giù**	Salta indietro
-⬅️ **Freccia Sinistra**	Spostati a sinistra
-➡️ **Freccia Destra**	Spostati a destra
-❌ Q	Esci dal gioco
+⬆️ **Freccia Su**	Salta in avanti; 
+⬇️ **Freccia Giù**	Salta indietro; 
+⬅️ **Freccia Sinistra**	Spostati a sinistra; 
+➡️ **Freccia Destra**	Spostati a destra; 
+❌ Q	Esci dal gioco.
