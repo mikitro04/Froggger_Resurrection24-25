@@ -26,7 +26,8 @@ Il gioco è disponibile in **due implementazioni**:
 
 Entrambe le versioni condividono la seguente struttura di file:  
 
-📦 Frogger Resurrection ┣ 📜 coccodrillo.c # Logica dei coccodrilli ┣ 📜 colors.c # Gestione dei colori ┣ 📜 colors.o
+📦 Frogger Resurrection 
+┣ 📜 coccodrillo.c # Logica dei coccodrilli ┣ 📜 colors.c # Gestione dei colori ┣ 📜 colors.o
 ┣ 📜 funzioni.h # Header con funzioni condivise ┣ 📜 main.c # File principale ┣ 📜 menu.c # Gestione del menu di gioco ┣ 📜 print.c # Rendering con ncurses ┣ 📜 proiettile.c # Logica dei proiettili ┣ 📜 rana.c # Controllo della rana ┣ 📜 score.c # Sistema di punteggio ┣ 📜 start.c # Logica di avvio del gioco ┣ 📜 preProcessing.h # Pre-elaborazione delle risorse ┣ 📜 Makefile # Script per la compilazione ┣ 📜 frogger.out # Eseguibile del gioco ┣ 📜 resize.sh # Script di ridimensionamento (NON eseguibile di default) ┣ 📜 ctrResize.sh # Script di controllo del ridimensionamento (NON eseguibile di default) ┗ 📜 README.md # Questo file!
 
 go
@@ -58,8 +59,4 @@ make clean
 ```
 🎮 Controlli di Gioco
 Tasto	Azione
-⬆️ **Freccia Su**	Salta in avanti; 
-⬇️ **Freccia Giù**	Salta indietro; 
-⬅️ **Freccia Sinistra**	Spostati a sinistra; 
-➡️ **Freccia Destra**	Spostati a destra; 
-❌ Q	Esci dal gioco.
+⬆️ **Freccia Su** Salta in avanti; ⬇️ **Freccia Giù** Salta indietro; ⬅️ **Freccia Sinistra** Spostati a sinistra; ➡️ **Freccia Destra** Spostati a destra; 💣 **Spazio** Spara due bombe a destra e a sinistra; ⏸️ **P** Metti in pausa il gioco; ▶️ **R** Riprendi il gioco; ❌ **Q** Esci dal gioco.
