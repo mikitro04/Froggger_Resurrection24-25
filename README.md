@@ -41,12 +41,16 @@ Di default, gli script `resize.sh` e `ctrResize.sh` **non sono eseguibili**. Per
 chmod +x resize.sh ctrResize.sh
 ```
 🛠️ Installazione e Compilazione
+
 🔹 Requisiti
+
 Prima di iniziare, assicurati di avere:
 
 Un sistema Linux/macOS con GCC installato
 La libreria ncurses (libncurses-dev)
+
 🔹 Compilazione ed Esecuzione
+
 Apri un terminale nella cartella del progetto ed esegui:
 
 ```sh
