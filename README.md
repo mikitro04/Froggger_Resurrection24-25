@@ -27,12 +27,12 @@ Il gioco è disponibile in **due implementazioni**:
 Entrambe le versioni condividono la seguente struttura di file:  
 
 📦 Frogger Resurrection 
-📜 File C:
-- coccodrillo.c, main.c, print.c, rana.c, start.c, colors.c, menu.c, proiettile.c, score.c
-📜 File Header:
-- funzioni.h, preProcessing.h
-📜 File Bash:
-- ctrResize.sh, resize.sh
++ 📜 File C:
+   - coccodrillo.c, main.c, print.c, rana.c, start.c, colors.c, menu.c, proiettile.c, score.c
++ 📜 File Header:
+   - funzioni.h, preProcessing.h
++ 📜 File Bash:
+   - ctrResize.sh, resize.sh
 
 go
 Copia
