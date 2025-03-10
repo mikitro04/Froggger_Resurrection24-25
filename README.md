@@ -34,10 +34,6 @@ Entrambe le versioni condividono la seguente struttura di file:
 + 📜 File Bash:
    - ctrResize.sh, resize.sh
 
-go
-Copia
-Modifica
-
 ⚠️ **Attenzione:**  
 Di default, gli script `resize.sh` e `ctrResize.sh` **non sono eseguibili**. Per renderli eseguibili, usa:  
 
@@ -62,5 +58,11 @@ Se vuoi pulire i file .o e l'eseguibile, usa:
 make clean
 ```
 🎮 Controlli di Gioco
-Tasto	Azione
-⬆️ **Freccia Su** Salta in avanti; ⬇️ **Freccia Giù** Salta indietro; ⬅️ **Freccia Sinistra** Spostati a sinistra; ➡️ **Freccia Destra** Spostati a destra; 💣 **Spazio** Spara due bombe a destra e a sinistra; ⏸️ **P** Metti in pausa il gioco; ▶️ **R** Riprendi il gioco; ❌ **Q** Esci dal gioco.
+- ⬆️ **Freccia Su** Salta in avanti;
+- ⬇️ **Freccia Giù** Salta indietro;
+- ⬅️ **Freccia Sinistra** Spostati a sinistra;
+- ➡️ **Freccia Destra** Spostati a destra;
+- 💣 **Spazio** Spara due bombe a destra e a sinistra;
+- ⏸️ **P** Metti in pausa il gioco;
+- ▶️ **R** Riprendi il gioco;
+- ❌ **Q** Esci dal gioco.
