@@ -66,3 +66,13 @@ make clean
 - ⏸️ **P** Metti in pausa il gioco;
 - ▶️ **R** Riprendi il gioco;
 - ❌ **Q** Esci dal gioco.
+
+---
+
+## 📜 Licenza
+
+Questo progetto è distribuito sotto la licenza **MIT**.  
+
+Ciò significa che sei libero di utilizzare, modificare e distribuire il codice, purché venga mantenuto il copyright originale.  
+
+Consulta il file [LICENSE](./LICENSE) per maggiori dettagli.
