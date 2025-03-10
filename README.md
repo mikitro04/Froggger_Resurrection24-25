@@ -27,8 +27,12 @@ Il gioco è disponibile in **due implementazioni**:
 Entrambe le versioni condividono la seguente struttura di file:  
 
 📦 Frogger Resurrection 
-┣ 📜 coccodrillo.c # Logica dei coccodrilli ┣ 📜 colors.c # Gestione dei colori ┣ 📜 colors.o
-┣ 📜 funzioni.h # Header con funzioni condivise ┣ 📜 main.c # File principale ┣ 📜 menu.c # Gestione del menu di gioco ┣ 📜 print.c # Rendering con ncurses ┣ 📜 proiettile.c # Logica dei proiettili ┣ 📜 rana.c # Controllo della rana ┣ 📜 score.c # Sistema di punteggio ┣ 📜 start.c # Logica di avvio del gioco ┣ 📜 preProcessing.h # Pre-elaborazione delle risorse ┣ 📜 Makefile # Script per la compilazione ┣ 📜 frogger.out # Eseguibile del gioco ┣ 📜 resize.sh # Script di ridimensionamento (NON eseguibile di default) ┣ 📜 ctrResize.sh # Script di controllo del ridimensionamento (NON eseguibile di default) ┗ 📜 README.md # Questo file!
+📜 File C:
+- coccodrillo.c, main.c, print.c, rana.c, start.c, colors.c, menu.c, proiettile.c, score.c
+📜 File Header:
+- funzioni.h, preProcessing.h
+📜 File Bash:
+- ctrResize.sh, resize.sh
 
 go
 Copia
